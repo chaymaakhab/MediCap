@@ -1,0 +1,36 @@
+# Dependencies
+/node_modules
+/vendor
+/.pnp
+.pnp.js
+
+# Testing & Coverage
+/coverage
+
+# Production Build
+/build
+/dist
+
+# Misc
+.DS_Store
+*.pem
+.env
+.env.backup
+.env.production
+
+# IDEs & Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Flutter & Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+*.lock

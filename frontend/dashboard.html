@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cliniqo Clinical Suite — Dashboard & Practice Matrix</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#005131',
+              primary: '#0e5534',
+              surface: '#176b45',
+              accent: '#88d7a8',
+              light: '#e8f5e9',
+              sidebar: '#fbfcfb'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Clean micro-scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+
+<body class="h-full font-sans text-slate-800 antialiased flex overflow-hidden">
+
+  <!-- ========================================================================= -->
+  <!-- LEFT SIDEBAR (Matching Screenshot 2 & 3) -->
+  <!-- ========================================================================= -->
+  <aside class="w-64 flex-shrink-0 bg-[#f8faf8] border-r border-slate-200/80 flex flex-col justify-between select-none">
+    
+    <div>
+      <!-- Brand Logo Header -->
+      <div class="h-16 px-5 flex items-center justify-between border-b border-slate-200/60">
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <!-- Cliniqo Official Vector Logo -->
+          <div class="w-7 h-7 flex-shrink-0">
+            <svg viewBox="0 0 100 100" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="36" y="8" width="28" height="84" rx="14" fill="#1D70F5"/>
+              <rect x="8" y="36" width="36" height="28" rx="14" fill="#1D70F5"/>
+              <rect x="44" y="36" width="48" height="28" rx="14" fill="#7C3AED"/>
+              <circle cx="50" cy="50" r="14" fill="#5856D6" fill-opacity="0.35"/>
+              <path d="M 60 41.5 C 57.5 39 53.5 38 49 38 C 42 38 37 43 37 50 C 37 57 42 62 49 62 C 53.8 62 57.6 61 60 58.5" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xs font-black tracking-tight text-slate-900 leading-none">CLINIQO</span>
+            <span class="text-[9px] font-bold text-brand-dark uppercase tracking-widest mt-0.5">Clinical Suite</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Tenant & Branch Selector -->
+      <div class="p-3">
+        <div class="bg-white border border-slate-200/80 rounded-xl p-2.5 shadow-xs flex items-center justify-between cursor-pointer hover:border-slate-300 transition-all">
+          <div class="flex items-center gap-2 overflow-hidden">
+            <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-800 flex items-center justify-center flex-shrink-0">
+              <span class="material-symbols-outlined text-[15px]">domain</span>
+            </div>
+            <div class="flex flex-col truncate">
+              <span class="text-xs font-bold text-slate-900 truncate">Grand Central Polyc...</span>
+              <span class="text-[10px] text-slate-500 truncate -mt-0.5">Primary Care Branch</span>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-slate-400 text-[18px]">unfold_more</span>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="px-3 space-y-1 mt-1">
+        
+        <!-- Overview / Dashboard -->
+        <button id="nav-dashboard" onclick="switchView('dashboard')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all bg-emerald-100/60 text-brand-dark shadow-2xs">
+          <span class="material-symbols-outlined text-[18px]">grid_view</span>
+          <span>Overview / Dashboard</span>
+        </button>
+
+        <!-- Appointments & Schedule -->
+        <button id="nav-schedule" onclick="switchView('schedule')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all">
+          <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+          <span>Appointments & Schedule</span>
+        </button>
+
+        <!-- Patients & Records -->
+        <button id="nav-patients" onclick="switchView('patients')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all">
+          <span class="material-symbols-outlined text-[18px]">badge</span>
+          <span>Patients & Records</span>
+        </button>
+
+        <!-- Doctors & Staff -->
+        <button id="nav-staff" onclick="switchView('staff')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all">
+          <span class="material-symbols-outlined text-[18px]">medical_services</span>
+          <span>Doctors & Staff</span>
+        </button>
+
+        <!-- Invoicing & CNSS -->
+        <button id="nav-invoicing" onclick="switchView('invoicing')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all">
+          <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+          <span>Invoicing & CNSS</span>
+        </button>
+
+        <!-- Expenses & Cashflow -->
+        <button id="nav-cashflow" onclick="switchView('invoicing')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all">
+          <span class="material-symbols-outlined text-[18px]">point_of_sale</span>
+          <span>Expenses & Cashflow</span>
+        </button>
+
+        <!-- Reports & Analytics -->
+        <button id="nav-reports" onclick="switchView('dashboard')" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all">
+          <span class="material-symbols-outlined text-[18px]">insights</span>
+          <span>Reports & Analytics</span>
+        </button>
+
+        <!-- Centre Settings -->
+        <button id="nav-settings" onclick="openSettingsModal()" class="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all">
+          <span class="material-symbols-outlined text-[18px]">tune</span>
+          <span>Centre Settings</span>
+        </button>
+
+      </nav>
+    </div>
+
+    <!-- Sidebar Bottom / Version & Emergency Desk -->
+    <div class="p-3 border-t border-slate-200/60 space-y-2">
+      <a href="tel:+212522984400" class="flex items-center justify-between px-3 py-2 rounded-xl bg-rose-50 text-rose-800 hover:bg-rose-100 transition-colors text-xs font-bold">
+        <span>Emergency Help Desk</span>
+        <span class="material-symbols-outlined text-[16px]">call</span>
+      </a>
+      <div class="flex items-center justify-between text-[11px] text-slate-400 px-2 font-medium">
+        <span>v2.8.4 Enterprise</span>
+        <a href="index.html" class="hover:text-brand-dark flex items-center gap-0.5" title="Voir la Landing Page Publique">
+          <span class="material-symbols-outlined text-[14px]">public</span>
+          <span>Site</span>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN WORKSPACE -->
+  <!-- ========================================================================= -->
+  <div class="flex-1 flex flex-col min-w-0 bg-[#fcfdfc] overflow-y-auto custom-scrollbar">
+    
+    <!-- Top Global Header Bar -->
+    <header class="h-16 flex-shrink-0 bg-white border-b border-slate-200/80 px-6 flex items-center justify-between gap-4 sticky top-0 z-30">
+      
+      <!-- Search Input with Keyboard Shortcut -->
+      <div class="relative w-80 sm:w-96">
+        <span class="material-symbols-outlined text-slate-400 text-[18px] absolute left-3 top-2.5">search</span>
+        <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)" placeholder="Search patients, appointments, d..." 
+               class="w-full text-xs pl-9 pr-12 py-2 rounded-xl bg-slate-100/70 border border-transparent focus:border-brand-dark focus:bg-white focus:outline-none transition-all placeholder:text-slate-400"/>
+        <kbd class="absolute right-2.5 top-2.5 px-1.5 py-0.5 text-[10px] font-mono font-bold bg-white border border-slate-200 rounded text-slate-400 shadow-2xs">⌘K</kbd>
+      </div>
+
+      <!-- Header Right Utilities & Profile -->
+      <div class="flex items-center gap-4">
+        
+        <!-- Today Schedule Live Pill -->
+        <button onclick="switchView('schedule')" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-brand-dark text-xs font-semibold hover:bg-emerald-100 transition-all">
+          <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+          <span>Today • Schedule Live</span>
+        </button>
+
+        <!-- Notification Bell with Badge -->
+        <button class="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors" title="Notifications">
+          <span class="material-symbols-outlined text-[20px]">notifications</span>
+          <span class="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">3</span>
+        </button>
+
+        <!-- Doctor Profile with Duty Status -->
+        <div class="flex items-center gap-2.5 pl-2 border-l border-slate-200">
+          <img class="w-9 h-9 rounded-full object-cover ring-2 ring-emerald-500/20" alt="Dr. Sarah Chen" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120"/>
+          <div class="hidden sm:flex flex-col text-left">
+            <span class="text-xs font-bold text-slate-900">Dr. Sarah Chen</span>
+            <span class="text-[10px] text-slate-400 font-medium">Medical Director</span>
+          </div>
+          <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full ml-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+            On Duty
+          </span>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 1: OVERVIEW / DASHBOARD (Screenshot 2) -->
+    <!-- ======================================================================= -->
+    <main id="view-dashboard" class="p-6 max-w-7xl w-full mx-auto space-y-6">
+      
+      <!-- Greeting Header & Action Buttons -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Good morning, Dr. Chen</h1>
+          <div class="flex items-center gap-2.5 text-xs text-slate-500 mt-1">
+            <span class="inline-flex items-center gap-1 text-emerald-600 font-bold">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Centre Live Overview
+            </span>
+            <span>•</span>
+            <span class="font-medium">Grand Central Polyclinic</span>
+            <span>•</span>
+            <span>Friday, Oct 24, 2026</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Compliance Badge -->
+          <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">
+            <span class="material-symbols-outlined text-[16px] text-emerald-700">shield_with_heart</span>
+            HIPAA / GDPR / CNDP Certified
+          </span>
+
+          <!-- Export Report -->
+          <button onclick="exportClinicalReport()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold shadow-2xs">
+            <span class="material-symbols-outlined text-[16px]">file_download</span>
+            Export Report
+          </button>
+
+          <!-- New Appointment Primary CTA -->
+          <button onclick="openNewAppointmentModal()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-dark text-white hover:bg-brand-primary text-xs font-bold shadow-sm transition-all active:scale-98">
+            <span class="material-symbols-outlined text-[18px]">add</span>
+            New Appointment
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Key Metric Cards (Matching Screenshot 2) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Card 1: Appointments Today -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">APPOINTMENTS TODAY</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline gap-2">
+            <span class="text-3xl font-black text-slate-900">38</span>
+            <span class="inline-flex items-center gap-0.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+              <span class="material-symbols-outlined text-[14px]">trending_up</span> +8% vs yday
+            </span>
+          </div>
+          <div class="mt-2 text-xs text-slate-500 font-medium flex items-center gap-1.5">
+            <span class="font-bold text-slate-700">32</span> active (in-progress/done) • <span class="font-bold text-slate-700">6</span> queued
+          </div>
+        </div>
+
+        <!-- Card 2: Patients Checked In -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">PATIENTS CHECKED IN</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <span class="material-symbols-outlined text-[18px]">person_check</span>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline gap-1.5">
+            <span class="text-3xl font-black text-slate-900">29</span>
+            <span class="text-sm font-bold text-slate-400">/ 38 total</span>
+          </div>
+          <div class="mt-2 text-xs text-slate-500 font-medium flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px] text-slate-400">schedule</span>
+            <span>Avg. Consult Duration: </span>
+            <span class="font-bold text-slate-700">22 min</span>
+          </div>
+        </div>
+
+        <!-- Card 3: Payments Collected -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">PAYMENTS COLLECTED</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <span class="material-symbols-outlined text-[18px]">payments</span>
+            </div>
+          </div>
+          <div class="mt-2">
+            <span class="text-3xl font-black text-slate-900">4,850.00 <span class="text-lg font-bold text-slate-500">DH</span></span>
+          </div>
+          <div class="mt-2 text-xs text-slate-500 font-medium flex items-center justify-between">
+            <span>Cash: <strong class="text-slate-800">1.2k</strong></span>
+            <span>POS: <strong class="text-slate-800">2.45k</strong></span>
+            <span>CNSS: <strong class="text-slate-800">1.2k</strong></span>
+          </div>
+        </div>
+
+        <!-- Card 4: Unsettled Claims (CNSS) -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">UNSETTLED CLAIMS</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <span class="material-symbols-outlined text-[18px]">assignment_late</span>
+            </div>
+          </div>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span class="text-3xl font-black text-slate-900">1,180.00 <span class="text-lg font-bold text-slate-500">DH</span></span>
+            <span class="text-xs font-bold text-slate-400">5 dossiers</span>
+          </div>
+          <div class="mt-2 text-xs font-semibold text-rose-600 flex items-center gap-1 truncate">
+            <span class="material-symbols-outlined text-[15px]">priority_high</span>
+            <span class="truncate">Pending CNSS tier-3 validation</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Main Columns Layout: Schedule Stream (Left) + Staff & Triage (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left: Today's Schedule & Patient Stream -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-emerald-50 text-brand-dark flex items-center justify-center">
+                <span class="material-symbols-outlined text-[18px]">calendar_clock</span>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">Today's Schedule & Patient Stream</h3>
+                <p class="text-[11px] text-slate-400">Grand Central Primary Care Unit • Live Tracking</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <div class="inline-flex bg-slate-100 p-0.5 rounded-lg text-xs font-semibold text-slate-600">
+                <button class="px-2.5 py-1 rounded bg-white text-slate-900 shadow-2xs">Day</button>
+                <button class="px-2.5 py-1 hover:text-slate-900">Week</button>
+                <button class="px-2.5 py-1 hover:text-slate-900">Month</button>
+              </div>
+              <button class="p-1 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <span class="material-symbols-outlined text-[18px]">filter_list</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Schedule Item 1: Eleanor Pena (Completed) -->
+          <div class="p-3.5 rounded-xl border border-slate-100 hover:border-slate-200 bg-slate-50/50 hover:bg-white transition-all flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="text-xs font-bold text-slate-700 w-16">09:00 AM</div>
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+              <img class="w-10 h-10 rounded-full object-cover" alt="Eleanor Pena" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120"/>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-slate-900">Eleanor Pena</span>
+                  <span class="text-[11px] text-slate-400">ID #4429</span>
+                </div>
+                <p class="text-[11px] text-slate-500">Routine Cardiology Checkup • Dr. Anil Patel • Room 102</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full">
+                <span class="material-symbols-outlined text-[13px]">check_circle</span> Completed
+              </span>
+              <button class="text-slate-400 hover:text-slate-600 p-1">
+                <span class="material-symbols-outlined text-[18px]">more_vert</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Schedule Item 2: Wade Warren (In Progress) -->
+          <div class="p-3.5 rounded-xl border-2 border-emerald-500/30 bg-emerald-50/20 transition-all flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="text-xs font-bold text-brand-dark w-16">09:45 AM</div>
+              <span class="w-2.5 h-2.5 rounded-full bg-brand-dark animate-ping"></span>
+              <img class="w-10 h-10 rounded-full object-cover" alt="Wade Warren" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120"/>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-slate-900">Wade Warren</span>
+                  <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">ECG Active</span>
+                </div>
+                <p class="text-[11px] text-slate-600">ECG Diagnostics & Rhythm Review • 45 min • Room 204</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-200/70 px-2.5 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> In Progress
+              </span>
+              <button class="text-slate-400 hover:text-slate-600 p-1">
+                <span class="material-symbols-outlined text-[18px]">more_vert</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Interval: Tea Break & Sanitization -->
+          <div class="py-2.5 px-4 rounded-xl bg-slate-100/70 text-slate-500 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-3">
+              <span class="font-bold text-slate-600 w-16">10:15 AM</span>
+              <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+              <span class="flex items-center gap-1.5 font-medium">
+                <span class="material-symbols-outlined text-[16px]">coffee</span> Tea Break & Staff Sync (15 min)
+              </span>
+            </div>
+            <span class="text-[11px] text-slate-400 font-semibold">Sanitization Interval</span>
+          </div>
+
+          <!-- Schedule Item 3: Jacob Jones (Pending) -->
+          <div class="p-3.5 rounded-xl border border-slate-100 hover:border-slate-200 bg-white transition-all flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="text-xs font-bold text-slate-700 w-16">10:30 AM</div>
+              <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+              <img class="w-10 h-10 rounded-full object-cover" alt="Jacob Jones" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120"/>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-slate-900">Jacob Jones</span>
+                  <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded">First Visit</span>
+                </div>
+                <p class="text-[11px] text-slate-500">Initial Internal Consultation • Dr. Sarah Chen • Room 101</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200/50 px-2.5 py-1 rounded-full">
+                <span class="material-symbols-outlined text-[13px]">hourglass_empty</span> Pending
+              </span>
+              <button class="text-slate-400 hover:text-slate-600 p-1">
+                <span class="material-symbols-outlined text-[18px]">more_vert</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Schedule Item 4: Dianne Russell (Confirmed) -->
+          <div class="p-3.5 rounded-xl border border-slate-100 hover:border-slate-200 bg-white transition-all flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="text-xs font-bold text-slate-700 w-16">11:15 AM</div>
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+              <img class="w-10 h-10 rounded-full object-cover" alt="Dianne Russell" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120"/>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-slate-900">Dianne Russell</span>
+                  <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">CNSS 80%</span>
+                </div>
+                <p class="text-[11px] text-slate-500">Post-Surgery Follow-up • Dr. Michael Chen • Room 104</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                <span class="material-symbols-outlined text-[13px]">done</span> Confirmed
+              </span>
+              <button class="text-slate-400 hover:text-slate-600 p-1">
+                <span class="material-symbols-outlined text-[18px]">more_vert</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Reserve Urgent Slot Button -->
+          <div class="pt-2">
+            <button onclick="openNewAppointmentModal('Urgent Add-on')" class="w-full py-2.5 rounded-xl border border-dashed border-slate-300 hover:border-brand-dark text-slate-600 hover:text-brand-dark text-xs font-bold flex items-center justify-center gap-2 transition-colors">
+              <span class="material-symbols-outlined text-[18px]">add</span>
+              Reserve Urgent Add-on Consultation Slot (30 min)
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Right: Staff On-Duty & Clinical Triage Alerts -->
+        <div class="lg:col-span-4 space-y-6">
+          
+          <!-- Staff On-Duty Card -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-brand-dark text-[20px]">groups</span>
+                <h3 class="text-xs font-bold text-slate-900">Staff On-Duty</h3>
+              </div>
+              <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">4 Practicing</span>
+            </div>
+
+            <!-- Staff 1: Dr. Anil Patel -->
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="relative">
+                  <img class="w-9 h-9 rounded-full object-cover" alt="Dr. Anil Patel" src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120"/>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 absolute bottom-0 right-0 ring-2 ring-white"></span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-slate-900">Dr. Anil Patel</p>
+                  <p class="text-[11px] text-slate-400">Cardiologist • Room 102</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-bold text-slate-700">In Consult</span>
+                <p class="text-[10px] text-slate-400">3 queue</p>
+              </div>
+            </div>
+
+            <!-- Staff 2: Dr. Sarah Chen (You) -->
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="relative">
+                  <img class="w-9 h-9 rounded-full object-cover" alt="Dr. Sarah Chen" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120"/>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 absolute bottom-0 right-0 ring-2 ring-white"></span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <p class="text-xs font-bold text-slate-900">Dr. Sarah Chen</p>
+                    <span class="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-1 py-0.2 rounded">You</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400">Medical Director • Room 101</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-bold text-emerald-600">Available</span>
+                <p class="text-[10px] text-slate-400">1 queue</p>
+              </div>
+            </div>
+
+            <!-- Staff 3: Dr. Michael Chen -->
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="relative">
+                  <img class="w-9 h-9 rounded-full object-cover" alt="Dr. Michael Chen" src="https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120"/>
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500 absolute bottom-0 right-0 ring-2 ring-white"></span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-slate-900">Dr. Michael Chen</p>
+                  <p class="text-[11px] text-slate-400">Orthopedics • OR Suite 3</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-bold text-rose-600">In Surgery</span>
+                <p class="text-[10px] text-slate-400">Until 11:30</p>
+              </div>
+            </div>
+
+            <!-- Staff 4: Dr. Amina Ndiaye -->
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="relative">
+                  <img class="w-9 h-9 rounded-full object-cover" alt="Dr. Amina Ndiaye" src="https://images.unsplash.com/photo-1594824813637-440263f9059f?w=120"/>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 absolute bottom-0 right-0 ring-2 ring-white"></span>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-slate-900">Dr. Amina Ndiaye</p>
+                  <p class="text-[11px] text-slate-400">Pediatrics • Room 108</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-xs font-bold text-slate-700">On Duty</span>
+                <p class="text-[10px] text-slate-400">4 queue</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Clinical Triage Alerts Card -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div class="flex items-center gap-2 text-rose-600">
+                <span class="material-symbols-outlined text-[20px]">e911_emergency</span>
+                <h3 class="text-xs font-bold text-slate-900">Clinical Triage Alerts</h3>
+              </div>
+              <span class="text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full">3 Priority</span>
+            </div>
+
+            <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+              <span class="material-symbols-outlined text-[14px] text-emerald-700">lock</span>
+              <span>Access Level: Medical Director (Full Dossier)</span>
+            </div>
+
+            <!-- STAT Alert Banner -->
+            <div class="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-rose-900 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[16px] text-rose-600">warning</span>
+                  Abnormal Potassium Lab
+                </span>
+                <span class="text-[10px] font-bold text-white bg-rose-600 px-1.5 py-0.2 rounded">STAT</span>
+              </div>
+              <p class="text-xs text-slate-700 leading-relaxed">
+                Eleanor Pena (Room 102). Serum K+ <strong>5.8 mEq/L</strong> flagged by Central Pathology.
+              </p>
+              <div class="flex items-center gap-3 pt-1 text-xs font-bold">
+                <button onclick="alert('Viewing Pathology Dossier: Serum Potassium 5.8 mEq/L (Hyperkalemia protocol initialized).')" class="text-rose-700 hover:text-rose-900 underline">
+                  Review Findings
+                </button>
+                <span class="text-slate-300">•</span>
+                <button onclick="alert('Paging Dr. Anil Patel on internal radio...')" class="text-slate-700 hover:text-slate-900">
+                  Page Dr. Patel
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 2: APPOINTMENTS & PRACTITIONER SCHEDULE MATRIX (Screenshot 3) -->
+    <!-- ======================================================================= -->
+    <main id="view-schedule" class="hidden p-6 max-w-7xl w-full mx-auto space-y-6">
+      
+      <!-- Subheader Breadcrumb & Header Title -->
+      <div class="space-y-1">
+        <a href="#" onclick="switchView('dashboard')" class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-brand-dark">
+          <span class="material-symbols-outlined text-[14px]">arrow_back</span>
+          <span>Back to Medical Staff / Schedule Matrix</span>
+        </a>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
+          <div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Appointments & Practitioner Schedule</h1>
+            <p class="text-xs text-slate-500">Manage multi-specialty practitioner timetables, consult slots, room allocation, and patient check-ins.</p>
+          </div>
+
+          <div class="flex items-center gap-2.5">
+            <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs">
+              <span class="material-symbols-outlined text-[16px] text-emerald-700">medical_services</span>
+              <span>Cardiology Dept.</span>
+              <span class="material-symbols-outlined text-[14px]">expand_more</span>
+            </button>
+            <button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs">
+              <span class="material-symbols-outlined text-[16px]">add</span>
+              <span>Add Block / Leave</span>
+            </button>
+            <button onclick="openNewAppointmentModal()" class="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl bg-brand-dark text-white text-xs font-bold shadow-xs hover:bg-brand-primary transition-all">
+              <span class="material-symbols-outlined text-[16px]">add</span>
+              <span>Book Appointment</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Matrix 2-Columns Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Column: Doctor Profile Card, Mini Calendar & Wing Rooms -->
+        <div class="lg:col-span-4 space-y-5">
+          
+          <!-- Doctor Card: Dr. Anil Patel -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col items-center text-center space-y-3">
+            <div class="relative">
+              <img class="w-20 h-20 rounded-2xl object-cover ring-4 ring-emerald-500/10 shadow-xs" alt="Dr. Anil Patel" src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=160"/>
+              <span class="w-3.5 h-3.5 rounded-full bg-emerald-600 absolute -bottom-1 -right-1 ring-2 ring-white"></span>
+            </div>
+
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Dr. Anil Patel</h3>
+              <p class="text-xs text-slate-500">Chief Cardiologist • Room 102</p>
+              <div class="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full mt-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> ON DUTY • CONSULT ACTIVE
+              </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="w-full grid grid-cols-2 gap-3 pt-3 border-t border-slate-100">
+              <div class="p-2 rounded-xl bg-slate-50">
+                <span class="text-xl font-black text-slate-900">8</span>
+                <p class="text-[11px] text-slate-400 font-medium">Patients Today</p>
+              </div>
+              <div class="p-2 rounded-xl bg-slate-50">
+                <span class="text-xl font-black text-slate-900">3h 45m</span>
+                <p class="text-[11px] text-slate-400 font-medium">Available Time</p>
+              </div>
+            </div>
+
+            <button onclick="alert('Messaging channel opened with Dr. Anil Patel.')" class="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 transition-colors">
+              <span class="material-symbols-outlined text-[16px]">chat</span>
+              Send Message
+            </button>
+          </div>
+
+          <!-- Mini Calendar Widget -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 space-y-2">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[18px] text-brand-dark">calendar_today</span>
+                October 2026
+              </span>
+              <div class="flex items-center gap-1 text-slate-400">
+                <button class="hover:text-slate-800"><span class="material-symbols-outlined text-[16px]">chevron_left</span></button>
+                <button class="hover:text-slate-800"><span class="material-symbols-outlined text-[16px]">chevron_right</span></button>
+              </div>
+            </div>
+
+            <!-- Days Grid -->
+            <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-slate-400 pt-1">
+              <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+            </div>
+            <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium text-slate-700">
+              <span class="text-slate-300">28</span><span class="text-slate-300">29</span><span class="text-slate-300">30</span>
+              <span>1</span><span>2</span><span>3</span><span>4</span>
+              <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span>
+              <span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span>
+              <span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+              <span class="w-7 h-7 mx-auto rounded-lg bg-brand-dark text-white font-bold flex items-center justify-center shadow-xs">24</span>
+              <span>25</span>
+              <span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span><span class="text-slate-300">1</span>
+            </div>
+          </div>
+
+          <!-- Cardiology Wing Rooms -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 space-y-2.5">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div class="flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-brand-dark text-[18px]">meeting_room</span>
+                <span class="text-xs font-bold text-slate-900">Cardiology Wing Rooms</span>
+              </div>
+              <span class="text-[10px] font-bold text-slate-400">Wing B • Fl 2</span>
+            </div>
+
+            <div class="space-y-1.5 text-xs font-medium">
+              <div class="p-2 rounded-xl bg-slate-50 flex items-center justify-between">
+                <span class="flex items-center gap-1.5 text-slate-700">
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span> Exam Room 101
+                </span>
+                <span class="text-[11px] text-rose-700 font-bold">Occupied (Dr. Weber)</span>
+              </div>
+              <div class="p-2 rounded-xl bg-emerald-50/60 border border-emerald-200/40 flex items-center justify-between">
+                <span class="flex items-center gap-1.5 text-slate-800">
+                  <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Consult Suite 102
+                </span>
+                <span class="text-[11px] text-emerald-800 font-bold">Active • Dr. Patel</span>
+              </div>
+              <div class="p-2 rounded-xl bg-slate-50 flex items-center justify-between">
+                <span class="flex items-center gap-1.5 text-slate-700">
+                  <span class="w-2 h-2 rounded-full bg-amber-500"></span> ECG Lab B
+                </span>
+                <span class="text-[11px] text-amber-700 font-bold">Sanitizing • 10m left</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Interactive Schedule Timeline Matrix -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
+          
+          <!-- Date & Slot Filters Bar -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-emerald-700 text-[20px]">event</span>
+              <span class="text-sm font-bold text-slate-900">Friday, Oct 24, 2026</span>
+              <div class="flex items-center gap-0.5 text-slate-400 ml-1">
+                <button class="hover:text-slate-800"><span class="material-symbols-outlined text-[16px]">chevron_left</span></button>
+                <button class="hover:text-slate-800"><span class="material-symbols-outlined text-[16px]">chevron_right</span></button>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <div class="inline-flex bg-slate-100 p-0.5 rounded-lg text-xs font-semibold text-slate-600">
+                <button class="px-2.5 py-1 rounded bg-white text-slate-900 shadow-2xs">Day</button>
+                <button class="px-2.5 py-1 hover:text-slate-900">Week</button>
+                <button class="px-2.5 py-1 hover:text-slate-900">Month</button>
+              </div>
+              <button onclick="exportClinicalReport()" class="inline-flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-slate-900 p-1.5 rounded-lg hover:bg-slate-100">
+                <span class="material-symbols-outlined text-[16px]">download</span> Export
+              </button>
+            </div>
+          </div>
+
+          <!-- Slot Status Pills Filter -->
+          <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+            <span class="text-[11px] text-slate-400 font-medium mr-1">Filter Slots:</span>
+            <button class="px-2.5 py-1 rounded-lg bg-brand-dark text-white text-[11px]">All Slots (9)</button>
+            <button class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-[11px]">Completed (1)</button>
+            <button class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-[11px]">In Progress (1)</button>
+            <button class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-[11px]">Waiting Area (1)</button>
+            <button class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-[11px]">Available (1)</button>
+          </div>
+
+          <!-- Matrix Timeline Stream -->
+          <div class="space-y-3 pt-2">
+            
+            <!-- 08:30 AM: Morning Briefing -->
+            <div class="flex items-start gap-4 p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <span class="text-xs font-bold text-slate-500 w-16 pt-0.5">08:30 AM</span>
+              <div class="w-7 h-7 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[16px]">clinical_notes</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-xs font-bold text-slate-800">Morning Clinical Briefing & Patient Records Audit</p>
+                <p class="text-[11px] text-slate-500">Cardiology Departmental Rounds with Resident Staff</p>
+              </div>
+              <span class="text-[10px] font-bold text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded">Internal • 30m</span>
+            </div>
+
+            <!-- 09:00 AM: Eleanor Pena -->
+            <div class="flex items-center justify-between gap-4 p-3 rounded-xl border border-slate-200/80 hover:bg-slate-50 transition-all">
+              <div class="flex items-center gap-4">
+                <span class="text-xs font-bold text-slate-700 w-16">09:00 AM</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                <img class="w-10 h-10 rounded-full object-cover" alt="Eleanor Pena" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120"/>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-900">Eleanor Pena</span>
+                    <span class="text-[10px] text-slate-400">ID #PT-8841</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500">Routine Cardiovascular Checkup • 30 min • Room 102</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full">
+                <span class="material-symbols-outlined text-[13px]">check_circle</span> Completed
+              </span>
+            </div>
+
+            <!-- 09:30 AM: Wade Warren (In Progress Highlight) -->
+            <div class="flex items-center justify-between gap-4 p-3.5 rounded-xl border-2 border-emerald-600/40 bg-emerald-50/20 transition-all">
+              <div class="flex items-center gap-4">
+                <span class="text-xs font-bold text-brand-dark w-16">09:30 AM</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-brand-dark animate-ping"></span>
+                <img class="w-10 h-10 rounded-full object-cover" alt="Wade Warren" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120"/>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-900">Wade Warren</span>
+                    <span class="text-[10px] text-slate-400">ID #PT-9014</span>
+                    <span class="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">HIGH PRIORITY</span>
+                  </div>
+                  <p class="text-[11px] text-slate-600">ECG & Stress Echo Review • 45 min • ECG Lab B</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-800 bg-slate-200/80 px-2.5 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> In Progress (28 min elapsed)
+              </span>
+            </div>
+
+            <!-- 10:15 AM: Disinfection Break -->
+            <div class="flex items-center justify-between py-2 px-4 rounded-xl bg-slate-100/70 text-slate-500 text-xs">
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-slate-600 w-16">10:15 AM</span>
+                <span class="flex items-center gap-1.5 font-medium">
+                  <span class="material-symbols-outlined text-[16px]">clean_hands</span> Hygiene Disinfection & Tea Break (15 min)
+                </span>
+              </div>
+              <span class="text-[11px] text-slate-400 font-semibold">Lab Sanitization</span>
+            </div>
+
+            <!-- 10:30 AM: Jacob Jones (Waiting Room) -->
+            <div class="flex items-center justify-between gap-4 p-3 rounded-xl border border-slate-200/80 hover:bg-slate-50 transition-all">
+              <div class="flex items-center gap-4">
+                <span class="text-xs font-bold text-slate-700 w-16">10:30 AM</span>
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <img class="w-10 h-10 rounded-full object-cover" alt="Jacob Jones" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120"/>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-900">Jacob Jones</span>
+                    <span class="text-[10px] text-slate-400">ID #PT-9132</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500">General Cardiac Follow-up • 30 min • Room 102</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200/50">
+                <span class="material-symbols-outlined text-[13px]">person_pin_circle</span> Arrived • In Waiting Room
+              </span>
+            </div>
+
+            <!-- 11:00 AM: Open Slot Available -->
+            <div class="flex items-center justify-between p-3 rounded-xl border border-dashed border-emerald-400/80 bg-emerald-50/30 text-xs cursor-pointer hover:bg-emerald-50/60 transition-all" onclick="openNewAppointmentModal('11:00 AM Slot')">
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-brand-dark w-16">11:00 AM</span>
+                <span class="flex items-center gap-1.5 font-bold text-brand-dark">
+                  <span class="material-symbols-outlined text-[18px]">add_circle</span> Open Slot Available (30 min)
+                </span>
+              </div>
+              <span class="text-[11px] text-slate-500">Click to assign walk-in or emergency</span>
+            </div>
+
+            <!-- 11:30 AM: Dianne Russell -->
+            <div class="flex items-center justify-between gap-4 p-3 rounded-xl border border-slate-200/80 hover:bg-slate-50 transition-all">
+              <div class="flex items-center gap-4">
+                <span class="text-xs font-bold text-slate-700 w-16">11:30 AM</span>
+                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                <img class="w-10 h-10 rounded-full object-cover" alt="Dianne Russell" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120"/>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-900">Dianne Russell</span>
+                    <span class="text-[10px] text-slate-400">ID #PT-7945</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500">Post-Surgery Valvular Follow-up • 45 min • Room 102</p>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">
+                <span class="material-symbols-outlined text-[13px]">schedule</span> Confirmed • 11:30
+              </span>
+            </div>
+
+            <!-- 12:15 PM: Lunch Break & Ward Rounds -->
+            <div class="flex items-center justify-between py-2 px-4 rounded-xl bg-slate-100/70 text-slate-500 text-xs">
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-slate-600 w-16">12:15 PM</span>
+                <span class="flex items-center gap-1.5 font-medium">
+                  <span class="material-symbols-outlined text-[16px]">restaurant</span> Lunch Break & Inpatient Ward Rounds (45 min)
+                </span>
+              </div>
+              <span class="text-[11px] text-slate-400 font-semibold">Inpatient Cardiology</span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 3: PATIENTS & RECORDS -->
+    <!-- ======================================================================= -->
+    <main id="view-patients" class="hidden p-6 max-w-7xl w-full mx-auto space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-black text-slate-900">Patients & Records Management</h1>
+          <p class="text-xs text-slate-500">Dossiers médicaux individuels, liens familiaux et couverture CNSS/Assurances.</p>
+        </div>
+        <button onclick="openNewPatientModal()" class="px-4 py-2 rounded-xl bg-brand-dark text-white font-bold text-xs flex items-center gap-1.5 shadow-sm">
+          <span class="material-symbols-outlined text-[18px]">person_add</span> Nouveau Patient
+        </button>
+      </div>
+
+      <!-- Patients Table Card -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between gap-4">
+          <input type="text" placeholder="Rechercher par Nom, Prénom, CIN ou N° Dossier..." class="text-xs px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 w-80 focus:outline-none focus:border-brand-dark"/>
+          <span class="text-xs font-bold text-slate-400">4 patients actifs enregistrés</span>
+        </div>
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-50/70 text-slate-500 font-bold border-b border-slate-200/80 uppercase text-[10px] tracking-wider">
+              <th class="p-3.5 pl-5">Dossier</th>
+              <th class="p-3.5">Patient</th>
+              <th class="p-3.5">CIN</th>
+              <th class="p-3.5">Âge / Sexe</th>
+              <th class="p-3.5">Téléphone</th>
+              <th class="p-3.5">Couverture</th>
+              <th class="p-3.5 text-right pr-5">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+            <tr class="hover:bg-slate-50/60 transition-colors">
+              <td class="p-3.5 pl-5 font-bold text-brand-dark">PT-4429</td>
+              <td class="p-3.5 font-bold text-slate-900">Eleanor Pena</td>
+              <td class="p-3.5 font-mono">BE-882910</td>
+              <td class="p-3.5">58 ans • F</td>
+              <td class="p-3.5">+212 662 14 20 88</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">CNSS AMO (80%)</span></td>
+              <td class="p-3.5 text-right pr-5">
+                <button onclick="alert('Dossier médical Eleanor Pena ouvert.')" class="text-brand-dark font-bold hover:underline">Consulter</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition-colors">
+              <td class="p-3.5 pl-5 font-bold text-brand-dark">PT-9014</td>
+              <td class="p-3.5 font-bold text-slate-900">Wade Warren</td>
+              <td class="p-3.5 font-mono">BK-339182</td>
+              <td class="p-3.5">47 ans • M</td>
+              <td class="p-3.5">+212 661 99 88 77</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold">Wafa Assurance (85%)</span></td>
+              <td class="p-3.5 text-right pr-5">
+                <button onclick="alert('Dossier médical Wade Warren ouvert.')" class="text-brand-dark font-bold hover:underline">Consulter</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition-colors">
+              <td class="p-3.5 pl-5 font-bold text-brand-dark">PT-9132</td>
+              <td class="p-3.5 font-bold text-slate-900">Jacob Jones</td>
+              <td class="p-3.5 font-mono">BJ-129984</td>
+              <td class="p-3.5">34 ans • M</td>
+              <td class="p-3.5">+212 663 44 22 11</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-bold">AMO Indépendants (70%)</span></td>
+              <td class="p-3.5 text-right pr-5">
+                <button onclick="alert('Dossier médical Jacob Jones ouvert.')" class="text-brand-dark font-bold hover:underline">Consulter</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-slate-50/60 transition-colors">
+              <td class="p-3.5 pl-5 font-bold text-brand-dark">PT-7945</td>
+              <td class="p-3.5 font-bold text-slate-900">Dianne Russell</td>
+              <td class="p-3.5 font-mono">BH-772183</td>
+              <td class="p-3.5">41 ans • F</td>
+              <td class="p-3.5">+212 665 88 11 33</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">CNSS Salariés (80%)</span></td>
+              <td class="p-3.5 text-right pr-5">
+                <button onclick="alert('Dossier médical Dianne Russell ouvert.')" class="text-brand-dark font-bold hover:underline">Consulter</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- ======================================================================= -->
+    <!-- VIEW 4: INVOICING & CNSS CLAIMS -->
+    <!-- ======================================================================= -->
+    <main id="view-invoicing" class="hidden p-6 max-w-7xl w-full mx-auto space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-black text-slate-900">Facturation, Caisse & Suivi CNSS</h1>
+          <p class="text-xs text-slate-500">Paiements échelonnés en MAD, bordereaux de remboursement et session de caisse.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 font-bold text-xs">Session Caisse Ouverte : 2 700 DH</span>
+          <button onclick="alert('Session de caisse clôturée avec reçu d’arrêté.')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-xs text-slate-700">Arrêté de Caisse</button>
+        </div>
+      </div>
+
+      <!-- Financial Metrics Summary -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Encaissements du Jour</span>
+          <p class="text-2xl font-black text-slate-900 mt-1">4 850.00 DH</p>
+          <p class="text-xs text-slate-500 mt-1">Espèces : 1 200 DH • TPE : 2 450 DH • Virement : 1 200 DH</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Reste à Recouvrer (Patients)</span>
+          <p class="text-2xl font-black text-amber-600 mt-1">300.00 DH</p>
+          <p class="text-xs text-slate-500 mt-1">Facture INV-2026-0082 (Wade Warren)</p>
+        </div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <span class="text-[11px] font-bold text-slate-400 uppercase">Bordereaux CNSS & Mutuelles</span>
+          <p class="text-2xl font-black text-emerald-700 mt-1">1 180.00 DH</p>
+          <p class="text-xs text-rose-600 font-semibold mt-1">3 dossiers en attente de pièces justificatives</p>
+        </div>
+      </div>
+
+      <!-- Invoices List -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="p-4 border-b border-slate-100 font-bold text-xs text-slate-900">
+          Factures Récentes & Paiements Échelonnés
+        </div>
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-50/70 text-slate-500 font-bold border-b border-slate-200/80 uppercase text-[10px]">
+              <th class="p-3.5 pl-5">N° Facture</th>
+              <th class="p-3.5">Patient</th>
+              <th class="p-3.5">Total Dû</th>
+              <th class="p-3.5">Total Payé</th>
+              <th class="p-3.5">Reste à Payer</th>
+              <th class="p-3.5">Statut</th>
+              <th class="p-3.5 text-right pr-5">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 font-medium text-slate-700">
+            <tr>
+              <td class="p-3.5 pl-5 font-bold text-brand-dark">INV-2026-0081</td>
+              <td class="p-3.5 font-bold text-slate-900">Eleanor Pena</td>
+              <td class="p-3.5">450.00 DH</td>
+              <td class="p-3.5 text-emerald-700 font-bold">450.00 DH</td>
+              <td class="p-3.5">0.00 DH</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Payée</span></td>
+              <td class="p-3.5 text-right pr-5"><button onclick="alert('Reçu imprimable REC-2026-0120 généré.')" class="text-brand-dark font-bold hover:underline">Reçu</button></td>
+            </tr>
+            <tr class="bg-amber-50/30">
+              <td class="p-3.5 pl-5 font-bold text-brand-dark">INV-2026-0082</td>
+              <td class="p-3.5 font-bold text-slate-900">Wade Warren</td>
+              <td class="p-3.5">800.00 DH</td>
+              <td class="p-3.5 text-slate-900 font-bold">500.00 DH</td>
+              <td class="p-3.5 text-amber-700 font-bold">300.00 DH</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">Partiellement Payée</span></td>
+              <td class="p-3.5 text-right pr-5"><button onclick="openPaymentModal(800, 500, 300)" class="text-emerald-700 font-bold hover:underline">+ Encaisser Solde</button></td>
+            </tr>
+            <tr>
+              <td class="p-3.5 pl-5 font-bold text-brand-dark">INV-2026-0083</td>
+              <td class="p-3.5 font-bold text-slate-900">Dianne Russell</td>
+              <td class="p-3.5">1 600.00 DH</td>
+              <td class="p-3.5 text-emerald-700 font-bold">1 600.00 DH</td>
+              <td class="p-3.5">0.00 DH</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Payée</span></td>
+              <td class="p-3.5 text-right pr-5"><button onclick="alert('Reçu imprimable REC-2026-0124 généré.')" class="text-brand-dark font-bold hover:underline">Reçu</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: NEW APPOINTMENT (With Conflict Checking Logic) -->
+  <!-- ========================================================================= -->
+  <div id="new-appointment-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <span class="material-symbols-outlined text-brand-dark">calendar_add_on</span>
+          Nouveau Rendez-vous Praticien
+        </h3>
+        <button onclick="closeModal('new-appointment-modal')" class="text-slate-400 hover:text-slate-600">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="handleCreateAppointment(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Médecin Praticien *</label>
+          <select id="apt-doctor" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white font-medium">
+            <option value="2">Dr. Anil Patel (Cardiologie • Salle 102)</option>
+            <option value="1">Dr. Sarah Chen (Médecine Interne • Salle 101)</option>
+            <option value="3">Dr. Michael Chen (Orthopédie • Bloc 3)</option>
+            <option value="4">Dr. Amina Ndiaye (Pédiatrie • Salle 108)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Patient *</label>
+          <select id="apt-patient" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white font-medium">
+            <option value="1">Eleanor Pena (#PT-4429 • BE-882910)</option>
+            <option value="2">Wade Warren (#PT-9014 • BK-339182)</option>
+            <option value="3">Jacob Jones (#PT-9132 • BJ-129984)</option>
+            <option value="4">Dianne Russell (#PT-7945 • BH-772183)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Date *</label>
+            <input type="date" id="apt-date" value="2026-10-24" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-medium"/>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Heure de début *</label>
+            <select id="apt-time" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-medium">
+              <option value="11:00">11:00 AM (Créneau libre)</option>
+              <option value="14:00">02:00 PM</option>
+              <option value="14:30">02:30 PM</option>
+              <option value="15:00">03:00 PM</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Motif de consultation</label>
+          <input type="text" id="apt-reason" placeholder="Ex: Consultation de contrôle tensionnel" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-medium"/>
+        </div>
+
+        <div class="p-2.5 rounded-xl bg-slate-50 text-[11px] text-slate-500">
+          Le moteur anti-chevauchement vérifie en temps réel la disponibilité du médecin et de la salle de soins.
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-dark text-white font-bold text-xs hover:bg-brand-primary shadow-xs transition-all">
+          Enregistrer le Rendez-vous
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: PARTIAL PAYMENT (Invoicing) -->
+  <!-- ========================================================================= -->
+  <div id="payment-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <h3 class="text-sm font-bold text-slate-900">Encaisser le Reste à Payer</h3>
+        <button onclick="closeModal('payment-modal')" class="text-slate-400 hover:text-slate-600"><span class="material-symbols-outlined text-[18px]">close</span></button>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <div class="flex justify-between text-slate-600"><span>Facture n° :</span> <strong class="text-slate-900">INV-2026-0082</strong></div>
+        <div class="flex justify-between text-slate-600"><span>Patient :</span> <strong class="text-slate-900">Wade Warren</strong></div>
+        <div class="flex justify-between text-slate-600"><span>Total Dû :</span> <strong class="text-slate-900">800.00 DH</strong></div>
+        <div class="flex justify-between text-slate-600"><span>Déjà Payé :</span> <strong class="text-emerald-700">500.00 DH</strong></div>
+        <div class="flex justify-between text-slate-900 font-bold pt-1 border-t border-slate-100"><span>Reste Dû :</span> <strong class="text-amber-600 text-sm">300.00 DH</strong></div>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        <label class="block font-bold text-slate-700">Montant Reçu (DH) *</label>
+        <input type="number" id="pay-amount" value="300" max="300" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold text-slate-900"/>
+        
+        <label class="block font-bold text-slate-700 pt-1">Mode de Paiement</label>
+        <select id="pay-method" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-medium">
+          <option value="cash">Espèces (Caisse principale)</option>
+          <option value="tpe">Carte Bancaire / TPE</option>
+          <option value="check">Chèque</option>
+          <option value="transfer">Virement Bancaire</option>
+        </select>
+      </div>
+
+      <button onclick="executePayment()" class="w-full py-2.5 rounded-xl bg-brand-dark text-white font-bold text-xs hover:bg-brand-primary shadow-xs">
+        Valider l'Encaissement & Émettre Reçu
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT: APPLICATION LOGIC & STATE -->
+  <!-- ========================================================================= -->
+  <script>
+    // Tab View Switching Logic
+    function switchView(viewName) {
+      const views = ['dashboard', 'schedule', 'patients', 'invoicing'];
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        const nav = document.getElementById(`nav-${v}`);
+        if (el) {
+          if (v === viewName) {
+            el.classList.remove('hidden');
+          } else {
+            el.classList.add('hidden');
+          }
+        }
+        if (nav) {
+          if (v === viewName) {
+            nav.className = 'w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all bg-emerald-100/60 text-brand-dark shadow-2xs';
+          } else {
+            nav.className = 'w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 transition-all';
+          }
+        }
+      });
+    }
+
+    // Modal Controls
+    function openNewAppointmentModal(prefillReason) {
+      if (prefillReason) {
+        document.getElementById('apt-reason').value = prefillReason;
+      }
+      document.getElementById('new-appointment-modal').classList.remove('hidden');
+    }
+
+    function openNewPatientModal() {
+      alert('Formulaire de création patient : Identifiant unique auto-généré, vérification de CIN doublon et affiliation CNSS.');
+    }
+
+    function openSettingsModal() {
+      alert('Paramètres du Centre : Grand Central Polyclinic, Branche Principale Casablanca. Rôles, tarifs des consultations en MAD et modèles d’ordonnances.');
+    }
+
+    function openPaymentModal(total, paid, balance) {
+      document.getElementById('payment-modal').classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function executePayment() {
+      const amt = document.getElementById('pay-amount').value;
+      const method = document.getElementById('pay-method').value;
+      closeModal('payment-modal');
+      alert(`Paiement de ${amt} DH (${method}) enregistré avec succès !\nReçu légal REC-2026-0125 émis.\nNouveau solde de la facture : 0.00 DH (Soldée).`);
+      switchView('invoicing');
+    }
+
+    function handleCreateAppointment(e) {
+      e.preventDefault();
+      const doc = document.getElementById('apt-doctor').selectedOptions[0].text;
+      const pat = document.getElementById('apt-patient').selectedOptions[0].text;
+      const time = document.getElementById('apt-time').value;
+      closeModal('new-appointment-modal');
+      alert(`Rendez-vous confirmé !\n• Patient : ${pat}\n• Praticien : ${doc}\n• Heure : ${time}\n• Code Référence : APT-2026-8812-MA`);
+      switchView('schedule');
+    }
+
+    function exportClinicalReport() {
+      alert('Rapport clinique d’activité du 24 Octobre 2026 exporté en format PDF / Excel crypté.');
+    }
+
+    function handleGlobalSearch(query) {
+      if (query.length > 2) {
+        console.log('Searching for:', query);
+      }
+    }
+
+    // Keyboard shortcut cmd+K / ctrl+K to focus search
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('global-search').focus();
+      }
+    });
+  </script>
+
+</body>
+</html>

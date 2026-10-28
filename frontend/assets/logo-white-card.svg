@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <!-- White Card Background with gentle rounded border -->
+  <rect width="120" height="120" rx="28" fill="#FFFFFF"/>
+  <rect width="118" height="118" x="1" y="1" rx="27" fill="none" stroke="#E2E8F0" stroke-width="1.5"/>
+
+  <g transform="translate(10, 10)">
+    <defs>
+      <linearGradient id="cardDarkGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#004629"/>
+        <stop offset="100%" stop-color="#005B38"/>
+      </linearGradient>
+      <linearGradient id="cardSoftGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#10B981"/>
+        <stop offset="100%" stop-color="#34D399"/>
+      </linearGradient>
+      <filter id="cardSoftShadow" x="-10%" y="-10%" width="125%" height="125%">
+        <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#004629" flood-opacity="0.18"/>
+      </filter>
+    </defs>
+
+    <!-- Vertical cross beam (Dark Green) -->
+    <rect x="36" y="8" width="28" height="84" rx="14" fill="url(#cardDarkGreen)" filter="url(#cardSoftShadow)"/>
+
+    <!-- Left horizontal cross arm (Dark Green) -->
+    <rect x="8" y="36" width="36" height="28" rx="14" fill="url(#cardDarkGreen)"/>
+
+    <!-- Right horizontal cross arm (Soft Green Capsule / Pill) -->
+    <rect x="44" y="36" width="48" height="28" rx="14" fill="url(#cardSoftGreen)"/>
+
+    <!-- Overlap blend circle -->
+    <circle cx="50" cy="50" r="14" fill="#003820" fill-opacity="0.25"/>
+
+    <!-- Central White Bold 'C' Glyph -->
+    <path d="M 60 41.5 C 57.5 39 53.5 38 49 38 C 42 38 37 43 37 50 C 37 57 42 62 49 62 C 53.8 62 57.6 61 60 58.5" 
+          stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

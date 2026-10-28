@@ -1,0 +1,52 @@
+services:
+  # MySQL 8.0 Database with persistent volume
+  mysql:
+    image: mysql:8.0
+    container_name: cliniqo-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: cliniqo_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./backend/database/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+    networks:
+      - cliniqo-network
+
+  # Laravel 11 Backend API Service
+  backend:
+    image: php:8.3-cli-alpine
+    container_name: cliniqo-backend
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+    ports:
+      - "8000:8000"
+    command: php -S 0.0.0.0:8000 -t public
+    depends_on:
+      - mysql
+    networks:
+      - cliniqo-network
+
+  # Web Frontend Service
+  frontend:
+    image: nginx:alpine
+    container_name: cliniqo-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    networks:
+      - cliniqo-network
+
+volumes:
+  mysql_data:
+
+networks:
+  cliniqo-network:
+    driver: bridge
