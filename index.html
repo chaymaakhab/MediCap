@@ -109,10 +109,150 @@
     .ambient-glow {
       animation: softGlow 8s ease-in-out infinite;
     }
+
+    /* ========================================================================= */
+    /* SCROLL REVEAL & UX ANIMATIONS */
+    /* ========================================================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-36px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-left.is-visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(36px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-right.is-visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.94);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-scale.is-visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Stagger Delays */
+    .delay-75 { transition-delay: 75ms; }
+    .delay-100 { transition-delay: 100ms; }
+    .delay-150 { transition-delay: 150ms; }
+    .delay-200 { transition-delay: 200ms; }
+    .delay-250 { transition-delay: 250ms; }
+    .delay-300 { transition-delay: 300ms; }
+    .delay-350 { transition-delay: 350ms; }
+    .delay-400 { transition-delay: 400ms; }
+
+    /* Top Reading Scroll Progress Bar */
+    #scroll-progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3.5px;
+      background: linear-gradient(90deg, #005131 0%, #10b981 50%, #34d399 100%);
+      z-index: 9999;
+      width: 0%;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.7);
+      transition: width 0.08s ease-out;
+      pointer-events: none;
+    }
+
+    /* Ambient Bioluminescent Pulse for 3D DNA */
+    @keyframes bioluminescentPulse {
+      0%, 100% {
+        transform: scale(1) translate(0, 0);
+        opacity: 0.45;
+      }
+      50% {
+        transform: scale(1.08) translate(-10px, 12px);
+        opacity: 0.7;
+      }
+    }
+    .animate-bioglow {
+      animation: bioluminescentPulse 9s ease-in-out infinite;
+    }
+
+    /* Shimmer Effect for Primary Buttons */
+    .btn-shimmer {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-shimmer::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%);
+      transform: rotate(25deg) translateY(-140%);
+      transition: transform 0.85s ease;
+      pointer-events: none;
+    }
+    .btn-shimmer:hover::after {
+      transform: rotate(25deg) translateY(140%);
+    }
+
+    /* Animated ECG Sparkline Wave */
+    @keyframes ecgPulse {
+      0% { stroke-dashoffset: 900; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .ecg-path-animated {
+      stroke-dasharray: 900;
+      animation: ecgPulse 6.5s linear infinite;
+    }
+
+    /* Progress bar smooth fill on scroll */
+    .scroll-progress-bar-fill {
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Interactive Card Micro-interactions */
+    .interactive-card {
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+    }
+    .interactive-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 32px -8px rgba(0, 81, 49, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
   </style>
 </head>
 
 <body class="bg-surface-container-lowest font-sans text-on-surface antialiased selection:bg-primary-fixed selection:text-primary min-h-screen flex flex-col">
+
+  <!-- Top Scroll Reading Progress Bar -->
+  <div id="scroll-progress-bar"></div>
+
+  <!-- Floating Back to Top Button -->
+  <button id="back-to-top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
+          class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-primary text-white shadow-xl flex items-center justify-center opacity-0 translate-y-6 pointer-events-none transition-all duration-300 hover:bg-primary-hover hover:scale-110 active:scale-95 focus:outline-none ring-4 ring-primary-light/30"
+          aria-label="Retour en haut de page">
+    <span class="material-symbols-outlined text-[22px]">arrow_upward</span>
+  </button>
 
   <!-- ========================================================================= -->
   <!-- TOP BANNER (Notice & Certification) -->
@@ -251,7 +391,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           <!-- Left Text Column -->
-          <div class="lg:col-span-6 flex flex-col items-start z-10">
+          <div class="lg:col-span-6 flex flex-col items-start z-10 reveal-left">
             <!-- Release Badge -->
             <div class="inline-flex items-center gap-2 bg-secondary-container/70 border border-secondary-fixed-dim/40 px-3.5 py-1 rounded-full mb-5 shadow-xs">
               <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
@@ -270,7 +410,7 @@
 
             <!-- CTA Action Buttons -->
             <div class="flex flex-wrap items-center gap-3.5 mb-10">
-              <button onclick="openDemoModal('Demande Prioritaire Démo')" class="inline-flex items-center justify-center font-bold text-sm bg-primary-container text-on-primary hover:bg-primary transition-all px-6 py-3.5 rounded-xl shadow-md hover:shadow-lg gap-2 active:scale-98">
+              <button onclick="openDemoModal('Demande Prioritaire Démo')" class="btn-shimmer inline-flex items-center justify-center font-bold text-sm bg-primary text-on-primary hover:bg-primary-hover transition-all px-6 py-3.5 rounded-xl shadow-md hover:shadow-xl gap-2 active:scale-95 group">
                 <span class="material-symbols-outlined text-[20px]">calendar_add_on</span>
                 Demander une Démo Prioritaire
               </button>
@@ -283,9 +423,18 @@
             <!-- Doctor Avatars Micro-proof -->
             <div class="flex items-center gap-4 pt-2 border-t border-surface-container-high/60 w-full max-w-lg">
               <div class="flex -space-x-3">
-                <img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Sarah Chen, Directrice Médicale" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&auto=format&fit=crop&q=80"/>
-                <img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Anil Patel, Cardiologue Chef" src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80"/>
-                <img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Amina Mansouri, Pédiatre" src="https://images.unsplash.com/photo-1594824813637-440263f9059f?w=120&auto=format&fit=crop&q=80"/>
+                <div class="relative">
+                  <img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Sarah Chen, Directrice Médicale" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&auto=format&fit=crop&q=80"/>
+                  <span class="absolute bottom-0 right-0 w-3 h-3 bg-brand-soft-green border-2 border-white rounded-full"></span>
+                </div>
+                <div class="relative">
+                  <img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Anil Patel, Cardiologue Chef" src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80"/>
+                  <span class="absolute bottom-0 right-0 w-3 h-3 bg-brand-soft-green border-2 border-white rounded-full"></span>
+                </div>
+                <div class="relative">
+                  <img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Amina Mansouri, Pédiatre" src="https://images.unsplash.com/photo-1594824813637-440263f9059f?w=120&auto=format&fit=crop&q=80"/>
+                  <span class="absolute bottom-0 right-0 w-3 h-3 bg-brand-soft-green border-2 border-white rounded-full"></span>
+                </div>
                 <div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold text-xs shadow-sm ring-2 ring-surface-container-lowest">
                   +450
                 </div>
@@ -297,66 +446,61 @@
             </div>
           </div>
 
-          <!-- Right Column: 3D DNA Simulation & HUD -->
-          <div class="lg:col-span-6 relative flex items-center justify-center">
-            <div class="w-full relative rounded-3xl overflow-hidden bg-gradient-to-br from-surface-container-low to-surface-container-lowest border border-surface-container shadow-2xl">
-              
-              <!-- Simulated HUD Overlay: Top-Left -->
-              <div class="absolute top-4 left-4 z-20 bg-surface-container-lowest/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-xs border border-surface-container flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
-                <span class="text-xs font-semibold text-on-surface">Télémétrie : Flux Génomique en Direct</span>
-              </div>
-
-              <!-- Simulated HUD Overlay: Bottom-Right -->
-              <div class="absolute bottom-4 right-4 z-20 bg-surface-container-lowest/95 backdrop-blur-md px-4 py-2 rounded-xl shadow-md border border-surface-container flex items-center gap-3">
-                <div class="flex flex-col text-right">
-                  <span class="text-[11px] font-medium text-outline">Synchronisation Noeuds</span>
-                  <span class="text-sm font-bold text-primary">14,820 EPS • Haute Disponibilité</span>
-                </div>
-                <div class="w-9 h-9 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary">
-                  <span class="material-symbols-outlined text-[22px]">graphic_eq</span>
-                </div>
-              </div>
-
-              <!-- Three.js Canvas Container -->
-              <div id="threejs-dna-container" class="w-full h-[460px] sm:h-[540px] bg-transparent dna-canvas-container relative cursor-grab active:cursor-grabbing"></div>
-              
-              <!-- Subtle Helper Hint -->
-              <div class="absolute bottom-4 left-4 z-20 pointer-events-none text-[11px] text-outline bg-surface-container-lowest/70 backdrop-blur-xs px-2.5 py-1 rounded-md">
-                Interagissez avec la molécule (survol & rotation)
-              </div>
-            </div>
+          <!-- Right Column: 3D DNA Helix (Clean, Floating & Organic - No Box Frame/Cadre) -->
+          <div class="lg:col-span-6 relative flex items-center justify-center min-h-[460px] sm:min-h-[540px] reveal-right">
+            <!-- Bioluminescent Ambient Radial Glow -->
+            <div class="absolute w-[360px] h-[360px] sm:w-[500px] sm:h-[500px] rounded-full bg-gradient-to-tr from-primary-fixed/30 via-brand-soft-mint/20 to-transparent blur-3xl pointer-events-none -z-0 animate-bioglow"></div>
+            
+            <!-- Three.js Canvas Container (Seamless Floating directly on background) -->
+            <div id="threejs-dna-container" class="w-full h-[460px] sm:h-[540px] bg-transparent dna-canvas-container relative cursor-grab active:cursor-grabbing z-10 flex items-center justify-center"></div>
           </div>
         </div>
 
         <!-- =================================================================== -->
-        <!-- TRUST METRICS BAR -->
+        <!-- TRUST METRICS BAR WITH LIVE COUNT-UP ON SCROLL -->
         <!-- =================================================================== -->
-        <div class="w-full mt-12 bg-surface-container-lowest border border-surface-container rounded-2xl shadow-sm p-6 sm:p-8">
+        <div class="w-full mt-12 bg-surface-container-lowest/95 backdrop-blur-md border border-surface-container rounded-2xl shadow-sm hover:shadow-md transition-all p-6 sm:p-8 reveal delay-150">
           <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:text-left">
             
-            <div class="flex flex-col p-2">
-              <span class="text-3xl sm:text-4xl font-extrabold text-primary">450+</span>
+            <div class="flex flex-col p-2 group">
+              <div class="flex items-center justify-center md:justify-start gap-2.5 mb-1.5">
+                <span class="w-9 h-9 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[22px]">apartment</span>
+                </span>
+                <span class="text-3xl sm:text-4xl font-extrabold text-primary counter-number" data-target="450" data-suffix="+">450+</span>
+              </div>
               <span class="text-sm font-bold text-on-surface mt-1">Centres & Cabinets</span>
               <span class="text-xs text-outline">Polycliniques, groupes & libéraux</span>
             </div>
 
-            <div class="flex flex-col p-2">
-              <span class="text-3xl sm:text-4xl font-extrabold text-on-surface">99.98%</span>
+            <div class="flex flex-col p-2 group">
+              <div class="flex items-center justify-center md:justify-start gap-2.5 mb-1.5">
+                <span class="w-9 h-9 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[22px]">speed</span>
+                </span>
+                <span class="text-3xl sm:text-4xl font-extrabold text-on-surface counter-number" data-target="99.98" data-decimals="2" data-suffix="%">99.98%</span>
+              </div>
               <span class="text-sm font-bold text-on-surface mt-1">Disponibilité SLA Garantie</span>
               <span class="text-xs text-outline">Zéro interruption de consultation</span>
             </div>
 
-            <div class="flex flex-col p-2">
-              <span class="text-3xl sm:text-4xl font-extrabold text-primary">3.4M+</span>
+            <div class="flex flex-col p-2 group">
+              <div class="flex items-center justify-center md:justify-start gap-2.5 mb-1.5">
+                <span class="w-9 h-9 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[22px]">folder_shared</span>
+                </span>
+                <span class="text-3xl sm:text-4xl font-extrabold text-primary counter-number" data-target="3.4" data-decimals="1" data-suffix="M+">3.4M+</span>
+              </div>
               <span class="text-sm font-bold text-on-surface mt-1">Dossiers Médicaux Sécurisés</span>
               <span class="text-xs text-outline">Partitionnement multi-tenant strict</span>
             </div>
 
-            <div class="flex flex-col p-2">
-              <div class="flex items-center justify-center md:justify-start gap-1">
+            <div class="flex flex-col p-2 group">
+              <div class="flex items-center justify-center md:justify-start gap-2.5 mb-1.5">
+                <span class="w-9 h-9 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[22px]">verified</span>
+                </span>
                 <span class="text-3xl sm:text-4xl font-extrabold text-on-surface">Lvl 3</span>
-                <span class="material-symbols-outlined text-primary text-[24px]">verified</span>
               </div>
               <span class="text-sm font-bold text-on-surface mt-1">CNDP • HIPAA • RGPD</span>
               <span class="text-xs text-outline">Audit SOC2 Type II & BAA légale</span>
@@ -373,7 +517,7 @@
     <section id="solutions" class="w-full py-16 bg-surface-container-low border-y border-surface-container">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12">
+        <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12 reveal">
           <div class="inline-flex items-center gap-1.5 bg-secondary-container px-3.5 py-1 rounded-full mb-3">
             <span class="material-symbols-outlined text-[16px] text-primary">clinical_notes</span>
             <span class="text-xs font-bold text-primary uppercase tracking-wider">Architecture Institutionnelle</span>
@@ -389,7 +533,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           <!-- Pillar 1: Scheduling -->
-          <div class="bg-surface-container-lowest border border-surface-container rounded-2xl p-7 shadow-xs flex flex-col justify-between transition-all hover:shadow-lg hover:-translate-y-1">
+          <div class="interactive-card bg-surface-container-lowest border border-surface-container rounded-2xl p-7 shadow-xs flex flex-col justify-between reveal-left delay-100">
             <div>
               <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary mb-6">
                 <span class="material-symbols-outlined text-[28px]">calendar_clock</span>
@@ -422,13 +566,13 @@
                 <span class="text-primary font-bold">-42% Moyen</span>
               </div>
               <div class="w-full bg-surface-container-high h-2 rounded-full mt-2 overflow-hidden">
-                <div class="bg-primary h-full w-[82%] rounded-full transition-all duration-1000"></div>
+                <div class="bg-primary h-full rounded-full scroll-progress-bar-fill" data-target-width="82%"></div>
               </div>
             </div>
           </div>
 
           <!-- Pillar 2: Records & RBAC -->
-          <div class="bg-surface-container-lowest border border-surface-container rounded-2xl p-7 shadow-xs flex flex-col justify-between transition-all hover:shadow-lg hover:-translate-y-1">
+          <div class="interactive-card bg-surface-container-lowest border border-surface-container rounded-2xl p-7 shadow-xs flex flex-col justify-between reveal delay-200">
             <div>
               <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary mb-6">
                 <span class="material-symbols-outlined text-[28px]">shield_person</span>
@@ -461,13 +605,13 @@
                 <span class="text-primary font-bold">0.000% Garanti</span>
               </div>
               <div class="w-full bg-surface-container-high h-2 rounded-full mt-2 overflow-hidden">
-                <div class="bg-primary h-full w-[100%] rounded-full"></div>
+                <div class="bg-primary h-full rounded-full scroll-progress-bar-fill" data-target-width="100%"></div>
               </div>
             </div>
           </div>
 
           <!-- Pillar 3: Billing & CNSS -->
-          <div class="bg-surface-container-lowest border border-surface-container rounded-2xl p-7 shadow-xs flex flex-col justify-between transition-all hover:shadow-lg hover:-translate-y-1">
+          <div class="interactive-card bg-surface-container-lowest border border-surface-container rounded-2xl p-7 shadow-xs flex flex-col justify-between reveal-right delay-300">
             <div>
               <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary mb-6">
                 <span class="material-symbols-outlined text-[28px]">receipt_long</span>
@@ -500,7 +644,7 @@
                 <span class="text-primary font-bold">96.4% Succès CNSS</span>
               </div>
               <div class="w-full bg-surface-container-high h-2 rounded-full mt-2 overflow-hidden">
-                <div class="bg-primary h-full w-[96%] rounded-full"></div>
+                <div class="bg-primary h-full rounded-full scroll-progress-bar-fill" data-target-width="96%"></div>
               </div>
             </div>
           </div>
@@ -516,7 +660,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Header & Specialty Tabs -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 reveal">
           <div class="flex flex-col">
             <span class="text-xs font-bold text-primary uppercase tracking-wider">Interface Opérationnelle en Direct</span>
             <h2 class="text-2xl sm:text-3xl font-extrabold text-on-surface">
@@ -539,7 +683,7 @@
         </div>
 
         <!-- Main Dashboard Mockup Card -->
-        <div class="w-full rounded-2xl bg-surface-container-low p-4 sm:p-6 shadow-xl border border-surface-container">
+        <div class="w-full rounded-2xl bg-surface-container-low p-4 sm:p-6 shadow-xl border border-surface-container reveal delay-150">
           
           <!-- Doctor & Patient Banner -->
           <div class="flex flex-wrap items-center justify-between gap-4 pb-4 mb-5 bg-surface-container-lowest p-4 sm:p-5 rounded-xl shadow-xs border border-surface-container">
@@ -652,9 +796,9 @@
                   </div>
 
                   <!-- Dynamic SVG Wave Path -->
-                  <svg id="sparkline-svg" class="w-full h-24 text-primary transition-all duration-700" fill="none" preserveAspectRatio="none" viewBox="0 0 900 100">
+                  <svg id="sparkline-svg" class="w-full h-24 text-primary transition-all duration-700 filter drop-shadow-[0_2px_8px_rgba(16,185,129,0.35)]" fill="none" preserveAspectRatio="none" viewBox="0 0 900 100">
                     <path d="M0,50 L80,50 L95,45 L105,58 L115,50 L140,50 L145,20 L152,95 L160,50 L175,50 L190,38 L200,50 L280,50 L295,45 L305,58 L315,50 L340,50 L345,20 L352,95 L360,50 L375,50 L390,38 L400,50 L480,50 L495,45 L505,58 L515,50 L540,50 L545,20 L552,95 L560,50 L575,50 L590,38 L600,50 L680,50 L695,45 L705,58 L715,50 L740,50 L745,20 L752,95 L760,50 L775,50 L790,38 L800,50 L900,50" 
-                          stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                          stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" class="ecg-path-animated"></path>
                   </svg>
 
                   <div class="flex justify-between text-outline text-[11px] z-10">
@@ -759,7 +903,7 @@
     <section id="modules" class="w-full py-16 bg-surface-container-low border-y border-surface-container">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12">
+        <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12 reveal">
           <span class="text-xs font-bold text-primary uppercase tracking-wider">Périmètre Fonctionnel Complet</span>
           <h2 class="text-2xl sm:text-3xl font-extrabold text-on-surface mt-1 mb-3">
             Tous les Métiers du Centre Médical dans un Système Unique
@@ -772,7 +916,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           <!-- Module 1: Patient & Famille -->
-          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs">
+          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-75">
             <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
               <span class="material-symbols-outlined text-[24px]">family_restroom</span>
             </div>
@@ -786,7 +930,7 @@
           </div>
 
           <!-- Module 2: Agenda & Réservation Publique -->
-          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs">
+          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-150">
             <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
               <span class="material-symbols-outlined text-[24px]">event_available</span>
             </div>
@@ -800,7 +944,7 @@
           </div>
 
           <!-- Module 3: Dossier Médical & Consultation -->
-          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs">
+          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-200">
             <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
               <span class="material-symbols-outlined text-[24px]">clinical_notes</span>
             </div>
@@ -814,7 +958,7 @@
           </div>
 
           <!-- Module 4: Facturation & Caisse Multi-modes -->
-          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs">
+          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-100">
             <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
               <span class="material-symbols-outlined text-[24px]">point_of_sale</span>
             </div>
@@ -828,7 +972,7 @@
           </div>
 
           <!-- Module 5: Dossiers CNSS & Mutuelles -->
-          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs">
+          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-200">
             <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
               <span class="material-symbols-outlined text-[24px]">health_and_safety</span>
             </div>
@@ -842,7 +986,7 @@
           </div>
 
           <!-- Module 6: Mobile Flutter & Multi-tenant -->
-          <div class="bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs">
+          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-300">
             <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
               <span class="material-symbols-outlined text-[24px]">phone_iphone</span>
             </div>
@@ -866,7 +1010,7 @@
     <section class="w-full py-16 bg-surface-container-lowest">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12">
+        <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12 reveal">
           <span class="text-xs font-bold text-primary uppercase tracking-wider">Avis de Praticiens</span>
           <h2 class="text-2xl sm:text-3xl font-extrabold text-on-surface mt-1">
             Recommandé par les Médecins Chefs de Service
@@ -879,7 +1023,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           <!-- Testimonial 1 -->
-          <div class="bg-surface-container-low p-6 sm:p-8 rounded-2xl border border-surface-container flex flex-col justify-between">
+          <div class="interactive-card bg-surface-container-low p-6 sm:p-8 rounded-2xl border border-surface-container flex flex-col justify-between reveal-left delay-100">
             <div>
               <div class="flex items-center gap-1 text-primary mb-4">
                 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
@@ -904,7 +1048,7 @@
           </div>
 
           <!-- Testimonial 2 -->
-          <div class="bg-surface-container-low p-6 sm:p-8 rounded-2xl border border-surface-container flex flex-col justify-between">
+          <div class="interactive-card bg-surface-container-low p-6 sm:p-8 rounded-2xl border border-surface-container flex flex-col justify-between reveal-right delay-200">
             <div>
               <div class="flex items-center gap-1 text-primary mb-4">
                 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
@@ -938,7 +1082,7 @@
     <!-- ========================================================================= -->
     <section id="privacy" class="w-full py-16 bg-surface-container-low border-y border-surface-container">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="w-full rounded-3xl bg-secondary-container/50 border border-secondary-fixed-dim/50 p-6 sm:p-10">
+        <div class="w-full rounded-3xl bg-secondary-container/50 border border-secondary-fixed-dim/50 p-6 sm:p-10 reveal">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             <div class="lg:col-span-8 flex flex-col">
@@ -993,7 +1137,7 @@
     <section id="pricing" class="w-full py-16 bg-surface-container-lowest">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12">
+        <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-8 reveal">
           <div class="inline-flex items-center gap-1.5 bg-primary-fixed/40 px-3 py-1 rounded-full mb-3">
             <span class="text-xs font-bold text-primary uppercase tracking-wider">Essai Gratuit 30 Jours Sans Engagement</span>
           </div>
@@ -1003,20 +1147,34 @@
           <p class="text-sm text-on-surface-variant mt-2">
             Tarifs transparents en Dirham marocain (MAD) avec isolation multi-tenant et support réactif.
           </p>
+
+          <!-- Interactive Billing Cycle Switcher -->
+          <div class="inline-flex items-center gap-3 mt-6 p-1.5 bg-surface-container-low rounded-2xl border border-surface-container shadow-xs">
+            <button id="billing-monthly-btn" onclick="setBillingCycle('monthly')" class="px-4 py-2 rounded-xl text-xs font-bold bg-surface-container-lowest text-primary shadow-xs transition-all">
+              Facturation Mensuelle
+            </button>
+            <button id="billing-annual-btn" onclick="setBillingCycle('annual')" class="px-4 py-2 rounded-xl text-xs font-bold text-outline hover:text-on-surface transition-all flex items-center gap-1.5">
+              <span>Facturation Annuelle</span>
+              <span class="bg-primary-fixed text-primary px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider">-20% (2 mois offerts)</span>
+            </button>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
           
           <!-- Plan 1: Cabinet Solo -->
-          <div class="bg-surface-container-low rounded-2xl p-7 border border-surface-container flex flex-col justify-between">
+          <div class="interactive-card bg-surface-container-low rounded-2xl p-7 border border-surface-container flex flex-col justify-between reveal-left delay-100">
             <div>
               <span class="text-xs font-bold text-outline uppercase tracking-wider">Praticien Individuel</span>
               <h3 class="text-xl font-bold text-on-surface mt-1">Cabinet Solo</h3>
               <p class="text-xs text-on-surface-variant mt-2 mb-6">Pour médecin libéral ou spécialiste indépendant avec secrétariat dédié.</p>
               
-              <div class="flex items-baseline gap-1 mb-6">
-                <span class="text-3xl font-extrabold text-on-surface">490</span>
-                <span class="text-sm font-semibold text-outline">DH / mois</span>
+              <div class="flex flex-col mb-6">
+                <div class="flex items-baseline gap-1">
+                  <span id="price-solo" class="text-3xl font-extrabold text-on-surface transition-all">490</span>
+                  <span id="period-solo" class="text-sm font-semibold text-outline">DH / mois</span>
+                </div>
+                <span id="sub-solo" class="text-[11px] text-outline mt-0.5">Sans engagement • Résiliable à tout moment</span>
               </div>
 
               <ul class="space-y-3 text-xs text-on-surface mb-8">
@@ -1044,7 +1202,7 @@
           </div>
 
           <!-- Plan 2: Cabinet de Groupe (Popular) -->
-          <div class="bg-surface-container-lowest rounded-2xl p-7 border-2 border-primary shadow-xl flex flex-col justify-between relative">
+          <div class="interactive-card bg-surface-container-lowest rounded-2xl p-7 border-2 border-primary shadow-xl ring-2 ring-primary/20 flex flex-col justify-between relative reveal delay-200">
             <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[11px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
               Le Plus Choisi
             </div>
@@ -1054,9 +1212,12 @@
               <h3 class="text-xl font-bold text-on-surface mt-1">Cabinet de Groupe</h3>
               <p class="text-xs text-on-surface-variant mt-2 mb-6">Pour structures associées partageant secrétariat, caisse et plannings.</p>
               
-              <div class="flex items-baseline gap-1 mb-6">
-                <span class="text-3xl font-extrabold text-primary">1 290</span>
-                <span class="text-sm font-semibold text-outline">DH / mois</span>
+              <div class="flex flex-col mb-6">
+                <div class="flex items-baseline gap-1">
+                  <span id="price-groupe" class="text-3xl font-extrabold text-primary transition-all">1 290</span>
+                  <span id="period-groupe" class="text-sm font-semibold text-outline">DH / mois</span>
+                </div>
+                <span id="sub-groupe" class="text-[11px] text-primary font-medium mt-0.5">Multi-postes & assistance dédiée</span>
               </div>
 
               <ul class="space-y-3 text-xs text-on-surface mb-8">
@@ -1087,7 +1248,7 @@
           </div>
 
           <!-- Plan 3: Polyclinique & Centre Médical -->
-          <div class="bg-surface-container-low rounded-2xl p-7 border border-surface-container flex flex-col justify-between">
+          <div class="interactive-card bg-surface-container-low rounded-2xl p-7 border border-surface-container flex flex-col justify-between reveal-right delay-300">
             <div>
               <span class="text-xs font-bold text-outline uppercase tracking-wider">Établissements & Cliniques</span>
               <h3 class="text-xl font-bold text-on-surface mt-1">Centre Multidisciplinaire</h3>
@@ -1131,7 +1292,7 @@
     <!-- ========================================================================= -->
     <section id="demo" class="w-full py-16 bg-surface-container-low">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-surface-container-lowest rounded-3xl shadow-xl border border-surface-container overflow-hidden p-6 sm:p-10">
+        <div class="bg-surface-container-lowest rounded-3xl shadow-xl border border-surface-container overflow-hidden p-6 sm:p-10 reveal">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             <!-- Left Column: Pitch -->
@@ -1213,7 +1374,7 @@
   <!-- ========================================================================= -->
   <!-- FOOTER -->
   <!-- ========================================================================= -->
-  <footer class="w-full bg-surface-container-low border-t border-surface-container">
+  <footer class="w-full bg-surface-container-low border-t border-surface-container reveal">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 pb-10 border-b border-surface-container">
         
@@ -1421,20 +1582,21 @@
   <!-- ========================================================================= -->
   <script>
     // -------------------------------------------------------------
-    // THREE.JS DNA SIMULATION LOGIC
+    // THREE.JS DNA SIMULATION LOGIC (Clean, Organic, Transparent)
     // -------------------------------------------------------------
     (function initDnaSimulation() {
       const container = document.getElementById('threejs-dna-container');
       if (!container) return;
 
-      const width = container.clientWidth || 500;
-      const height = container.clientHeight || 500;
+      const width = container.clientWidth || 520;
+      const height = container.clientHeight || 520;
 
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-      camera.position.set(0, 0, 48);
+      camera.position.set(0, 0, 46);
 
-      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
+      renderer.setClearColor(0x000000, 0);
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       container.appendChild(renderer.domElement);
@@ -1581,17 +1743,23 @@
         targetRotX = THREE.MathUtils.degToRad(8) + mouseY * 0.4;
       });
 
+      // Scroll parallax link
+      let scrollRotY = 0;
+      window.addEventListener('scroll', () => {
+        scrollRotY = window.scrollY * 0.0018;
+      }, { passive: true });
+
       // Animation Loop
       const clock = new THREE.Clock();
       function animate() {
         requestAnimationFrame(animate);
         const elapsed = clock.getElapsedTime();
 
-        dnaGroup.rotation.y = elapsed * 0.6 + targetRotY;
+        dnaGroup.rotation.y = elapsed * 0.5 + targetRotY + scrollRotY;
         dnaGroup.rotation.x = THREE.MathUtils.lerp(dnaGroup.rotation.x, targetRotX, 0.05);
-        dnaGroup.position.y = Math.sin(elapsed * 1.2) * 0.8;
+        dnaGroup.position.y = Math.sin(elapsed * 1.2) * 0.85;
 
-        particles.rotation.y = elapsed * 0.08;
+        particles.rotation.y = elapsed * 0.07;
         particles.rotation.x = elapsed * 0.03;
 
         renderer.render(scene, camera);
@@ -1847,6 +2015,184 @@
         document.body.classList.remove('font-arabic');
       }
     }
+
+    // -------------------------------------------------------------
+    // PRICING BILLING CYCLE SWITCHER
+    // -------------------------------------------------------------
+    function setBillingCycle(mode) {
+      const btnMonthly = document.getElementById('billing-monthly-btn');
+      const btnAnnual = document.getElementById('billing-annual-btn');
+      const priceSolo = document.getElementById('price-solo');
+      const periodSolo = document.getElementById('period-solo');
+      const subSolo = document.getElementById('sub-solo');
+      const priceGroupe = document.getElementById('price-groupe');
+      const periodGroupe = document.getElementById('period-groupe');
+      const subGroupe = document.getElementById('sub-groupe');
+
+      if (mode === 'annual') {
+        btnAnnual.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-surface-container-lowest text-primary shadow-xs transition-all flex items-center gap-1.5';
+        btnMonthly.className = 'px-4 py-2 rounded-xl text-xs font-bold text-outline hover:text-on-surface transition-all';
+        
+        if (priceSolo) priceSolo.textContent = '390';
+        if (periodSolo) periodSolo.textContent = 'DH / mois (annuel)';
+        if (subSolo) subSolo.textContent = '4 680 DH facturé par an • Économisez 1 200 DH/an';
+
+        if (priceGroupe) priceGroupe.textContent = '990';
+        if (periodGroupe) periodGroupe.textContent = 'DH / mois (annuel)';
+        if (subGroupe) subGroupe.textContent = '11 880 DH facturé par an • Économisez 3 600 DH/an';
+      } else {
+        btnMonthly.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-surface-container-lowest text-primary shadow-xs transition-all';
+        btnAnnual.className = 'px-4 py-2 rounded-xl text-xs font-bold text-outline hover:text-on-surface transition-all flex items-center gap-1.5';
+
+        if (priceSolo) priceSolo.textContent = '490';
+        if (periodSolo) periodSolo.textContent = 'DH / mois';
+        if (subSolo) subSolo.textContent = 'Sans engagement • Résiliable à tout moment';
+
+        if (priceGroupe) priceGroupe.textContent = '1 290';
+        if (periodGroupe) periodGroupe.textContent = 'DH / mois';
+        if (subGroupe) subGroupe.textContent = 'Multi-postes & assistance dédiée';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // SCROLL REVEAL & INTERSECTION OBSERVER ENGINE
+    // -------------------------------------------------------------
+    function initScrollReveal() {
+      const revealItems = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+      if (!revealItems.length) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -40px 0px'
+      });
+
+      revealItems.forEach(item => observer.observe(item));
+
+      // Trigger elements already visible on load
+      setTimeout(() => {
+        revealItems.forEach(item => {
+          const rect = item.getBoundingClientRect();
+          if (rect.top < window.innerHeight) {
+            item.classList.add('is-visible');
+          }
+        });
+      }, 50);
+    }
+
+    // -------------------------------------------------------------
+    // ANIMATED TRUST METRICS COUNTERS ON SCROLL
+    // -------------------------------------------------------------
+    function initCounters() {
+      const counters = document.querySelectorAll('.counter-number');
+      if (!counters.length) return;
+
+      let hasRun = false;
+      const targetSec = counters[0].closest('section') || counters[0].parentElement;
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !hasRun) {
+            hasRun = true;
+            counters.forEach(counter => {
+              const target = parseFloat(counter.getAttribute('data-target') || '0');
+              const decimals = parseInt(counter.getAttribute('data-decimals') || '0', 10);
+              const suffix = counter.getAttribute('data-suffix') || '';
+              const duration = 1600;
+              const startTimestamp = performance.now();
+
+              function step(timestamp) {
+                const elapsed = timestamp - startTimestamp;
+                const progress = Math.min(elapsed / duration, 1);
+                // Ease out cubic function
+                const easeVal = 1 - Math.pow(1 - progress, 3);
+                const current = (target * easeVal).toFixed(decimals);
+                counter.textContent = current + suffix;
+
+                if (progress < 1) {
+                  requestAnimationFrame(step);
+                } else {
+                  counter.textContent = target.toFixed(decimals) + suffix;
+                }
+              }
+
+              requestAnimationFrame(step);
+            });
+          }
+        });
+      }, { threshold: 0.2 });
+
+      if (targetSec) observer.observe(targetSec);
+    }
+
+    // -------------------------------------------------------------
+    // ANIMATED PROGRESS BARS ON SCROLL
+    // -------------------------------------------------------------
+    function initProgressBars() {
+      const fills = document.querySelectorAll('.scroll-progress-bar-fill');
+      if (!fills.length) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const targetWidth = entry.target.getAttribute('data-target-width') || '0%';
+            entry.target.style.width = targetWidth;
+          }
+        });
+      }, { threshold: 0.2 });
+
+      fills.forEach(f => observer.observe(f));
+    }
+
+    // -------------------------------------------------------------
+    // TOP READING PROGRESS, BACK TO TOP & STICKY HEADER SHADOW
+    // -------------------------------------------------------------
+    function initScrollUI() {
+      const progressBar = document.getElementById('scroll-progress-bar');
+      const backToTopBtn = document.getElementById('back-to-top-btn');
+      const header = document.querySelector('header');
+
+      window.addEventListener('scroll', () => {
+        const top = window.scrollY;
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = total > 0 ? (top / total) * 100 : 0;
+
+        if (progressBar) {
+          progressBar.style.width = pct + '%';
+        }
+
+        if (backToTopBtn) {
+          if (top > 350) {
+            backToTopBtn.classList.remove('opacity-0', 'translate-y-6', 'pointer-events-none');
+            backToTopBtn.classList.add('opacity-100', 'translate-y-0');
+          } else {
+            backToTopBtn.classList.add('opacity-0', 'translate-y-6', 'pointer-events-none');
+            backToTopBtn.classList.remove('opacity-100', 'translate-y-0');
+          }
+        }
+
+        if (header) {
+          if (top > 25) {
+            header.classList.add('shadow-md', 'bg-surface-container-lowest/98');
+          } else {
+            header.classList.remove('shadow-md');
+          }
+        }
+      }, { passive: true });
+    }
+
+    // Initialize all scroll enhancements
+    document.addEventListener('DOMContentLoaded', () => {
+      initScrollReveal();
+      initCounters();
+      initProgressBars();
+      initScrollUI();
+    });
 
     // Close modal on escape key
     document.addEventListener('keydown', (e) => {
