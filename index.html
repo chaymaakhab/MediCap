@@ -251,13 +251,13 @@
   <button id="back-to-top-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
           class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-primary text-white shadow-xl flex items-center justify-center opacity-0 translate-y-6 pointer-events-none transition-all duration-300 hover:bg-primary-hover hover:scale-110 active:scale-95 focus:outline-none ring-4 ring-primary-light/30"
           aria-label="Retour en haut de page">
-    <span class="material-symbols-outlined text-[22px]">arrow_upward</span>
+    <span class="material-symbols-outlined text-[18px]">arrow_upward</span>
   </button>
 
   <!-- ========================================================================= -->
   <!-- TOP BANNER (Notice & Certification) -->
   <!-- ========================================================================= -->
-  <div class="bg-primary text-white text-xs py-1.5 px-4">
+  <div class="bg-primary text-white text-[11px] py-1 px-4">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
       <div class="flex items-center gap-2">
         <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-primary-container text-white text-[11px] font-semibold tracking-wide uppercase">
@@ -275,16 +275,19 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- HEADER / NAVIGATION BAR -->
+  <!-- HEADER / NAVIGATION BAR (Elevated Enterprise SaaS Header with Dropdowns) -->
   <!-- ========================================================================= -->
-  <header class="sticky top-0 z-50 bg-surface-container-lowest/90 backdrop-blur-md border-b border-surface-container shadow-[0_1px_12px_rgba(0,0,0,0.03)] transition-all">
-    <div class="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+  <header class="sticky top-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl border-b border-surface-container/80 shadow-[0_4px_24px_rgba(0,0,0,0.03)] transition-all">
+    <!-- Top glowing emerald accent line -->
+    <div class="h-[1.5px] w-full bg-gradient-to-r from-transparent via-brand-soft-green/60 to-transparent"></div>
+
+    <div class="h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
       
       <!-- Brand Logo & Label -->
-      <div class="flex items-center gap-8">
-        <a href="#" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-xl p-1" aria-label="Accueil Cliniqo Medical">
-          <!-- Official Cliniqo Brand Logo (Dark Green + Soft Green + White) -->
-          <div class="relative w-10 h-10 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">
+      <div class="flex items-center gap-7">
+        <a href="#" class="flex items-center gap-2.5 group focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-xl p-1" aria-label="Accueil Cliniqo Medical">
+          <!-- Official Cliniqo Brand Logo -->
+          <div class="relative w-8 h-8 flex-shrink-0 transition-transform duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_12px_rgba(16,185,129,0.35)]">
             <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <linearGradient id="navLogoDarkGreen" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -296,40 +299,100 @@
                   <stop offset="100%" stop-color="#34D399"/>
                 </linearGradient>
               </defs>
-              <!-- Vertical cross beam (Dark Green) -->
               <rect x="36" y="8" width="28" height="84" rx="14" fill="url(#navLogoDarkGreen)"/>
-              <!-- Left horizontal cross arm (Dark Green) -->
               <rect x="8" y="36" width="36" height="28" rx="14" fill="url(#navLogoDarkGreen)"/>
-              <!-- Right horizontal cross arm (Soft Green Capsule / Pill) -->
               <rect x="44" y="36" width="48" height="28" rx="14" fill="url(#navLogoSoftGreen)"/>
-              <!-- Overlap blend circle -->
               <circle cx="50" cy="50" r="14" fill="#003820" fill-opacity="0.25"/>
-              <!-- Central White Bold 'C' Glyph -->
               <path d="M 60 41.5 C 57.5 39 53.5 38 49 38 C 42 38 37 43 37 50 C 37 57 42 62 49 62 C 53.8 62 57.6 61 60 58.5" 
                     stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
           <div class="flex flex-col">
             <div class="flex items-center gap-1.5">
-              <span class="font-extrabold text-xl tracking-tight text-on-surface group-hover:text-primary transition-colors">Cliniqo</span>
-              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary-container/10 text-primary uppercase tracking-wide">Medical</span>
+              <span class="font-extrabold text-lg tracking-tight text-on-surface group-hover:text-primary transition-colors">Cliniqo</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary/10 text-primary uppercase tracking-wide border border-primary/20">Medical</span>
             </div>
-            <span class="text-[11px] font-medium text-outline uppercase tracking-wider -mt-0.5">Clinical Cloud OS</span>
+            <span class="text-[10px] font-medium text-outline uppercase tracking-wider -mt-0.5">Clinical Cloud OS</span>
           </div>
         </a>
 
-        <!-- Desktop Navigation Links -->
+        <!-- Desktop Navigation Links with Interactive Dropdowns -->
         <nav class="hidden lg:flex items-center gap-1" aria-label="Navigation principale">
-          <a href="#solutions" class="px-3.5 py-2 text-sm font-semibold text-primary rounded-lg hover:bg-surface-container-low transition-colors">Solutions</a>
-          <a href="#modules" class="px-3.5 py-2 text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors">Modules Cliniques</a>
-          <a href="#telemetry" class="px-3.5 py-2 text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors">Interface Directe</a>
-          <a href="#privacy" class="px-3.5 py-2 text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors">Conformité & CNDP</a>
-          <a href="#pricing" class="px-3.5 py-2 text-sm font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors">Tarifs & Essai</a>
+          <a href="#solutions" class="px-3 py-1.5 text-xs font-semibold text-primary rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-1">
+            <span>Solutions</span>
+          </a>
+
+          <!-- Modules with Dropdown -->
+          <div class="relative group">
+            <a href="#modules" class="px-3 py-1.5 text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors flex items-center gap-1">
+              <span>Modules Cliniques</span>
+              <span class="material-symbols-outlined text-[16px] text-outline transition-transform duration-200 group-hover:rotate-180">keyboard_arrow_down</span>
+            </a>
+
+            <!-- Dropdown Megamenu -->
+            <div class="absolute top-full left-0 pt-2 w-80 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+              <div class="bg-surface-container-lowest/98 backdrop-blur-2xl border border-surface-container rounded-2xl shadow-2xl p-2.5 grid gap-1">
+                <a href="#modules" class="flex items-start gap-3 p-2 rounded-xl hover:bg-surface-container-low transition-colors">
+                  <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="material-symbols-outlined text-[18px]">clinical_notes</span>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-on-surface">Dossier Médical & Triage</p>
+                    <p class="text-[11px] text-outline">Constantes, diagnostics CIM-11 & antécédents</p>
+                  </div>
+                </a>
+                <a href="#modules" class="flex items-start gap-3 p-2 rounded-xl hover:bg-surface-container-low transition-colors">
+                  <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="material-symbols-outlined text-[18px]">event_available</span>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-on-surface">Agenda & Blocs Opératoires</p>
+                    <p class="text-[11px] text-outline">Plannings multi-salles & rappels SMS/WhatsApp</p>
+                  </div>
+                </a>
+                <a href="#modules" class="flex items-start gap-3 p-2 rounded-xl hover:bg-surface-container-low transition-colors">
+                  <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="material-symbols-outlined text-[18px]">health_and_safety</span>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-on-surface">Télétransmission CNSS & Mutuelles</p>
+                    <p class="text-[11px] text-outline">Prise en charge AMO, feuilles de soins & MAD</p>
+                  </div>
+                </a>
+                <a href="#modules" class="flex items-start gap-3 p-2 rounded-xl hover:bg-surface-container-low transition-colors">
+                  <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="material-symbols-outlined text-[18px]">point_of_sale</span>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-on-surface">Caisse & Règlements Multi-modes</p>
+                    <p class="text-[11px] text-outline">Paiements partiels en MAD & session de caisse</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <a href="#telemetry" class="px-3 py-1.5 text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green animate-pulse"></span>
+            <span>Interface Directe</span>
+          </a>
+          <a href="#privacy" class="px-3 py-1.5 text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px] text-primary">verified_user</span>
+            <span>Conformité & CNDP</span>
+          </a>
+          <a href="#pricing" class="px-3 py-1.5 text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors">Tarifs & Essai</a>
         </nav>
       </div>
 
-      <!-- Action Buttons & Language Switcher -->
-      <div class="flex items-center gap-3">
+      <!-- Action Buttons & Badges -->
+      <div class="flex items-center gap-2.5">
+        
+        <!-- Live System Status Badge -->
+        <div class="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/5 border border-primary/15 text-[10px] font-semibold text-primary">
+          <span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green animate-pulse"></span>
+          <span>Cloud Santé 99.98% • Certifié CNDP</span>
+        </div>
+
         <!-- Language Switcher Pill -->
         <div class="hidden sm:inline-flex items-center bg-surface-container-low rounded-lg p-0.5 border border-outline-variant/40 text-xs font-semibold">
           <button id="lang-fr" class="px-2 py-1 rounded bg-surface-container-lowest text-primary shadow-xs" onclick="switchLanguage('fr')">FR</button>
@@ -338,32 +401,32 @@
         </div>
 
         <!-- Sign In Link -->
-        <a href="frontend/dashboard.html" class="hidden sm:inline-flex font-semibold text-sm text-on-surface hover:text-primary transition-colors px-3 py-2 rounded-xl hover:bg-surface-container-low flex items-center gap-1.5">
-          <span class="material-symbols-outlined text-[18px] text-primary">login</span>
-          Connexion Espace Praticien
+        <a href="frontend/dashboard.html" class="hidden sm:inline-flex font-semibold text-xs text-on-surface hover:text-primary transition-colors px-2.5 py-1.5 rounded-lg border border-surface-container hover:border-primary/40 hover:bg-surface-container-low flex items-center gap-1.5 shadow-xs">
+          <span class="material-symbols-outlined text-[16px] text-primary">stethoscope</span>
+          <span>Espace Praticien</span>
         </a>
 
         <!-- Schedule Demo CTA -->
-        <button onclick="openDemoModal('Demande de Démonstration Live')" class="inline-flex items-center justify-center gap-2 font-semibold text-sm bg-primary-container text-on-primary hover:bg-primary transition-all px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md active:scale-[0.98]">
-          <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+        <button onclick="openDemoModal('Demande de Démonstration Live')" class="btn-shimmer inline-flex items-center justify-center gap-1.5 font-bold text-xs bg-gradient-to-r from-primary to-primary-container text-white hover:opacity-95 transition-all px-3.5 py-2 rounded-xl shadow-[0_2px_12px_rgba(0,81,49,0.22)] hover:shadow-[0_4px_18px_rgba(0,81,49,0.35)] hover:scale-102 active:scale-98">
+          <span class="material-symbols-outlined text-[17px]">calendar_today</span>
           <span class="hidden md:inline">Planifier une démo</span>
           <span class="md:hidden">Démo</span>
         </button>
 
         <!-- Mobile Menu Hamburger Button -->
         <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-xl text-on-surface hover:bg-surface-container-low focus:outline-none" aria-label="Ouvrir le menu">
-          <span id="menu-icon" class="material-symbols-outlined text-[24px]">menu</span>
+          <span id="menu-icon" class="material-symbols-outlined text-[19px]">menu</span>
         </button>
       </div>
     </div>
 
     <!-- Mobile Drawer Menu -->
     <div id="mobile-menu" class="hidden lg:hidden border-t border-surface-container bg-surface-container-lowest/98 backdrop-blur-xl px-4 pt-3 pb-6 space-y-2 shadow-xl">
-      <a href="#solutions" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-base font-semibold text-primary hover:bg-surface-container-low">Solutions</a>
-      <a href="#modules" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-base font-medium text-on-surface hover:bg-surface-container-low">Modules Cliniques</a>
-      <a href="#telemetry" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-base font-medium text-on-surface hover:bg-surface-container-low">Interface Directe</a>
-      <a href="#privacy" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-base font-medium text-on-surface hover:bg-surface-container-low">Conformité CNDP & Sécurité</a>
-      <a href="#pricing" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg text-base font-medium text-on-surface hover:bg-surface-container-low">Tarifs & Forfaits</a>
+      <a href="#solutions" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">Solutions</a>
+      <a href="#modules" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Modules Cliniques</a>
+      <a href="#telemetry" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Interface Directe</a>
+      <a href="#privacy" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Conformité CNDP & Sécurité</a>
+      <a href="#pricing" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Tarifs & Forfaits</a>
       <div class="pt-3 border-t border-surface-container flex items-center justify-between">
         <span class="text-xs font-semibold text-outline">Langue :</span>
         <div class="inline-flex items-center bg-surface-container-low rounded-lg p-0.5 text-xs font-semibold">
@@ -387,122 +450,122 @@
       <!-- ===================================================================== -->
       <!-- HERO SECTION WITH 3D DNA SIMULATION -->
       <!-- ===================================================================== -->
-      <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-16">
+      <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-10">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           <!-- Left Text Column -->
           <div class="lg:col-span-6 flex flex-col items-start z-10 reveal-left">
             <!-- Release Badge -->
-            <div class="inline-flex items-center gap-2 bg-secondary-container/70 border border-secondary-fixed-dim/40 px-3.5 py-1 rounded-full mb-5 shadow-xs">
+            <div class="inline-flex items-center gap-1.5 bg-secondary-container/70 border border-secondary-fixed-dim/40 px-3 py-0.5 rounded-full mb-3.5 shadow-xs">
               <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-              <span class="text-xs font-bold text-primary uppercase tracking-wider">Cliniqo OS v4.8 Enterprise Release</span>
+              <span class="text-[11px] font-bold text-primary uppercase tracking-wider">Cliniqo OS v4.8 Enterprise Release</span>
             </div>
 
             <!-- Headline -->
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-on-surface tracking-tight leading-[1.15] mb-5">
+            <h1 class="text-2xl sm:text-3xl lg:text-[2.5rem] font-extrabold text-on-surface tracking-tight leading-[1.2] mb-3.5 max-w-xl">
               Pilotage Clinique de Précision Propulsé par <span class="text-primary underline decoration-primary-light decoration-4 underline-offset-4">l'Intelligence Médicale</span>
             </h1>
 
             <!-- Subtitle -->
-            <p class="text-base sm:text-lg text-on-surface-variant max-w-xl mb-8 leading-relaxed">
+            <p class="text-xs sm:text-sm text-on-surface-variant max-w-lg mb-6 leading-relaxed">
               Le système d'exploitation unifié pour polycliniques, cabinets médicaux et centres de santé. Centralisez le triage, le dossier médical partagé, l'agenda multidisciplinaire et la télétransmission CNSS / mutuelles avec une fluidité absolue.
             </p>
 
             <!-- CTA Action Buttons -->
-            <div class="flex flex-wrap items-center gap-3.5 mb-10">
-              <button onclick="openDemoModal('Demande Prioritaire Démo')" class="btn-shimmer inline-flex items-center justify-center font-bold text-sm bg-primary text-on-primary hover:bg-primary-hover transition-all px-6 py-3.5 rounded-xl shadow-md hover:shadow-xl gap-2 active:scale-95 group">
+            <div class="flex flex-wrap items-center gap-2.5 mb-6">
+              <button onclick="openDemoModal('Demande Prioritaire Démo')" class="btn-shimmer inline-flex items-center justify-center font-bold text-xs sm:text-[13px] bg-primary text-on-primary hover:bg-primary-hover transition-all px-4.5 py-2.5 rounded-xl shadow-md hover:shadow-xl gap-2 active:scale-95 group">
                 <span class="material-symbols-outlined text-[20px]">calendar_add_on</span>
                 Demander une Démo Prioritaire
               </button>
-              <a href="frontend/dashboard.html" class="inline-flex items-center justify-center font-bold text-sm bg-secondary-container text-primary hover:bg-secondary-fixed-dim/50 transition-all px-5 py-3.5 rounded-xl gap-2">
+              <a href="frontend/dashboard.html" class="inline-flex items-center justify-center font-bold text-xs sm:text-[13px] bg-secondary-container text-primary hover:bg-secondary-fixed-dim/50 transition-all px-4 py-2.5 rounded-xl gap-2">
                 <span class="material-symbols-outlined text-[20px]">dashboard</span>
                 Accéder à la Démo Espace Praticien
               </a>
             </div>
 
             <!-- Doctor Avatars Micro-proof -->
-            <div class="flex items-center gap-4 pt-2 border-t border-surface-container-high/60 w-full max-w-lg">
+            <div class="flex items-center gap-3 pt-2.5 border-t border-surface-container-high/60 w-full max-w-md">
               <div class="flex -space-x-3">
                 <div class="relative">
-                  <img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Sarah Chen, Directrice Médicale" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&auto=format&fit=crop&q=80"/>
+                  <img class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Sarah Chen, Directrice Médicale" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&auto=format&fit=crop&q=80"/>
                   <span class="absolute bottom-0 right-0 w-3 h-3 bg-brand-soft-green border-2 border-white rounded-full"></span>
                 </div>
                 <div class="relative">
-                  <img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Anil Patel, Cardiologue Chef" src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80"/>
+                  <img class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Anil Patel, Cardiologue Chef" src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80"/>
                   <span class="absolute bottom-0 right-0 w-3 h-3 bg-brand-soft-green border-2 border-white rounded-full"></span>
                 </div>
                 <div class="relative">
-                  <img class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Amina Mansouri, Pédiatre" src="https://images.unsplash.com/photo-1594824813637-440263f9059f?w=120&auto=format&fit=crop&q=80"/>
+                  <img class="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-surface-container-lowest" alt="Dr. Amina Mansouri, Pédiatre" src="https://images.unsplash.com/photo-1594824813637-440263f9059f?w=120&auto=format&fit=crop&q=80"/>
                   <span class="absolute bottom-0 right-0 w-3 h-3 bg-brand-soft-green border-2 border-white rounded-full"></span>
                 </div>
-                <div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold text-xs shadow-sm ring-2 ring-surface-container-lowest">
+                <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold text-[10px] shadow-sm ring-2 ring-surface-container-lowest">
                   +450
                 </div>
               </div>
               <div class="flex flex-col">
-                <span class="text-xs sm:text-sm font-bold text-on-surface">Validé par les Directeurs Médicaux</span>
-                <span class="text-xs text-outline">Déployé dans plus de 450 centres et cabinets en Europe et au Maroc</span>
+                <span class="text-xs font-bold text-on-surface">Validé par les Directeurs Médicaux</span>
+                <span class="text-[11px] text-outline">Déployé dans plus de 450 centres et cabinets en Europe et au Maroc</span>
               </div>
             </div>
           </div>
 
           <!-- Right Column: 3D DNA Helix (Clean, Floating & Organic - No Box Frame/Cadre) -->
-          <div class="lg:col-span-6 relative flex items-center justify-center min-h-[460px] sm:min-h-[540px] reveal-right">
+          <div class="lg:col-span-6 relative flex items-center justify-center min-h-[320px] sm:min-h-[380px] reveal-right">
             <!-- Bioluminescent Ambient Radial Glow -->
-            <div class="absolute w-[360px] h-[360px] sm:w-[500px] sm:h-[500px] rounded-full bg-gradient-to-tr from-primary-fixed/30 via-brand-soft-mint/20 to-transparent blur-3xl pointer-events-none -z-0 animate-bioglow"></div>
+            <div class="absolute w-[240px] h-[240px] sm:w-[320px] sm:h-[320px] rounded-full bg-gradient-to-tr from-primary-fixed/30 via-brand-soft-mint/20 to-transparent blur-2xl pointer-events-none -z-0 animate-bioglow"></div>
             
             <!-- Three.js Canvas Container (Seamless Floating directly on background) -->
-            <div id="threejs-dna-container" class="w-full h-[460px] sm:h-[540px] bg-transparent dna-canvas-container relative cursor-grab active:cursor-grabbing z-10 flex items-center justify-center"></div>
+            <div id="threejs-dna-container" class="w-full h-[320px] sm:h-[380px] bg-transparent dna-canvas-container relative cursor-grab active:cursor-grabbing z-10 flex items-center justify-center"></div>
           </div>
         </div>
 
         <!-- =================================================================== -->
         <!-- TRUST METRICS BAR WITH LIVE COUNT-UP ON SCROLL -->
         <!-- =================================================================== -->
-        <div class="w-full mt-12 bg-surface-container-lowest/95 backdrop-blur-md border border-surface-container rounded-2xl shadow-sm hover:shadow-md transition-all p-6 sm:p-8 reveal delay-150">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:text-left">
+        <div class="w-full mt-7 bg-surface-container-lowest/95 backdrop-blur-md border border-surface-container rounded-xl shadow-xs hover:shadow-sm transition-all p-4 sm:p-5 reveal delay-150">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center md:text-left">
             
             <div class="flex flex-col p-2 group">
               <div class="flex items-center justify-center md:justify-start gap-2.5 mb-1.5">
-                <span class="w-9 h-9 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-[22px]">apartment</span>
+                <span class="w-7 h-7 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                  <span class="material-symbols-outlined text-[18px]">apartment</span>
                 </span>
-                <span class="text-3xl sm:text-4xl font-extrabold text-primary counter-number" data-target="450" data-suffix="+">450+</span>
+                <span class="text-xl sm:text-2xl font-extrabold text-primary counter-number" data-target="450" data-suffix="+">450+</span>
               </div>
-              <span class="text-sm font-bold text-on-surface mt-1">Centres & Cabinets</span>
+              <span class="text-xs font-bold text-on-surface mt-0.5">Centres & Cabinets</span>
               <span class="text-xs text-outline">Polycliniques, groupes & libéraux</span>
             </div>
 
             <div class="flex flex-col p-2 group">
               <div class="flex items-center justify-center md:justify-start gap-2.5 mb-1.5">
-                <span class="w-9 h-9 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-[22px]">speed</span>
+                <span class="w-7 h-7 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                  <span class="material-symbols-outlined text-[18px]">speed</span>
                 </span>
-                <span class="text-3xl sm:text-4xl font-extrabold text-on-surface counter-number" data-target="99.98" data-decimals="2" data-suffix="%">99.98%</span>
+                <span class="text-xl sm:text-2xl font-extrabold text-on-surface counter-number" data-target="99.98" data-decimals="2" data-suffix="%">99.98%</span>
               </div>
-              <span class="text-sm font-bold text-on-surface mt-1">Disponibilité SLA Garantie</span>
+              <span class="text-xs font-bold text-on-surface mt-0.5">Disponibilité SLA Garantie</span>
               <span class="text-xs text-outline">Zéro interruption de consultation</span>
             </div>
 
             <div class="flex flex-col p-2 group">
               <div class="flex items-center justify-center md:justify-start gap-2.5 mb-1.5">
-                <span class="w-9 h-9 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-[22px]">folder_shared</span>
+                <span class="w-7 h-7 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                  <span class="material-symbols-outlined text-[18px]">folder_shared</span>
                 </span>
-                <span class="text-3xl sm:text-4xl font-extrabold text-primary counter-number" data-target="3.4" data-decimals="1" data-suffix="M+">3.4M+</span>
+                <span class="text-xl sm:text-2xl font-extrabold text-primary counter-number" data-target="3.4" data-decimals="1" data-suffix="M+">3.4M+</span>
               </div>
-              <span class="text-sm font-bold text-on-surface mt-1">Dossiers Médicaux Sécurisés</span>
+              <span class="text-xs font-bold text-on-surface mt-0.5">Dossiers Médicaux Sécurisés</span>
               <span class="text-xs text-outline">Partitionnement multi-tenant strict</span>
             </div>
 
             <div class="flex flex-col p-2 group">
               <div class="flex items-center justify-center md:justify-start gap-2.5 mb-1.5">
-                <span class="w-9 h-9 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-[22px]">verified</span>
+                <span class="w-7 h-7 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-105 transition-transform">
+                  <span class="material-symbols-outlined text-[18px]">verified</span>
                 </span>
-                <span class="text-3xl sm:text-4xl font-extrabold text-on-surface">Lvl 3</span>
+                <span class="text-xl sm:text-2xl font-extrabold text-on-surface">Lvl 3</span>
               </div>
-              <span class="text-sm font-bold text-on-surface mt-1">CNDP • HIPAA • RGPD</span>
+              <span class="text-xs font-bold text-on-surface mt-0.5">CNDP • HIPAA • RGPD</span>
               <span class="text-xs text-outline">Audit SOC2 Type II & BAA légale</span>
             </div>
 
@@ -514,37 +577,37 @@
     <!-- ========================================================================= -->
     <!-- 3 CORE PILLARS: THE CLINICAL PRECISION ENGINE -->
     <!-- ========================================================================= -->
-    <section id="solutions" class="w-full py-16 bg-surface-container-low border-y border-surface-container">
+    <section id="solutions" class="w-full py-10 sm:py-12 bg-surface-container-low border-y border-surface-container">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12 reveal">
+        <div class="flex flex-col items-center text-center max-w-xl mx-auto mb-8 reveal">
           <div class="inline-flex items-center gap-1.5 bg-secondary-container px-3.5 py-1 rounded-full mb-3">
             <span class="material-symbols-outlined text-[16px] text-primary">clinical_notes</span>
             <span class="text-xs font-bold text-primary uppercase tracking-wider">Architecture Institutionnelle</span>
           </div>
-          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-on-surface mb-3">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-surface mb-2">
             Le Moteur de Précision Clinique
           </h2>
-          <p class="text-base text-on-surface-variant">
+          <p class="text-xs sm:text-sm text-on-surface-variant max-w-lg">
             Conçu pour les centres de soins exigeant une fiabilité déterministe, zéro cloisonnement de données et une vélocité sans précédent pour les praticiens.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           
           <!-- Pillar 1: Scheduling -->
-          <div class="interactive-card bg-surface-container-lowest border border-surface-container rounded-2xl p-7 shadow-xs flex flex-col justify-between reveal-left delay-100">
+          <div class="interactive-card bg-surface-container-lowest border border-surface-container rounded-xl p-5 shadow-xs flex flex-col justify-between reveal-left delay-100">
             <div>
-              <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary mb-6">
-                <span class="material-symbols-outlined text-[28px]">calendar_clock</span>
+              <div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary mb-3.5">
+                <span class="material-symbols-outlined text-[20px]">calendar_clock</span>
               </div>
-              <h3 class="text-lg font-bold text-on-surface mb-2">
+              <h3 class="text-sm sm:text-base font-bold text-on-surface mb-1.5">
                 Orchestration Multidisciplinaire & Blocs
               </h3>
-              <p class="text-sm text-on-surface-variant mb-6 leading-relaxed">
+              <p class="text-xs text-on-surface-variant mb-3.5 leading-relaxed">
                 Synchronisation en temps réel avec les vacations médicales, la désinfection des salles d'intervention et l'indice d'urgence au triage.
               </p>
-              <div class="space-y-2.5 mb-6">
+              <div class="space-y-2 mb-3.5">
                 <div class="flex items-center gap-2 text-on-surface text-xs font-medium">
                   <span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
                   <span>Résolution instantanée des conflits de salles</span>
@@ -560,7 +623,7 @@
               </div>
             </div>
             
-            <div class="pt-4 bg-surface-container-low/70 rounded-xl p-3 border border-surface-container">
+            <div class="pt-3 bg-surface-container-low/70 rounded-lg p-2.5 border border-surface-container">
               <div class="flex items-center justify-between text-xs font-semibold">
                 <span class="text-outline">Réduction du Temps d'Attente</span>
                 <span class="text-primary font-bold">-42% Moyen</span>
@@ -572,18 +635,18 @@
           </div>
 
           <!-- Pillar 2: Records & RBAC -->
-          <div class="interactive-card bg-surface-container-lowest border border-surface-container rounded-2xl p-7 shadow-xs flex flex-col justify-between reveal delay-200">
+          <div class="interactive-card bg-surface-container-lowest border border-surface-container rounded-xl p-5 shadow-xs flex flex-col justify-between reveal delay-200">
             <div>
-              <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary mb-6">
-                <span class="material-symbols-outlined text-[28px]">shield_person</span>
+              <div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary mb-3.5">
+                <span class="material-symbols-outlined text-[20px]">shield_person</span>
               </div>
-              <h3 class="text-lg font-bold text-on-surface mb-2">
+              <h3 class="text-sm sm:text-base font-bold text-on-surface mb-1.5">
                 Dossier Médical Ségrégué & RBAC Granulaire
               </h3>
-              <p class="text-sm text-on-surface-variant mb-6 leading-relaxed">
+              <p class="text-xs text-on-surface-variant mb-3.5 leading-relaxed">
                 Chaque patient conserve un dossier distinct. Contrôle strict des permissions : médecins, secrétaires, infirmiers, caissiers et représentants légaux.
               </p>
-              <div class="space-y-2.5 mb-6">
+              <div class="space-y-2 mb-3.5">
                 <div class="flex items-center gap-2 text-on-surface text-xs font-medium">
                   <span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
                   <span>Chiffrement au niveau du champ clinique</span>
@@ -599,7 +662,7 @@
               </div>
             </div>
             
-            <div class="pt-4 bg-surface-container-low/70 rounded-xl p-3 border border-surface-container">
+            <div class="pt-3 bg-surface-container-low/70 rounded-lg p-2.5 border border-surface-container">
               <div class="flex items-center justify-between text-xs font-semibold">
                 <span class="text-outline">Taux de Brèche de Confidentialité</span>
                 <span class="text-primary font-bold">0.000% Garanti</span>
@@ -611,18 +674,18 @@
           </div>
 
           <!-- Pillar 3: Billing & CNSS -->
-          <div class="interactive-card bg-surface-container-lowest border border-surface-container rounded-2xl p-7 shadow-xs flex flex-col justify-between reveal-right delay-300">
+          <div class="interactive-card bg-surface-container-lowest border border-surface-container rounded-xl p-5 shadow-xs flex flex-col justify-between reveal-right delay-300">
             <div>
-              <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-primary mb-6">
-                <span class="material-symbols-outlined text-[28px]">receipt_long</span>
+              <div class="w-9 h-9 rounded-lg bg-secondary-container flex items-center justify-center text-primary mb-3.5">
+                <span class="material-symbols-outlined text-[20px]">receipt_long</span>
               </div>
-              <h3 class="text-lg font-bold text-on-surface mb-2">
+              <h3 class="text-sm sm:text-base font-bold text-on-surface mb-1.5">
                 Facturation, Caisse & Suivi CNSS / Mutuelles
               </h3>
-              <p class="text-sm text-on-surface-variant mb-6 leading-relaxed">
+              <p class="text-xs text-on-surface-variant mb-3.5 leading-relaxed">
                 Paiements partiels multi-échéances en Dirhams (MAD), sessions de caisse avec contrôle d'écart, et préparation des dossiers de remboursement.
               </p>
-              <div class="space-y-2.5 mb-6">
+              <div class="space-y-2 mb-3.5">
                 <div class="flex items-center gap-2 text-on-surface text-xs font-medium">
                   <span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
                   <span>Séparation stricte facturation centre & remboursement</span>
@@ -638,7 +701,7 @@
               </div>
             </div>
             
-            <div class="pt-4 bg-surface-container-low/70 rounded-xl p-3 border border-surface-container">
+            <div class="pt-3 bg-surface-container-low/70 rounded-lg p-2.5 border border-surface-container">
               <div class="flex items-center justify-between text-xs font-semibold">
                 <span class="text-outline">Taux de Validation Premier Dépôt</span>
                 <span class="text-primary font-bold">96.4% Succès CNSS</span>
@@ -656,14 +719,14 @@
     <!-- ========================================================================= -->
     <!-- LIVE INTERACTIVE PLATFORM PREVIEW / TELEMETRY HUB -->
     <!-- ========================================================================= -->
-    <section id="telemetry" class="w-full py-16 bg-surface-container-lowest">
+    <section id="telemetry" class="w-full py-10 sm:py-12 bg-surface-container-lowest">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Header & Specialty Tabs -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 reveal">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 reveal">
           <div class="flex flex-col">
             <span class="text-xs font-bold text-primary uppercase tracking-wider">Interface Opérationnelle en Direct</span>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-on-surface">
+            <h2 class="text-xl sm:text-2xl font-extrabold text-on-surface">
               Chronologie Diagnostique & Hub Clinique
             </h2>
           </div>
@@ -683,17 +746,17 @@
         </div>
 
         <!-- Main Dashboard Mockup Card -->
-        <div class="w-full rounded-2xl bg-surface-container-low p-4 sm:p-6 shadow-xl border border-surface-container reveal delay-150">
+        <div class="w-full rounded-xl bg-surface-container-low p-3.5 sm:p-4.5 shadow-md border border-surface-container reveal delay-150">
           
           <!-- Doctor & Patient Banner -->
-          <div class="flex flex-wrap items-center justify-between gap-4 pb-4 mb-5 bg-surface-container-lowest p-4 sm:p-5 rounded-xl shadow-xs border border-surface-container">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3.5 bg-surface-container-lowest p-3 sm:p-3.5 rounded-lg shadow-xs border border-surface-container">
             <div class="flex items-center gap-4">
-              <div id="doctor-avatar" class="w-12 h-12 rounded-xl bg-primary-container text-on-primary flex items-center justify-center font-bold text-lg shadow-xs">
+              <div id="doctor-avatar" class="w-9 h-9 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-bold text-sm shadow-xs">
                 HL
               </div>
               <div class="flex flex-col">
                 <div class="flex items-center gap-2">
-                  <span id="doctor-name" class="text-base sm:text-lg font-bold text-on-surface">Dr. Helene Laurent, MD</span>
+                  <span id="doctor-name" class="text-sm sm:text-base font-bold text-on-surface">Dr. Helene Laurent, MD</span>
                   <span id="doctor-role" class="px-2.5 py-0.5 rounded-full bg-secondary-container text-primary text-xs font-semibold">Cardiologue Référente</span>
                 </div>
                 <span id="patient-summary" class="text-xs text-outline mt-0.5">Patient : Marcus Vance (Dossier #MED-84920) • Admis : 08:30 • Lit 4B</span>
@@ -705,7 +768,7 @@
                 <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
                 Télémétrie Active
               </span>
-              <button onclick="commitQuickNote()" class="px-4 py-2 bg-primary-container text-on-primary font-semibold text-xs rounded-lg hover:bg-primary transition-all flex items-center gap-1.5 shadow-xs">
+              <button onclick="commitQuickNote()" class="px-3 py-1.5 bg-primary-container text-on-primary font-semibold text-[11px] rounded-lg hover:bg-primary transition-all flex items-center gap-1 shadow-xs">
                 <span class="material-symbols-outlined text-[16px]">edit_note</span>
                 Valider Note Clinique
               </button>
@@ -713,16 +776,16 @@
           </div>
 
           <!-- Dynamic Metrics Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3.5">
             
             <!-- Metric 1 -->
-            <div class="bg-surface-container-lowest p-4 rounded-xl shadow-xs border border-surface-container">
+            <div class="bg-surface-container-lowest p-3 rounded-lg shadow-xs border border-surface-container">
               <div class="flex items-center justify-between mb-1.5">
                 <span id="m1-title" class="text-xs text-outline font-medium">Pression Artérielle Moyenne</span>
                 <span class="material-symbols-outlined text-primary text-[20px]">monitor_heart</span>
               </div>
               <div class="flex items-baseline gap-1.5">
-                <span id="m1-val" class="text-2xl sm:text-3xl font-extrabold text-on-surface">92</span>
+                <span id="m1-val" class="text-lg sm:text-xl font-extrabold text-on-surface">92</span>
                 <span id="m1-unit" class="text-xs text-outline">mmHg (Optimal)</span>
               </div>
               <div id="m1-sub" class="mt-2 text-primary text-xs font-semibold flex items-center gap-1">
@@ -731,13 +794,13 @@
             </div>
 
             <!-- Metric 2 -->
-            <div class="bg-surface-container-lowest p-4 rounded-xl shadow-xs border border-surface-container">
+            <div class="bg-surface-container-lowest p-3 rounded-lg shadow-xs border border-surface-container">
               <div class="flex items-center justify-between mb-1.5">
                 <span id="m2-title" class="text-xs text-outline font-medium">Saturation Oxygène (SpO2)</span>
                 <span class="material-symbols-outlined text-primary text-[20px]">air</span>
               </div>
               <div class="flex items-baseline gap-1.5">
-                <span id="m2-val" class="text-2xl sm:text-3xl font-extrabold text-on-surface">98.4</span>
+                <span id="m2-val" class="text-lg sm:text-xl font-extrabold text-on-surface">98.4</span>
                 <span id="m2-unit" class="text-xs text-outline">% Saturation</span>
               </div>
               <div id="m2-sub" class="mt-2 text-primary text-xs font-semibold flex items-center gap-1">
@@ -746,13 +809,13 @@
             </div>
 
             <!-- Metric 3 -->
-            <div class="bg-surface-container-lowest p-4 rounded-xl shadow-xs border border-surface-container">
+            <div class="bg-surface-container-lowest p-3 rounded-lg shadow-xs border border-surface-container">
               <div class="flex items-center justify-between mb-1.5">
                 <span id="m3-title" class="text-xs text-outline font-medium">Troponine I Sérique</span>
                 <span class="material-symbols-outlined text-primary text-[20px]">biotech</span>
               </div>
               <div class="flex items-baseline gap-1.5">
-                <span id="m3-val" class="text-2xl sm:text-3xl font-extrabold text-on-surface">0.012</span>
+                <span id="m3-val" class="text-lg sm:text-xl font-extrabold text-on-surface">0.012</span>
                 <span id="m3-unit" class="text-xs text-outline">ng/mL</span>
               </div>
               <div id="m3-sub" class="mt-2 text-primary text-xs font-semibold flex items-center gap-1">
@@ -761,13 +824,13 @@
             </div>
 
             <!-- Metric 4: Insurance / CNSS -->
-            <div class="bg-surface-container-lowest p-4 rounded-xl shadow-xs border border-surface-container">
+            <div class="bg-surface-container-lowest p-3 rounded-lg shadow-xs border border-surface-container">
               <div class="flex items-center justify-between mb-1.5">
                 <span id="m4-title" class="text-xs text-outline font-medium">Prise en Charge CNSS / Assur.</span>
                 <span class="material-symbols-outlined text-primary text-[20px]">verified</span>
               </div>
               <div class="flex items-baseline gap-1.5">
-                <span id="m4-val" class="text-2xl sm:text-3xl font-extrabold text-primary">Validée (80%)</span>
+                <span id="m4-val" class="text-lg sm:text-xl font-extrabold text-primary">Validée (80%)</span>
               </div>
               <div id="m4-sub" class="mt-2 text-outline text-xs font-medium">
                 Dossier n° #CNSS-90412 • Solde : 200 DH
@@ -788,7 +851,7 @@
                 </div>
 
                 <!-- SVG Sparkline Waveform Container -->
-                <div class="w-full h-40 bg-surface-container-low rounded-xl p-3 flex flex-col justify-between relative overflow-hidden border border-surface-container">
+                <div class="w-full h-28 bg-surface-container-low rounded-lg p-2.5 flex flex-col justify-between relative overflow-hidden border border-surface-container">
                   <div class="flex justify-between text-outline text-[11px] font-medium z-10">
                     <span id="wave-top-label">74 bpm régulier</span>
                     <span>Vitesse 25 mm/s • Étalonnage 10 mm/mV</span>
@@ -796,7 +859,7 @@
                   </div>
 
                   <!-- Dynamic SVG Wave Path -->
-                  <svg id="sparkline-svg" class="w-full h-24 text-primary transition-all duration-700 filter drop-shadow-[0_2px_8px_rgba(16,185,129,0.35)]" fill="none" preserveAspectRatio="none" viewBox="0 0 900 100">
+                  <svg id="sparkline-svg" class="w-full h-16 text-primary transition-all duration-700 filter drop-shadow-[0_2px_6px_rgba(16,185,129,0.3)]" fill="none" preserveAspectRatio="none" viewBox="0 0 900 100">
                     <path d="M0,50 L80,50 L95,45 L105,58 L115,50 L140,50 L145,20 L152,95 L160,50 L175,50 L190,38 L200,50 L280,50 L295,45 L305,58 L315,50 L340,50 L345,20 L352,95 L360,50 L375,50 L390,38 L400,50 L480,50 L495,45 L505,58 L515,50 L540,50 L545,20 L552,95 L560,50 L575,50 L590,38 L600,50 L680,50 L695,45 L705,58 L715,50 L740,50 L745,20 L752,95 L760,50 L775,50 L790,38 L800,50 L900,50" 
                           stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" class="ecg-path-animated"></path>
                   </svg>
@@ -900,7 +963,7 @@
     <!-- ========================================================================= -->
     <!-- MODULES ARCHITECTURE (According to Cahier des Charges) -->
     <!-- ========================================================================= -->
-    <section id="modules" class="w-full py-16 bg-surface-container-low border-y border-surface-container">
+    <section id="modules" class="w-full py-10 sm:py-12 bg-surface-container-low border-y border-surface-container">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12 reveal">
@@ -913,15 +976,15 @@
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           
           <!-- Module 1: Patient & Famille -->
-          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-75">
-            <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
-              <span class="material-symbols-outlined text-[24px]">family_restroom</span>
+          <div class="interactive-card bg-surface-container-lowest p-4.5 rounded-xl border border-surface-container shadow-xs reveal delay-75">
+            <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center mb-2.5">
+              <span class="material-symbols-outlined text-[19px]">family_restroom</span>
             </div>
-            <h3 class="text-base font-bold text-on-surface mb-2">Patients & Dossiers Familiaux</h3>
-            <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+            <h3 class="text-sm font-bold text-on-surface mb-1">Patients & Dossiers Familiaux</h3>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mb-2.5">
               Regroupement familial avec séparation stricte des dossiers médicaux individuels. Droits tuteur/enfants et gestion des consentements légaux.
             </p>
             <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
@@ -930,12 +993,12 @@
           </div>
 
           <!-- Module 2: Agenda & Réservation Publique -->
-          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-150">
-            <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
-              <span class="material-symbols-outlined text-[24px]">event_available</span>
+          <div class="interactive-card bg-surface-container-lowest p-4.5 rounded-xl border border-surface-container shadow-xs reveal delay-150">
+            <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center mb-2.5">
+              <span class="material-symbols-outlined text-[19px]">event_available</span>
             </div>
-            <h3 class="text-base font-bold text-on-surface mb-2">Agenda & Portail de Réservation</h3>
-            <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+            <h3 class="text-sm font-bold text-on-surface mb-1">Agenda & Portail de Réservation</h3>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mb-2.5">
               Page publique par centre sans compte obligatoire. Numéros marocains normalisés (+212, 06, 07), anti-chevauchement et synchronisation secrétariat.
             </p>
             <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
@@ -944,12 +1007,12 @@
           </div>
 
           <!-- Module 3: Dossier Médical & Consultation -->
-          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-200">
-            <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
-              <span class="material-symbols-outlined text-[24px]">clinical_notes</span>
+          <div class="interactive-card bg-surface-container-lowest p-4.5 rounded-xl border border-surface-container shadow-xs reveal delay-200">
+            <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center mb-2.5">
+              <span class="material-symbols-outlined text-[19px]">clinical_notes</span>
             </div>
-            <h3 class="text-base font-bold text-on-surface mb-2">Consultations & Prescriptions</h3>
-            <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+            <h3 class="text-sm font-bold text-on-surface mb-1">Consultations & Prescriptions</h3>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mb-2.5">
               Cycle complet : Arrivée &rarr; Constantes &rarr; Examen &rarr; Diagnostic CIM-11 &rarr; Ordonnance PDF avec QR Code certifié et signature.
             </p>
             <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
@@ -958,12 +1021,12 @@
           </div>
 
           <!-- Module 4: Facturation & Caisse Multi-modes -->
-          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-100">
-            <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
-              <span class="material-symbols-outlined text-[24px]">point_of_sale</span>
+          <div class="interactive-card bg-surface-container-lowest p-4.5 rounded-xl border border-surface-container shadow-xs reveal delay-100">
+            <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center mb-2.5">
+              <span class="material-symbols-outlined text-[19px]">point_of_sale</span>
             </div>
-            <h3 class="text-base font-bold text-on-surface mb-2">Facturation & Clôture de Caisse</h3>
-            <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+            <h3 class="text-sm font-bold text-on-surface mb-1">Facturation & Clôture de Caisse</h3>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mb-2.5">
               Paiements partiels échelonnés (ex: 800 DH en 300+200 DH, reste 300 DH). Sessions de caisse journalières avec traçabilité intégrale des écarts.
             </p>
             <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
@@ -972,12 +1035,12 @@
           </div>
 
           <!-- Module 5: Dossiers CNSS & Mutuelles -->
-          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-200">
-            <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
-              <span class="material-symbols-outlined text-[24px]">health_and_safety</span>
+          <div class="interactive-card bg-surface-container-lowest p-4.5 rounded-xl border border-surface-container shadow-xs reveal delay-200">
+            <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center mb-2.5">
+              <span class="material-symbols-outlined text-[19px]">health_and_safety</span>
             </div>
-            <h3 class="text-base font-bold text-on-surface mb-2">Suivi CNSS, AMO & Remboursements</h3>
-            <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+            <h3 class="text-sm font-bold text-on-surface mb-1">Suivi CNSS, AMO & Remboursements</h3>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mb-2.5">
               Préparation des dossiers physiques et numériques, inventaire des pièces justificatives et alertes en cas de document manquant avant soumission.
             </p>
             <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
@@ -986,12 +1049,12 @@
           </div>
 
           <!-- Module 6: Mobile Flutter & Multi-tenant -->
-          <div class="interactive-card bg-surface-container-lowest p-6 rounded-2xl border border-surface-container shadow-xs reveal delay-300">
-            <div class="w-10 h-10 rounded-xl bg-primary-container/10 text-primary flex items-center justify-center mb-4">
-              <span class="material-symbols-outlined text-[24px]">phone_iphone</span>
+          <div class="interactive-card bg-surface-container-lowest p-4.5 rounded-xl border border-surface-container shadow-xs reveal delay-300">
+            <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center mb-2.5">
+              <span class="material-symbols-outlined text-[19px]">phone_iphone</span>
             </div>
-            <h3 class="text-base font-bold text-on-surface mb-2">App Mobile Flutter & Multi-sites</h3>
-            <p class="text-xs text-on-surface-variant leading-relaxed mb-4">
+            <h3 class="text-sm font-bold text-on-surface mb-1">App Mobile Flutter & Multi-sites</h3>
+            <p class="text-[11px] text-on-surface-variant leading-relaxed mb-2.5">
               Application cross-platform iOS & Android connectée à l'API Laravel. Gestion multi-branches, notifications push et consultations des plannings.
             </p>
             <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
@@ -1007,7 +1070,7 @@
     <!-- ========================================================================= -->
     <!-- CHIEF MEDICAL DIRECTORS TESTIMONIALS -->
     <!-- ========================================================================= -->
-    <section class="w-full py-16 bg-surface-container-lowest">
+    <section class="w-full py-10 sm:py-12 bg-surface-container-lowest">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-12 reveal">
@@ -1020,10 +1083,10 @@
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           
           <!-- Testimonial 1 -->
-          <div class="interactive-card bg-surface-container-low p-6 sm:p-8 rounded-2xl border border-surface-container flex flex-col justify-between reveal-left delay-100">
+          <div class="interactive-card bg-surface-container-low p-4 sm:p-5 rounded-xl border border-surface-container flex flex-col justify-between reveal-left delay-100">
             <div>
               <div class="flex items-center gap-1 text-primary mb-4">
                 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
@@ -1032,13 +1095,13 @@
                 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
                 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
               </div>
-              <p class="text-sm sm:text-base text-on-surface italic mb-6 leading-relaxed">
+              <p class="text-xs sm:text-sm text-on-surface italic mb-4 leading-relaxed">
                 « Cliniqo a fait chuter le temps d'attente de notre bloc opératoire et consultations de 45 minutes d'allers-retours de dossiers à moins de 4 secondes. Nos médecins consacrent désormais toute leur attention là où elle compte : au chevet du patient. »
               </p>
             </div>
             
             <div class="flex items-center gap-3.5 pt-4 border-t border-surface-container bg-surface-container-lowest p-3 rounded-xl">
-              <img class="w-12 h-12 rounded-xl object-cover shadow-xs" alt="Dr. Arthur Sterling" src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80"/>
+              <img class="w-9 h-9 rounded-lg object-cover shadow-xs" alt="Dr. Arthur Sterling" src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120&auto=format&fit=crop&q=80"/>
               <div class="flex flex-col">
                 <span class="text-sm font-bold text-on-surface">Dr. Arthur Sterling, MD, FACS</span>
                 <span class="text-xs text-primary font-semibold">Directeur Médical, Clinique Métropolitaine</span>
@@ -1048,7 +1111,7 @@
           </div>
 
           <!-- Testimonial 2 -->
-          <div class="interactive-card bg-surface-container-low p-6 sm:p-8 rounded-2xl border border-surface-container flex flex-col justify-between reveal-right delay-200">
+          <div class="interactive-card bg-surface-container-low p-4 sm:p-5 rounded-xl border border-surface-container flex flex-col justify-between reveal-right delay-200">
             <div>
               <div class="flex items-center gap-1 text-primary mb-4">
                 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
@@ -1057,13 +1120,13 @@
                 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
                 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">star</span>
               </div>
-              <p class="text-sm sm:text-base text-on-surface italic mb-6 leading-relaxed">
+              <p class="text-xs sm:text-sm text-on-surface italic mb-4 leading-relaxed">
                 « Le partitionnement souverain des bases et le suivi précis des dossiers de remboursement CNSS ont transformé notre gestion financière. La conformité CNDP marocaine et RGPD a été validée avec zéro non-conformité. »
               </p>
             </div>
             
             <div class="flex items-center gap-3.5 pt-4 border-t border-surface-container bg-surface-container-lowest p-3 rounded-xl">
-              <img class="w-12 h-12 rounded-xl object-cover shadow-xs" alt="Pr. Elena Rostova" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&auto=format&fit=crop&q=80"/>
+              <img class="w-9 h-9 rounded-lg object-cover shadow-xs" alt="Pr. Elena Rostova" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&auto=format&fit=crop&q=80"/>
               <div class="flex flex-col">
                 <span class="text-sm font-bold text-on-surface">Pr. Elena Rostova, PhD</span>
                 <span class="text-xs text-primary font-semibold">Directrice Informatique Clinique, Alliance Santé</span>
@@ -1080,9 +1143,9 @@
     <!-- ========================================================================= -->
     <!-- COMPLIANCE & SOVEREIGN CLOUD SECURITY BANNER -->
     <!-- ========================================================================= -->
-    <section id="privacy" class="w-full py-16 bg-surface-container-low border-y border-surface-container">
+    <section id="privacy" class="w-full py-10 sm:py-12 bg-surface-container-low border-y border-surface-container">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="w-full rounded-3xl bg-secondary-container/50 border border-secondary-fixed-dim/50 p-6 sm:p-10 reveal">
+        <div class="w-full rounded-2xl bg-secondary-container/50 border border-secondary-fixed-dim/50 p-5 sm:p-7 reveal">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             <div class="lg:col-span-8 flex flex-col">
@@ -1099,20 +1162,20 @@
                 Déployez Cliniqo sur notre cloud souverain dédié, hébergé dans le respect strict des réglementations nationales (Loi 09-08 CNDP au Maroc) ou sur serveur hospitalier sur site hermétique (Air-gapped Kubernetes). Zéro fuite de télémétrie.
               </p>
 
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div class="flex flex-col bg-surface-container-lowest p-3 rounded-xl border border-surface-container">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div class="flex flex-col bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container">
                   <span class="text-xs font-bold text-on-surface">AES-256 GCM</span>
                   <span class="text-[11px] text-outline">Chiffrement repos & transit</span>
                 </div>
-                <div class="flex flex-col bg-surface-container-lowest p-3 rounded-xl border border-surface-container">
+                <div class="flex flex-col bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container">
                   <span class="text-xs font-bold text-on-surface">CNDP Maroc</span>
                   <span class="text-[11px] text-outline">Déclaration Loi 09-08</span>
                 </div>
-                <div class="flex flex-col bg-surface-container-lowest p-3 rounded-xl border border-surface-container">
+                <div class="flex flex-col bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container">
                   <span class="text-xs font-bold text-on-surface">SOC 2 Type II</span>
                   <span class="text-[11px] text-outline">Audit annuel tiers</span>
                 </div>
-                <div class="flex flex-col bg-surface-container-lowest p-3 rounded-xl border border-surface-container">
+                <div class="flex flex-col bg-surface-container-lowest p-2.5 rounded-lg border border-surface-container">
                   <span class="text-xs font-bold text-on-surface">BAA HIPAA</span>
                   <span class="text-[11px] text-outline">Contrat de conformité signé</span>
                 </div>
@@ -1120,7 +1183,7 @@
             </div>
 
             <div class="lg:col-span-4 flex flex-col items-start lg:items-end justify-center">
-              <button onclick="downloadWhitepaper()" class="inline-flex items-center justify-center font-bold text-xs bg-surface-container-lowest text-on-surface hover:text-primary transition-all px-5 py-3 rounded-xl shadow-xs hover:shadow-md gap-2 border border-surface-container">
+              <button onclick="downloadWhitepaper()" class="inline-flex items-center justify-center font-bold text-xs bg-surface-container-lowest text-on-surface hover:text-primary transition-all px-3.5 py-2 rounded-lg shadow-xs hover:shadow-md gap-1.5 border border-surface-container">
                 <span class="material-symbols-outlined text-[18px]">description</span>
                 Télécharger le Livre Blanc Sécurité (PDF)
               </button>
@@ -1134,14 +1197,14 @@
     <!-- ========================================================================= -->
     <!-- PRICING TIERS & 30-DAY TRIAL (According to Cahier des Charges) -->
     <!-- ========================================================================= -->
-    <section id="pricing" class="w-full py-16 bg-surface-container-lowest">
+    <section id="pricing" class="w-full py-10 sm:py-12 bg-surface-container-lowest">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div class="flex flex-col items-center text-center max-w-2xl mx-auto mb-8 reveal">
           <div class="inline-flex items-center gap-1.5 bg-primary-fixed/40 px-3 py-1 rounded-full mb-3">
             <span class="text-xs font-bold text-primary uppercase tracking-wider">Essai Gratuit 30 Jours Sans Engagement</span>
           </div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-on-surface">
+          <h2 class="text-lg sm:text-xl font-extrabold text-on-surface">
             Des Forfaits Évolutifs Adaptés à Votre Structure
           </h2>
           <p class="text-sm text-on-surface-variant mt-2">
@@ -1160,10 +1223,10 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
           
           <!-- Plan 1: Cabinet Solo -->
-          <div class="interactive-card bg-surface-container-low rounded-2xl p-7 border border-surface-container flex flex-col justify-between reveal-left delay-100">
+          <div class="interactive-card bg-surface-container-low rounded-xl p-5 border border-surface-container flex flex-col justify-between reveal-left delay-100">
             <div>
               <span class="text-xs font-bold text-outline uppercase tracking-wider">Praticien Individuel</span>
               <h3 class="text-xl font-bold text-on-surface mt-1">Cabinet Solo</h3>
@@ -1177,7 +1240,7 @@
                 <span id="sub-solo" class="text-[11px] text-outline mt-0.5">Sans engagement • Résiliable à tout moment</span>
               </div>
 
-              <ul class="space-y-3 text-xs text-on-surface mb-8">
+              <ul class="space-y-2 text-xs text-on-surface mb-5">
                 <li class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-[16px] text-primary">check</span> 1 Praticien + 1 Secrétaire
                 </li>
@@ -1196,13 +1259,13 @@
               </ul>
             </div>
 
-            <button onclick="openDemoModal('Essai Cabinet Solo (30 jours)')" class="w-full py-2.5 rounded-xl border border-outline-variant font-bold text-xs text-on-surface hover:bg-surface-container-lowest transition-colors">
+            <button onclick="openDemoModal('Essai Cabinet Solo (30 jours)')" class="w-full py-2 rounded-lg border border-outline-variant font-bold text-xs text-on-surface hover:bg-surface-container-lowest transition-colors">
               Démarrer l'Essai 30 Jours
             </button>
           </div>
 
           <!-- Plan 2: Cabinet de Groupe (Popular) -->
-          <div class="interactive-card bg-surface-container-lowest rounded-2xl p-7 border-2 border-primary shadow-xl ring-2 ring-primary/20 flex flex-col justify-between relative reveal delay-200">
+          <div class="interactive-card bg-surface-container-lowest rounded-xl p-5 border-2 border-primary shadow-md ring-2 ring-primary/20 flex flex-col justify-between relative reveal delay-200">
             <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[11px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
               Le Plus Choisi
             </div>
@@ -1220,7 +1283,7 @@
                 <span id="sub-groupe" class="text-[11px] text-primary font-medium mt-0.5">Multi-postes & assistance dédiée</span>
               </div>
 
-              <ul class="space-y-3 text-xs text-on-surface mb-8">
+              <ul class="space-y-2 text-xs text-on-surface mb-5">
                 <li class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-[16px] text-primary">check</span> Jusqu'à 5 Praticiens + 4 Secrétaires
                 </li>
@@ -1242,13 +1305,13 @@
               </ul>
             </div>
 
-            <button onclick="openDemoModal('Essai Cabinet de Groupe (30 jours)')" class="w-full py-3 rounded-xl bg-primary-container text-white font-bold text-xs hover:bg-primary transition-colors shadow-sm">
+            <button onclick="openDemoModal('Essai Cabinet de Groupe (30 jours)')" class="w-full py-2.5 rounded-lg bg-primary-container text-white font-bold text-xs hover:bg-primary transition-colors shadow-sm">
               Commencer Gratuitement (30 Jours)
             </button>
           </div>
 
           <!-- Plan 3: Polyclinique & Centre Médical -->
-          <div class="interactive-card bg-surface-container-low rounded-2xl p-7 border border-surface-container flex flex-col justify-between reveal-right delay-300">
+          <div class="interactive-card bg-surface-container-low rounded-xl p-5 border border-surface-container flex flex-col justify-between reveal-right delay-300">
             <div>
               <span class="text-xs font-bold text-outline uppercase tracking-wider">Établissements & Cliniques</span>
               <h3 class="text-xl font-bold text-on-surface mt-1">Centre Multidisciplinaire</h3>
@@ -1258,7 +1321,7 @@
                 <span class="text-3xl font-extrabold text-on-surface">Sur Mesure</span>
               </div>
 
-              <ul class="space-y-3 text-xs text-on-surface mb-8">
+              <ul class="space-y-2 text-xs text-on-surface mb-5">
                 <li class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-[16px] text-primary">check</span> Praticiens & branches illimités
                 </li>
@@ -1277,7 +1340,7 @@
               </ul>
             </div>
 
-            <button onclick="openDemoModal('Devis Polyclinique Multidisciplinaire')" class="w-full py-2.5 rounded-xl border border-outline-variant font-bold text-xs text-on-surface hover:bg-surface-container-lowest transition-colors">
+            <button onclick="openDemoModal('Devis Polyclinique Multidisciplinaire')" class="w-full py-2 rounded-lg border border-outline-variant font-bold text-xs text-on-surface hover:bg-surface-container-lowest transition-colors">
               Consulter un Architecte Solutions
             </button>
           </div>
@@ -1290,9 +1353,9 @@
     <!-- ========================================================================= -->
     <!-- FINAL CTA CONVERSION RIBBON WITH CALENDAR SLOT SELECTOR -->
     <!-- ========================================================================= -->
-    <section id="demo" class="w-full py-16 bg-surface-container-low">
+    <section id="demo" class="w-full py-10 sm:py-12 bg-surface-container-low">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-surface-container-lowest rounded-3xl shadow-xl border border-surface-container overflow-hidden p-6 sm:p-10 reveal">
+        <div class="bg-surface-container-lowest rounded-2xl shadow-lg border border-surface-container overflow-hidden p-5 sm:p-7 reveal">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             <!-- Left Column: Pitch -->
@@ -1302,16 +1365,16 @@
                 <span class="text-xs font-bold text-primary uppercase tracking-wider">Déploiement Garanti en Moins de 30 Jours</span>
               </div>
               
-              <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-on-surface mb-3">
+              <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-on-surface mb-2">
                 Modernisez Votre Gestion Clinique Dès Aujourd'hui
               </h2>
               
-              <p class="text-sm sm:text-base text-on-surface-variant max-w-xl mb-6 leading-relaxed">
+              <p class="text-xs sm:text-sm text-on-surface-variant max-w-lg mb-4 leading-relaxed">
                 Réservez une session privée de 30 minutes avec un consultant médical Cliniqo. Nous analyserons vos logiciels actuels et configurerons une maquette adaptée à votre spécialité et vos flux.
               </p>
 
               <div class="flex flex-wrap items-center gap-4">
-                <button onclick="openDemoModalWithSelectedSlot()" class="inline-flex items-center justify-center font-bold text-sm bg-primary-container text-on-primary hover:bg-primary transition-all px-6 py-3.5 rounded-xl shadow-md gap-2">
+                <button onclick="openDemoModalWithSelectedSlot()" class="inline-flex items-center justify-center font-bold text-xs sm:text-sm bg-primary-container text-on-primary hover:bg-primary transition-all px-4.5 py-2.5 rounded-xl shadow-md gap-2">
                   <span class="material-symbols-outlined text-[20px]">send</span>
                   Confirmer le Rendez-vous Privé
                 </button>
@@ -1320,7 +1383,7 @@
             </div>
 
             <!-- Right Column: Interactive Slot Selector -->
-            <div class="lg:col-span-5 bg-surface-container-low p-5 rounded-2xl border border-surface-container">
+            <div class="lg:col-span-5 bg-surface-container-low p-4 rounded-xl border border-surface-container">
               <div class="flex items-center justify-between pb-3 mb-3 border-b border-surface-container">
                 <div class="flex items-center gap-2">
                   <span class="material-symbols-outlined text-primary text-[20px]">calendar_month</span>
@@ -1649,12 +1712,12 @@
 
       // DNA Geometry
       const numBasePairs = 54;
-      const helixRadius = 6.2;
-      const helixHeight = 65;
+      const helixRadius = 4.4;
+      const helixHeight = 46;
       const twistRate = 0.28;
 
-      const sphereGeoLarge = new THREE.SphereGeometry(0.72, 20, 20);
-      const sphereGeoSmall = new THREE.SphereGeometry(0.50, 16, 16);
+      const sphereGeoLarge = new THREE.SphereGeometry(0.48, 16, 16);
+      const sphereGeoSmall = new THREE.SphereGeometry(0.32, 12, 12);
 
       for (let i = 0; i < numBasePairs; i++) {
         const t = (i / numBasePairs) - 0.5;
@@ -1692,7 +1755,7 @@
         const p2 = new THREE.Vector3(x2, y, z2);
         const dist = p1.distanceTo(p2);
 
-        const cylGeo = new THREE.CylinderGeometry(0.14, 0.14, dist, 10);
+        const cylGeo = new THREE.CylinderGeometry(0.09, 0.09, dist, 8);
         const rung = new THREE.Mesh(cylGeo, hydrogenBondMat);
         rung.position.copy(p1).add(p2).multiplyScalar(0.5);
 
@@ -2065,11 +2128,14 @@
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.classList.add('is-visible');
+          } else {
+            // Re-arm animation every time the element leaves the screen!
+            entry.target.classList.remove('is-visible');
           }
         });
       }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -40px 0px'
+        threshold: 0.12,
+        rootMargin: '0px 0px -30px 0px'
       });
 
       revealItems.forEach(item => observer.observe(item));
@@ -2078,7 +2144,7 @@
       setTimeout(() => {
         revealItems.forEach(item => {
           const rect = item.getBoundingClientRect();
-          if (rect.top < window.innerHeight) {
+          if (rect.top < window.innerHeight && rect.bottom > 0) {
             item.classList.add('is-visible');
           }
         });
@@ -2086,30 +2152,27 @@
     }
 
     // -------------------------------------------------------------
-    // ANIMATED TRUST METRICS COUNTERS ON SCROLL
+    // ANIMATED TRUST METRICS COUNTERS (Repeats on every scroll!)
     // -------------------------------------------------------------
     function initCounters() {
       const counters = document.querySelectorAll('.counter-number');
       if (!counters.length) return;
 
-      let hasRun = false;
       const targetSec = counters[0].closest('section') || counters[0].parentElement;
 
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-          if (entry.isIntersecting && !hasRun) {
-            hasRun = true;
+          if (entry.isIntersecting) {
             counters.forEach(counter => {
               const target = parseFloat(counter.getAttribute('data-target') || '0');
               const decimals = parseInt(counter.getAttribute('data-decimals') || '0', 10);
               const suffix = counter.getAttribute('data-suffix') || '';
-              const duration = 1600;
+              const duration = 1200;
               const startTimestamp = performance.now();
 
               function step(timestamp) {
                 const elapsed = timestamp - startTimestamp;
                 const progress = Math.min(elapsed / duration, 1);
-                // Ease out cubic function
                 const easeVal = 1 - Math.pow(1 - progress, 3);
                 const current = (target * easeVal).toFixed(decimals);
                 counter.textContent = current + suffix;
@@ -2123,6 +2186,13 @@
 
               requestAnimationFrame(step);
             });
+          } else {
+            // Reset counters when leaving screen so they animate again on next scroll!
+            counters.forEach(counter => {
+              const decimals = parseInt(counter.getAttribute('data-decimals') || '0', 10);
+              const suffix = counter.getAttribute('data-suffix') || '';
+              counter.textContent = (0).toFixed(decimals) + suffix;
+            });
           }
         });
       }, { threshold: 0.2 });
@@ -2131,7 +2201,7 @@
     }
 
     // -------------------------------------------------------------
-    // ANIMATED PROGRESS BARS ON SCROLL
+    // ANIMATED PROGRESS BARS ON SCROLL (Repeats on every scroll!)
     // -------------------------------------------------------------
     function initProgressBars() {
       const fills = document.querySelectorAll('.scroll-progress-bar-fill');
@@ -2142,6 +2212,9 @@
           if (entry.isIntersecting) {
             const targetWidth = entry.target.getAttribute('data-target-width') || '0%';
             entry.target.style.width = targetWidth;
+          } else {
+            // Reset to 0% so progress bars animate again on every scroll!
+            entry.target.style.width = '0%';
           }
         });
       }, { threshold: 0.2 });
