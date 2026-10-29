@@ -368,6 +368,24 @@
                     <p class="text-[11px] text-outline">Paiements partiels en MAD & session de caisse</p>
                   </div>
                 </a>
+                <a href="dashboard.html#stock" class="flex items-start gap-3 p-2 rounded-xl hover:bg-surface-container-low transition-colors">
+                  <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="material-symbols-outlined text-[18px]">inventory_2</span>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-on-surface">Dépenses & Stock Pharmacie</p>
+                    <p class="text-[11px] text-outline">Gestion des charges, inventaire & seuils d'alerte</p>
+                  </div>
+                </a>
+                <a href="dashboard.html#settings" class="flex items-start gap-3 p-2 rounded-xl hover:bg-surface-container-low transition-colors">
+                  <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span class="material-symbols-outlined text-[18px]">settings</span>
+                  </div>
+                  <div>
+                    <p class="text-xs font-bold text-on-surface">Paramétrage & Conformité CNDP</p>
+                    <p class="text-[11px] text-outline">Multi-centres, utilisateurs RBAC & sauvegardes</p>
+                  </div>
+                </a>
               </div>
             </div>
           </div>
@@ -401,7 +419,7 @@
         </div>
 
         <!-- Sign In Link -->
-        <a href="frontend/dashboard.html" class="hidden sm:inline-flex font-semibold text-xs text-on-surface hover:text-primary transition-colors px-2.5 py-1.5 rounded-lg border border-surface-container hover:border-primary/40 hover:bg-surface-container-low flex items-center gap-1.5 shadow-xs">
+        <a href="dashboard.html" class="hidden sm:inline-flex font-semibold text-xs text-on-surface hover:text-primary transition-colors px-2.5 py-1.5 rounded-lg border border-surface-container hover:border-primary/40 hover:bg-surface-container-low flex items-center gap-1.5 shadow-xs">
           <span class="material-symbols-outlined text-[16px] text-primary">stethoscope</span>
           <span>Espace Praticien</span>
         </a>
@@ -424,6 +442,17 @@
     <div id="mobile-menu" class="hidden lg:hidden border-t border-surface-container bg-surface-container-lowest/98 backdrop-blur-xl px-4 pt-3 pb-6 space-y-2 shadow-xl">
       <a href="#solutions" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">Solutions</a>
       <a href="#modules" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Modules Cliniques</a>
+      <a href="dashboard.html#stock" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low flex items-center justify-between">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[17px] text-primary">inventory_2</span>
+          <span>Dépenses &amp; Stock</span>
+        </span>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">Nouveau</span>
+      </a>
+      <a href="dashboard.html#settings" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low flex items-center gap-2">
+        <span class="material-symbols-outlined text-[17px] text-primary">settings</span>
+        <span>Paramétrage</span>
+      </a>
       <a href="#telemetry" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Interface Directe</a>
       <a href="#privacy" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Conformité CNDP & Sécurité</a>
       <a href="#pricing" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Tarifs & Forfaits</a>
@@ -477,7 +506,7 @@
                 <span class="material-symbols-outlined text-[20px]">calendar_add_on</span>
                 Demander une Démo Prioritaire
               </button>
-              <a href="frontend/dashboard.html" class="inline-flex items-center justify-center font-bold text-xs sm:text-[13px] bg-secondary-container text-primary hover:bg-secondary-fixed-dim/50 transition-all px-4 py-2.5 rounded-xl gap-2">
+              <a href="dashboard.html" class="inline-flex items-center justify-center font-bold text-xs sm:text-[13px] bg-secondary-container text-primary hover:bg-secondary-fixed-dim/50 transition-all px-4 py-2.5 rounded-xl gap-2">
                 <span class="material-symbols-outlined text-[20px]">dashboard</span>
                 Accéder à la Démo Espace Praticien
               </a>

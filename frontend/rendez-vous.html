@@ -145,26 +145,26 @@
           </div>
         </a>
 
-        <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest border border-outline-variant/35 hover:border-primary/40 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-pill transition-all">
-          <span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green animate-pulse"></span>
-          <span id="active-branch-name">Grand Central</span>
-          <span class="material-symbols-outlined text-[14px] text-outline">expand_more</span>
+        <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest border border-outline-variant/35 hover:border-primary/40 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-pill transition-all" title="Détails du Cabinet Médical">
+          <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-pulse"></span>
+          <span id="active-branch-name" class="font-bold text-on-surface">Cabinet Médical Cliniqo</span>
+          <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Solo</span>
+          <span class="material-symbols-outlined text-[13px] text-outline">info</span>
         </button>
 
-        <div id="branch-menu" onclick="event.stopPropagation()" class="hidden absolute left-0 top-10 w-64 bg-surface-container-lowest rounded-2xl shadow-floatCard border border-outline-variant/40 p-1.5 z-50 modal-pop">
-          <div class="px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wider text-outline">Changer d’établissement (Multi-Tenant)</div>
-          <button onclick="switchTenant(1)" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-[11.5px] font-semibold text-on-surface">
-            <div><span class="block">Polyclinique Grand Central</span><span class="text-[10px] text-outline font-normal">Casablanca • Médecine &amp; Cardio</span></div>
-            <span id="tenant-dot-1" class="w-2 h-2 rounded-full bg-brand-soft-green"></span>
-          </button>
-          <button onclick="switchTenant(2)" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-[11.5px] font-semibold text-on-surface">
-            <div><span class="block">Centre Diagnostic Anfa</span><span class="text-[10px] text-outline font-normal">Casablanca • Biologie &amp; Oncologie</span></div>
-            <span id="tenant-dot-2" class="w-2 h-2 rounded-full bg-transparent"></span>
-          </button>
-          <button onclick="switchTenant(3)" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-[11.5px] font-semibold text-on-surface">
-            <div><span class="block">Clinique Agdal Santé</span><span class="text-[10px] text-outline font-normal">Rabat • Pôle Multidisciplinaire</span></div>
-            <span id="tenant-dot-3" class="w-2 h-2 rounded-full bg-transparent"></span>
-          </button>
+        <div id="branch-menu" onclick="event.stopPropagation()" class="hidden absolute left-0 top-10 w-72 bg-surface-container-lowest rounded-2xl shadow-floatCard border border-outline-variant/40 p-2 z-50 modal-pop">
+          <div class="p-3 bg-secondary-container/35 rounded-xl border border-primary/20 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-primary">Cabinet Médical Privé</span>
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary text-white">Mono-Cabinet</span>
+            </div>
+            <h4 class="text-xs font-extrabold text-on-surface">Cabinet Médical Cliniqo</h4>
+            <p class="text-[10.5px] text-outline leading-tight">142 Boulevard Zerktouni, Quartier Maarif, 20100 Casablanca</p>
+            <div class="flex items-center gap-1.5 pt-1 text-[10px] font-semibold text-primary">
+              <span class="material-symbols-outlined text-[13px] text-brand-soft-green">verified</span>
+              <span>Agréé Loi 131-13 • Conformité CNDP</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -188,9 +188,41 @@
           <a href="dashboard.html#finance" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Facturation &amp; CNSS
           </a>
+
+          <!-- Dépenses & Stock -->
+          <div class="relative group">
+            <a href="dashboard.html#stock" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Dépenses & Pharmacie / Stock">
+              <span>Dépenses &amp; Stock</span>
+              <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary group-hover:scale-105 transition-transform">12</span>
+              <span class="material-symbols-outlined text-[13px] text-outline transition-transform duration-200 group-hover:rotate-180">expand_more</span>
+            </a>
+            <div class="absolute top-full left-1/2 -translate-x-1/2 pt-1.5 w-52 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+              <div class="bg-surface-container-lowest/98 backdrop-blur-xl border border-outline-variant/35 rounded-2xl shadow-xl p-1.5 space-y-0.5 text-left">
+                <a href="dashboard.html#stock" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">inventory_2</span>
+                  <span>Stock Médical</span>
+                </a>
+                <a href="dashboard.html#expenses" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">receipt_long</span>
+                  <span>Dépenses &amp; Charges</span>
+                </a>
+                <a href="dashboard.html#stock" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">description</span>
+                  <span>Pièces &amp; Documents</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
           <a href="dashboard.html#reports" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Rapports
           </a>
+
+          <!-- Paramétrage -->
+          <button onclick="openModal('settings-modal')" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1 group" title="Paramétrage & Administration">
+            <span class="material-symbols-outlined text-[13.5px] text-outline group-hover:text-primary group-hover:rotate-45 transition-transform duration-300">settings</span>
+            <span>Paramétrage</span>
+          </button>
         </div>
       </nav>
 
@@ -202,16 +234,17 @@
           <kbd class="hidden sm:inline text-[9.5px] px-1 rounded bg-surface-container-low text-outline">⌘K</kbd>
         </button>
 
-        <div class="bg-surface-container-lowest border border-outline-variant/35 rounded-full pl-1 pr-1.5 py-1 shadow-pill flex items-center gap-2">
-          <button onclick="cycleDoctorDuty()" title="Changer le statut de garde" class="flex items-center gap-2 text-left pr-0.5 group">
+        <div class="relative bg-surface-container-lowest border border-outline-variant/35 rounded-full pl-1 pr-1.5 py-1 shadow-pill flex items-center gap-2">
+          <button onclick="toggleRoleSelector(event)" title="Changer de rôle (Owner / Admin / Docteur)" class="flex items-center gap-2 text-left pr-0.5 group">
             <div class="relative">
-              <img class="w-7 h-7 rounded-full object-cover ring-1 ring-primary/25" src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120" alt="Dr. Jackson"/>
+              <img id="header-user-avatar" class="w-7 h-7 rounded-full object-cover ring-1 ring-primary/25" src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120" alt="Dr. Jackson"/>
               <span id="duty-dot" class="w-2 h-2 rounded-full bg-brand-soft-green ring-1 ring-white absolute bottom-0 right-0"></span>
             </div>
             <div class="leading-none">
-              <span id="duty-label" class="block text-[9.5px] text-outline font-medium">En garde</span>
-              <span class="block text-[11.5px] font-bold text-on-surface group-hover:text-primary transition-colors mt-0.5">Dr. Jackson</span>
+              <span id="duty-label" class="block text-[9.5px] text-outline font-medium">Propriétaire (Owner)</span>
+              <span id="header-user-name" class="block text-[11.5px] font-bold text-on-surface group-hover:text-primary transition-colors mt-0.5">Dr. Jackson</span>
             </div>
+            <span class="material-symbols-outlined text-[14px] text-outline group-hover:text-primary transition-colors">unfold_more</span>
           </button>
 
           <div class="flex items-center gap-1">
@@ -219,8 +252,46 @@
               <span class="material-symbols-outlined text-[15px]">notifications</span>
               <span id="notif-dot" class="w-1.5 h-1.5 rounded-full bg-error absolute top-1.5 right-1.5"></span>
             </button>
-            <button onclick="openModal('settings-modal')" title="Paramètres de la clinique" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
+            <a href="dashboard.html" title="Tableau de bord &amp; Paramètres" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
               <span class="material-symbols-outlined text-[15px]">settings</span>
+            </a>
+          </div>
+
+          <!-- Menu Déroulant Instantané des 3 Rôles Officiels -->
+          <div id="quick-role-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 top-11 w-64 bg-surface-container-lowest rounded-2xl shadow-floatCard border border-outline-variant/40 p-2 z-50 modal-pop space-y-1">
+            <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-outline flex items-center justify-between">
+              <span>Rôles du Cabinet</span>
+              <span class="text-[9px] font-semibold text-primary">1-Clic Rapide</span>
+            </div>
+            <button onclick="switchRoleFast('owner')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
+              <div class="w-8 h-8 rounded-full bg-amber-500/15 text-amber-700 flex items-center justify-center font-bold text-sm">👑</div>
+              <div class="flex-1 leading-tight">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Owner</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">Propriétaire</span>
+                </div>
+                <span class="text-[10px] text-outline">Dr. Jackson • Plein Pouvoir</span>
+              </div>
+            </button>
+            <button onclick="switchRoleFast('admin')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
+              <div class="w-8 h-8 rounded-full bg-emerald-500/15 text-primary flex items-center justify-center font-bold text-sm">💼</div>
+              <div class="flex-1 leading-tight">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Admin</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Gestionnaire</span>
+                </div>
+                <span class="text-[10px] text-outline">Sarah Benali • Accueil &amp; Caisse</span>
+              </div>
+            </button>
+            <button onclick="switchRoleFast('docteur')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
+              <div class="w-8 h-8 rounded-full bg-blue-500/15 text-blue-700 flex items-center justify-center font-bold text-sm">🩺</div>
+              <div class="flex-1 leading-tight">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Docteur</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800">Médecin</span>
+                </div>
+                <span class="text-[10px] text-outline">Dr. Alimi Jan • Consultations &amp; DME</span>
+              </div>
             </button>
           </div>
         </div>
@@ -939,7 +1010,7 @@
           </div>
           <div>
             <strong class="text-sm text-on-surface block">Cliniqo Cloud Médical</strong>
-            <span id="print-clinic-sub" class="text-[10px] text-outline">Polyclinique Grand Central</span>
+            <span id="print-clinic-sub" class="text-[10px] text-outline">Cabinet Médical Cliniqo • Maarif</span>
           </div>
         </div>
         <span class="px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">ORDONNANCE QR</span>
@@ -963,6 +1034,7 @@
   <!-- ========================================================================= -->
   <!-- LOGIQUE JAVASCRIPT : AGENDA DÉDIÉ & CRUD RENDEZ-VOUS EN FRANÇAIS -->
   <!-- ========================================================================= -->
+  <script src="js/cliniqo-pdf.js"></script>
   <script>
     const API_BASE = 'http://127.0.0.1:8001/api/v1';
     const TODAY_ISO = '2026-10-29';
@@ -976,16 +1048,14 @@
     }
 
     const fallbackDoctors = [
-      { id: 1, name: 'Dr. Alimi Jan', specialty: 'Cardiologue', room: 'Salle 102', fee_mad: 650, inpe: 'INPE-0412890', phone: '+212 661-102030', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120' },
-      { id: 2, name: 'Dr. Karim Tazi', specialty: 'Neurologue', room: 'Labo Neuro 2', fee_mad: 850, inpe: 'INPE-0591124', phone: '+212 661-334455', avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120' },
-      { id: 3, name: 'Dr. Mike Millars', specialty: 'Psychologue', room: 'Cabinet 105', fee_mad: 500, inpe: 'INPE-0773201', phone: '+212 662-556677', avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120' },
-      { id: 4, name: 'Dr. Sarah Chen', specialty: 'Cardiologue', room: 'Salle 101', fee_mad: 600, inpe: 'INPE-0884512', phone: '+212 663-778899', avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=120' },
-      { id: 5, name: 'Dr. Nadia Berrada', specialty: 'Psychologue', room: 'Cabinet 106', fee_mad: 550, inpe: 'INPE-0912044', phone: '+212 664-990011', avatar: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=120' }
+      { id: 1, name: 'Dr. Jackson', specialty: 'Médecin Fondateur / Généraliste', room: 'Salle 101', fee_mad: 600, inpe: 'INPE-0412890', phone: '+212 661-102030', avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120' },
+      { id: 2, name: 'Dr. Alimi Jan', specialty: 'Cardiologue Praticien', room: 'Salle 102', fee_mad: 650, inpe: 'INPE-0591124', phone: '+212 661-334455', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120' },
+      { id: 3, name: 'Dr. Sarah Chen', specialty: 'Consultante Pédiatre', room: 'Salle 103', fee_mad: 500, inpe: 'INPE-0884512', phone: '+212 663-778899', avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=120' }
     ];
 
     const rdvApp = {
       tenantId: Number(localStorage.getItem('cliniqo_tenant_id') || 1),
-      tenantName: 'Polyclinique Grand Central',
+      tenantName: 'Cabinet Médical Cliniqo',
       currency: localStorage.getItem('cliniqo_currency') || 'MAD',
       selectedDate: TODAY_ISO,
       calYear: 2026,
@@ -2207,9 +2277,50 @@
       }
     }
 
+    function toggleRoleSelector(ev) {
+      if (ev) ev.stopPropagation();
+      document.getElementById('branch-menu')?.classList.add('hidden');
+      document.getElementById('notif-popover')?.classList.add('hidden');
+      document.getElementById('quick-role-menu')?.classList.toggle('hidden');
+    }
+
+    async function switchRoleFast(roleKey) {
+      document.getElementById('quick-role-menu')?.classList.add('hidden');
+      const roleMap = { owner: 1, admin: 2, docteur: 3 };
+      const userId = roleMap[roleKey] || 1;
+      const roleNames = {
+        owner: { name: 'Dr. Jackson', label: 'Propriétaire (Owner)' },
+        admin: { name: 'Sarah Benali', label: 'Administrateur (Admin)' },
+        docteur: { name: 'Dr. Alimi Jan', label: 'Docteur (Médecin)' }
+      };
+      const info = roleNames[roleKey] || roleNames.owner;
+      const nameEl = document.getElementById('header-user-name');
+      const labelEl = document.getElementById('duty-label');
+      if (nameEl) nameEl.textContent = info.name;
+      if (labelEl) labelEl.textContent = info.label;
+
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ user_id: userId })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.token) {
+            localStorage.setItem('cliniqo_staff_token', data.token);
+          }
+          if (data.state) syncFromServerState(data.state);
+        }
+      } catch (_) {}
+
+      notify(`Rôle actif : ${info.label}`);
+    }
+
     document.addEventListener('click', () => {
       document.getElementById('branch-menu')?.classList.add('hidden');
       document.getElementById('notif-popover')?.classList.add('hidden');
+      document.getElementById('quick-role-menu')?.classList.add('hidden');
     });
 
     document.addEventListener('keydown', (e) => {
@@ -2222,6 +2333,7 @@
         ['doctor-modal', 'patient-modal', 'search-modal', 'settings-modal', 'print-modal'].forEach(closeModal);
         closeDmeDrawer();
         closeDaySheet();
+        document.getElementById('quick-role-menu')?.classList.add('hidden');
       } else if (!inInput && !e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'n') {
         e.preventDefault();
         openDaySheetForAdd(rdvApp.selectedDate);
