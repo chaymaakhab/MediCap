@@ -13,7 +13,7 @@ class SaasWorkspaceController
         if (!is_dir($dir)) {
             @mkdir($dir, 0777, true);
         }
-        return $dir . DIRECTORY_SEPARATOR . 'cliniqo_multitenant_fr_v4.json';
+        return $dir . DIRECTORY_SEPARATOR . 'cliniqo_multitenant_fr_v5.json';
     }
 
     private function resolveTenantKey(Request $request): string
@@ -33,7 +33,7 @@ class SaasWorkspaceController
         $path = $this->storageFilePath();
         if (file_exists($path)) {
             $decoded = json_decode((string) file_get_contents($path), true);
-            if (is_array($decoded) && isset($decoded['1'])) {
+            if (is_array($decoded) && isset($decoded['1']['doctors'])) {
                 return $decoded;
             }
         }
@@ -68,7 +68,7 @@ class SaasWorkspaceController
     private function respondWithState(array $payload, float $startedAt, int $status = 200): JsonResponse
     {
         $payload['meta'] = [
-            'engine' => 'Cliniqo Cloud Multi-Tenant v4 (FR)',
+            'engine' => 'Cliniqo Cloud Multi-Tenant v5 (FR)',
             'latency_ms' => round((microtime(true) - $startedAt) * 1000, 2),
             'timestamp' => date('c'),
         ];
@@ -129,6 +129,58 @@ class SaasWorkspaceController
                 'tests_conducted' => $cfg['tests_conducted'],
                 'revenue_today' => $cfg['revenue_today'],
                 'specialists_count' => $cfg['specialists_count'],
+            ],
+            'doctors' => [
+                [
+                    'id' => 1,
+                    'name' => 'Dr. Alimi Jan',
+                    'specialty' => 'Cardiologue',
+                    'room' => 'Salle 102',
+                    'fee_mad' => 650,
+                    'inpe' => 'INPE-0412890',
+                    'phone' => '+212 661-102030',
+                    'avatar' => 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120',
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'Dr. Karim Tazi',
+                    'specialty' => 'Neurologue',
+                    'room' => 'Labo Neuro 2',
+                    'fee_mad' => 850,
+                    'inpe' => 'INPE-0591124',
+                    'phone' => '+212 661-334455',
+                    'avatar' => 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120',
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'Dr. Mike Millars',
+                    'specialty' => 'Psychologue',
+                    'room' => 'Cabinet 105',
+                    'fee_mad' => 500,
+                    'inpe' => 'INPE-0773201',
+                    'phone' => '+212 662-556677',
+                    'avatar' => 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120',
+                ],
+                [
+                    'id' => 4,
+                    'name' => 'Dr. Sarah Chen',
+                    'specialty' => 'Cardiologue',
+                    'room' => 'Salle 101',
+                    'fee_mad' => 600,
+                    'inpe' => 'INPE-0884512',
+                    'phone' => '+212 663-778899',
+                    'avatar' => 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=120',
+                ],
+                [
+                    'id' => 5,
+                    'name' => 'Dr. Nadia Berrada',
+                    'specialty' => 'Psychologue',
+                    'room' => 'Cabinet 106',
+                    'fee_mad' => 550,
+                    'inpe' => 'INPE-0912044',
+                    'phone' => '+212 664-990011',
+                    'avatar' => 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=120',
+                ],
             ],
             'weekly_patients' => [
                 ['day' => 'Dim', 'count' => 118, 'growth' => '+12%', 'h' => 42],
@@ -1305,5 +1357,201 @@ class SaasWorkspaceController
 
         $this->saveDatabase($db);
         return $this->respondWithState(['success' => true, 'state' => $state], $start);
+    }
+
+    // =========================================================================
+    // MÉDECINS & PRATICIENS CRUD (GET, POST, PUT/PATCH, DELETE)
+    // =========================================================================
+    public function listDoctors(Request $request): JsonResponse
+    {
+        $start = microtime(true);
+        $db = $this->loadDatabase();
+        $tk = $this->resolveTenantKey($request);
+        return $this->respondWithState([
+            'success' => true,
+            'count' => count($db[$tk]['doctors'] ?? []),
+            'data' => $db[$tk]['doctors'] ?? [],
+        ], $start);
+    }
+
+    public function createDoctor(Request $request): JsonResponse
+    {
+        $start = microtime(true);
+        $db = $this->loadDatabase();
+        $tk = $this->resolveTenantKey($request);
+        $state = &$db[$tk];
+
+        $rawName = trim((string) $request->input('name', ''));
+        if ($rawName === '') {
+            return $this->respondWithState(['success' => false, 'message' => 'Le nom du médecin est obligatoire.'], $start, 422);
+        }
+        if (!preg_match('/^(Dr\.|Pr\.|Docteur|Professeur)\s/i', $rawName)) {
+            $rawName = 'Dr. ' . $rawName;
+        }
+
+        $inpe = strtoupper(trim((string) $request->input('inpe', '')));
+        foreach ($state['doctors'] as $existing) {
+            if (strcasecmp((string) $existing['name'], $rawName) === 0) {
+                return $this->respondWithState([
+                    'success' => false,
+                    'message' => "{$rawName} figure déjà dans l'équipe médicale de {$state['tenant']['short']}.",
+                ], $start, 422);
+            }
+            if ($inpe !== '' && strcasecmp((string) ($existing['inpe'] ?? ''), $inpe) === 0) {
+                return $this->respondWithState([
+                    'success' => false,
+                    'message' => "Le code INPE {$inpe} est déjà attribué à {$existing['name']}.",
+                ], $start, 422);
+            }
+        }
+
+        $defaultAvatars = [
+            'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120',
+            'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120',
+            'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120',
+            'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=120',
+        ];
+        $avatar = trim((string) $request->input('avatar', ''));
+        if ($avatar === '') {
+            $avatar = $defaultAvatars[count($state['doctors']) % count($defaultAvatars)];
+        }
+
+        $newDoc = [
+            'id' => (int) round(microtime(true) * 1000),
+            'name' => $rawName,
+            'specialty' => trim((string) $request->input('specialty', 'Cardiologue')),
+            'room' => trim((string) $request->input('room', 'Salle 108')),
+            'fee_mad' => max(50, (float) $request->input('fee_mad', 600)),
+            'inpe' => $inpe ?: ('INPE-0' . random_int(100000, 999999)),
+            'phone' => trim((string) $request->input('phone', '+212 661-000000')),
+            'avatar' => $avatar,
+        ];
+
+        $state['doctors'][] = $newDoc;
+        $state['kpis']['specialists_count'] = (int) ($state['kpis']['specialists_count'] ?? 120) + 1;
+
+        array_unshift($state['audit_logs'], [
+            'time' => date('H:i:s'),
+            'actor' => 'Direction Médicale',
+            'action' => 'AJOUT_MEDECIN',
+            'target' => "{$newDoc['name']} ({$newDoc['specialty']} • {$newDoc['room']})",
+            'status' => 'ACTIF',
+        ]);
+
+        $this->saveDatabase($db);
+        return $this->respondWithState([
+            'success' => true,
+            'message' => "{$newDoc['name']} ajouté à l'équipe médicale.",
+            'doctor' => $newDoc,
+            'state' => $state,
+        ], $start, 201);
+    }
+
+    public function updateDoctor(Request $request, int $id): JsonResponse
+    {
+        $start = microtime(true);
+        $db = $this->loadDatabase();
+        $tk = $this->resolveTenantKey($request);
+        $state = &$db[$tk];
+
+        $foundIdx = null;
+        foreach ($state['doctors'] as $idx => $doc) {
+            if ((int) $doc['id'] === $id) {
+                $foundIdx = $idx;
+                break;
+            }
+        }
+
+        if ($foundIdx === null) {
+            return $this->respondWithState(['success' => false, 'message' => 'Médecin introuvable.'], $start, 404);
+        }
+
+        $oldDoc = $state['doctors'][$foundIdx];
+        $rawName = trim((string) $request->input('name', $oldDoc['name']));
+        if ($rawName !== '' && !preg_match('/^(Dr\.|Pr\.|Docteur|Professeur)\s/i', $rawName)) {
+            $rawName = 'Dr. ' . $rawName;
+        }
+
+        $updatedDoc = array_merge($oldDoc, [
+            'name' => $rawName ?: $oldDoc['name'],
+            'specialty' => trim((string) $request->input('specialty', $oldDoc['specialty'])),
+            'room' => trim((string) $request->input('room', $oldDoc['room'])),
+            'fee_mad' => max(50, (float) $request->input('fee_mad', $oldDoc['fee_mad'] ?? 600)),
+            'inpe' => strtoupper(trim((string) $request->input('inpe', $oldDoc['inpe'] ?? ''))),
+            'phone' => trim((string) $request->input('phone', $oldDoc['phone'] ?? '')),
+            'avatar' => trim((string) $request->input('avatar', $oldDoc['avatar'] ?? '')) ?: $oldDoc['avatar'],
+        ]);
+
+        $state['doctors'][$foundIdx] = $updatedDoc;
+
+        // Synchroniser les rendez-vous existants de ce praticien
+        foreach ($state['appointments'] as &$apt) {
+            if (strcasecmp((string) ($apt['doctor'] ?? ''), (string) $oldDoc['name']) === 0) {
+                $apt['doctor'] = $updatedDoc['name'];
+                $apt['specialty'] = $updatedDoc['specialty'];
+                $apt['room'] = $updatedDoc['room'];
+            }
+        }
+        unset($apt);
+
+        array_unshift($state['audit_logs'], [
+            'time' => date('H:i:s'),
+            'actor' => 'Direction Médicale',
+            'action' => 'MODIF_MEDECIN',
+            'target' => "{$updatedDoc['name']} ({$updatedDoc['room']})",
+            'status' => 'MIS À JOUR',
+        ]);
+
+        $this->saveDatabase($db);
+        return $this->respondWithState([
+            'success' => true,
+            'message' => "Fiche de {$updatedDoc['name']} mise à jour.",
+            'doctor' => $updatedDoc,
+            'state' => $state,
+        ], $start);
+    }
+
+    public function deleteDoctor(Request $request, int $id): JsonResponse
+    {
+        $start = microtime(true);
+        $db = $this->loadDatabase();
+        $tk = $this->resolveTenantKey($request);
+        $state = &$db[$tk];
+
+        if (count($state['doctors']) <= 1) {
+            return $this->respondWithState([
+                'success' => false,
+                'message' => 'Au moins un praticien actif est requis dans la clinique.',
+            ], $start, 422);
+        }
+
+        $removedName = "Médecin #{$id}";
+        foreach ($state['doctors'] as $d) {
+            if ((int) $d['id'] === $id) {
+                $removedName = $d['name'];
+                break;
+            }
+        }
+
+        $state['doctors'] = array_values(array_filter(
+            $state['doctors'],
+            static fn(array $d): bool => (int) $d['id'] !== $id
+        ));
+        $state['kpis']['specialists_count'] = max(1, (int) ($state['kpis']['specialists_count'] ?? 120) - 1);
+
+        array_unshift($state['audit_logs'], [
+            'time' => date('H:i:s'),
+            'actor' => 'Direction Médicale',
+            'action' => 'SUPPRESSION_MEDECIN',
+            'target' => $removedName,
+            'status' => 'RETIRÉ',
+        ]);
+
+        $this->saveDatabase($db);
+        return $this->respondWithState([
+            'success' => true,
+            'message' => "{$removedName} retiré de la liste active.",
+            'state' => $state,
+        ], $start);
     }
 }

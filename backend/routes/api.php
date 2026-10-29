@@ -35,6 +35,13 @@ Route::prefix('v1')->middleware(['tenant.isolate'])->group(function () {
     Route::delete('/appointments/{id}', [SaasWorkspaceController::class, 'deleteAppointment']);
     Route::get('/practitioners/{id}/slots', [AppointmentController::class, 'getAvailableSlots']);
 
+    // 2b. Gestion des Médecins & Praticiens (Ajouter / Modifier / Supprimer)
+    Route::get('/doctors', [SaasWorkspaceController::class, 'listDoctors']);
+    Route::post('/doctors', [SaasWorkspaceController::class, 'createDoctor']);
+    Route::put('/doctors/{id}', [SaasWorkspaceController::class, 'updateDoctor']);
+    Route::patch('/doctors/{id}', [SaasWorkspaceController::class, 'updateDoctor']);
+    Route::delete('/doctors/{id}', [SaasWorkspaceController::class, 'deleteDoctor']);
+
     // 3. Patients & Dossier Médical Électronique (DME)
     Route::get('/patients', [SaasWorkspaceController::class, 'listPatients']);
     Route::post('/patients', [SaasWorkspaceController::class, 'createPatient']);

@@ -270,6 +270,11 @@
           <span>Exporter CSV</span>
         </button>
 
+        <button onclick="openDoctorModal()" class="bg-surface-container-lowest hover:bg-secondary-container/70 border border-primary/25 text-primary rounded-full px-3.5 py-1.5 text-[11.5px] font-bold flex items-center gap-1 shadow-pill transition-all">
+          <span class="material-symbols-outlined text-[15px]">person_add</span>
+          <span>Ajouter Médecin</span>
+        </button>
+
         <button onclick="openDaySheetForAdd(rdvApp.selectedDate)" class="bg-secondary-container hover:bg-primary text-primary hover:text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-bold flex items-center gap-1 shadow-pill transition-all">
           <span class="material-symbols-outlined text-[15px]">add</span>
           <span>Nouveau Rendez-vous</span>
@@ -342,17 +347,17 @@
       <div class="bento-card rounded-2xl p-3.5 shadow-bento flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold text-on-surface-variant">Praticiens &amp; Salles</span>
-          <span class="w-7 h-7 rounded-xl bg-secondary-container/70 text-primary flex items-center justify-center">
-            <span class="material-symbols-outlined text-[16px]">verified_user</span>
-          </span>
+          <button onclick="openDoctorModal()" title="Ajouter un nouveau médecin" class="w-7 h-7 rounded-xl bg-secondary-container/70 hover:bg-primary text-primary hover:text-white flex items-center justify-center transition-colors">
+            <span class="material-symbols-outlined text-[16px]">person_add</span>
+          </button>
         </div>
         <div class="flex items-baseline gap-2 my-1.5">
-          <strong class="text-[23px] font-extrabold text-on-surface leading-none">5</strong>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">5 Salles actives</span>
+          <strong id="kpi-doctors-count" class="text-[23px] font-extrabold text-on-surface leading-none">5</strong>
+          <span id="kpi-rooms-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">5 Salles actives</span>
         </div>
         <div class="flex items-center justify-between text-[10px] text-outline pt-1 border-t border-surface-container">
           <span class="flex items-center gap-1 text-primary font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green"></span> Anti-conflit actif</span>
-          <span>Médecin • Salle • Patient</span>
+          <button onclick="openDoctorModal()" class="font-bold text-primary hover:underline">+ Ajouter Médecin</button>
         </div>
       </div>
 
@@ -406,13 +411,22 @@
           </div>
         </div>
 
-        <!-- Carte Filtrage par Praticien & Réservation Rapide -->
+        <!-- Carte Filtrage par Praticien & Gestion des Médecins -->
         <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
-          <div class="flex items-center justify-between">
-            <h3 class="text-xs font-extrabold text-on-surface">Filtrer par Praticien</h3>
-            <button onclick="setDoctorFilter('all')" id="btn-all-doctors" class="text-[10.5px] font-bold text-primary hover:underline">
-              Tous les médecins
-            </button>
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h3 class="text-xs font-extrabold text-on-surface">Filtrer par Praticien</h3>
+              <span class="text-[10px] text-outline">Cliquez pour filtrer, modifier ou ajouter</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="setDoctorFilter('all')" id="btn-all-doctors" class="text-[10.5px] font-bold text-primary hover:underline px-1.5 py-0.5">
+                Tous
+              </button>
+              <button onclick="openDoctorModal()" class="px-2.5 py-1 rounded-full bg-primary hover:bg-primary-hover text-white text-[10.5px] font-bold flex items-center gap-0.5 shadow-emeraldGlow transition-all">
+                <span class="material-symbols-outlined text-[13px]">add</span>
+                Ajouter Médecin
+              </button>
+            </div>
           </div>
           <div id="doctors-filter-list" class="space-y-1.5"></div>
         </div>
@@ -572,14 +586,11 @@
 
           <div class="grid grid-cols-12 gap-2">
             <div class="col-span-8">
-              <label class="block font-bold text-on-surface-variant text-[11px] mb-1">Praticien &amp; Salle *</label>
-              <select id="df-doctor" onchange="syncDoctorDefaultFee()" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-semibold text-on-surface text-[11px] focus:outline-none">
-                <option value="Dr. Alimi Jan|Cardiologue|Salle 102|650">Dr. Alimi Jan • Salle 102</option>
-                <option value="Dr. Karim Tazi|Neurologue|Labo Neuro 2|850">Dr. Karim Tazi • Labo Neuro 2</option>
-                <option value="Dr. Mike Millars|Psychologue|Cabinet 105|500">Dr. Mike Millars • Cabinet 105</option>
-                <option value="Dr. Sarah Chen|Cardiologue|Salle 101|600">Dr. Sarah Chen • Salle 101</option>
-                <option value="Dr. Nadia Berrada|Psychologue|Cabinet 106|550">Dr. Nadia Berrada • Cabinet 106</option>
-              </select>
+              <div class="flex items-center justify-between mb-1">
+                <label class="font-bold text-on-surface-variant text-[11px]">Praticien &amp; Salle *</label>
+                <button type="button" onclick="openDoctorModal(null, true)" class="text-[10px] font-bold text-primary hover:underline">+ Nouveau Médecin</button>
+              </div>
+              <select id="df-doctor" onchange="syncDoctorDefaultFee()" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-semibold text-on-surface text-[11px] focus:outline-none"></select>
             </div>
             <div class="col-span-4">
               <label class="block font-bold text-on-surface-variant text-[11px] mb-1">Tarif (MAD)</label>
@@ -774,6 +785,112 @@
     </div>
   </div>
 
+  <!-- Modale Ajouter / Modifier un Médecin (Praticien) -->
+  <div id="doctor-modal" onclick="closeModal('doctor-modal')" class="fixed inset-0 z-[65] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-secondary-container text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[18px]">stethoscope</span>
+          </span>
+          <div>
+            <h3 id="doc-modal-title" class="text-base font-extrabold text-on-surface leading-tight">Ajouter un Médecin</h3>
+            <span class="text-[10.5px] text-outline">Équipe médicale &amp; affectation de salle</span>
+          </div>
+        </div>
+        <button onclick="closeModal('doctor-modal')" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="submitDoctorForm(event)" class="space-y-2.5 text-xs">
+        <input type="hidden" id="doc-edit-id" value=""/>
+        <input type="hidden" id="doc-select-after" value="0"/>
+        <input type="hidden" id="doc-avatar-url" value=""/>
+
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Nom complet du Praticien *</label>
+          <input id="doc-name" required type="text" placeholder="Ex : Dr. Yassine Alami"
+                 oninput="refreshInitialsPreview()"
+                 class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary"/>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Spécialité *</label>
+            <select id="doc-specialty" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary">
+              <option value="Cardiologue">Cardiologue</option>
+              <option value="Neurologue">Neurologue</option>
+              <option value="Psychologue">Psychologue</option>
+              <option value="Médecin Généraliste">Médecin Généraliste</option>
+              <option value="Pédiatre">Pédiatre</option>
+              <option value="Dermatologue">Dermatologue</option>
+              <option value="Gynécologue">Gynécologue</option>
+              <option value="Urologue">Urologue</option>
+              <option value="Oncologue">Oncologue</option>
+              <option value="Radiologue">Radiologue</option>
+              <option value="Ophtalmologue">Ophtalmologue</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Salle / Cabinet *</label>
+            <input id="doc-room" required type="text" placeholder="Ex : Salle 108" value="Salle 108"
+                   class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Tarif (MAD) *</label>
+            <input id="doc-fee" required type="number" min="50" step="50" value="600"
+                   class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-extrabold text-primary focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Code INPE</label>
+            <input id="doc-inpe" type="text" placeholder="INPE-0642100"
+                   class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-mono uppercase text-[11px] focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Téléphone</label>
+            <input id="doc-phone" type="text" value="+212 661-506070"
+                   class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px] focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1.5">Avatar du Praticien</label>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="pickDoctorAvatar('initials', this)" id="doc-av-initials-btn"
+                    class="doc-av-chip p-1 rounded-xl border-2 border-primary bg-secondary-container/50 flex items-center gap-1.5 pr-2.5 transition-all">
+              <img id="doc-av-initials-img" src="" alt="Initiales" class="w-8 h-8 rounded-full object-cover"/>
+              <span class="text-[10px] font-bold text-primary">Initiales</span>
+            </button>
+            <button type="button" onclick="pickDoctorAvatar('https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120', this)"
+                    class="doc-av-chip p-0.5 rounded-full border-2 border-transparent hover:border-primary/50 transition-all">
+              <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120" alt="Portrait 1" class="w-8 h-8 rounded-full object-cover"/>
+            </button>
+            <button type="button" onclick="pickDoctorAvatar('https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120', this)"
+                    class="doc-av-chip p-0.5 rounded-full border-2 border-transparent hover:border-primary/50 transition-all">
+              <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120" alt="Portrait 2" class="w-8 h-8 rounded-full object-cover"/>
+            </button>
+            <button type="button" onclick="pickDoctorAvatar('https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120', this)"
+                    class="doc-av-chip p-0.5 rounded-full border-2 border-transparent hover:border-primary/50 transition-all">
+              <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120" alt="Portrait 3" class="w-8 h-8 rounded-full object-cover"/>
+            </button>
+            <button type="button" onclick="pickDoctorAvatar('https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=120', this)"
+                    class="doc-av-chip p-0.5 rounded-full border-2 border-transparent hover:border-primary/50 transition-all">
+              <img src="https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=120" alt="Portrait 4" class="w-8 h-8 rounded-full object-cover"/>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="doc-submit-btn" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow mt-1 transition-all">
+          Enregistrer le Médecin
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Modale Recherche Globale (Ctrl+K) -->
   <div id="search-modal" onclick="closeModal('search-modal')" class="fixed inset-0 z-[70] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-start justify-center pt-16 p-4">
     <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-3.5 shadow-2xl border border-outline-variant/40 modal-pop space-y-2.5">
@@ -850,6 +967,22 @@
     const API_BASE = 'http://127.0.0.1:8001/api/v1';
     const TODAY_ISO = '2026-10-29';
 
+    function makeInitialsAvatar(name) {
+      const cleaned = String(name || 'Dr').replace(/^(Dr\.|Pr\.|Docteur|Professeur)\s+/i, '').trim();
+      const parts = cleaned.split(/\s+/).filter(Boolean);
+      const initials = ((parts[0]?.[0] || 'D') + (parts[1]?.[0] || parts[0]?.[1] || 'R')).toUpperCase();
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#005131"/><stop offset="100%" stop-color="#176b45"/></linearGradient></defs><rect width="96" height="96" rx="48" fill="url(#g)"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Plus Jakarta Sans, sans-serif" font-weight="800" font-size="34">${initials}</text></svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
+    const fallbackDoctors = [
+      { id: 1, name: 'Dr. Alimi Jan', specialty: 'Cardiologue', room: 'Salle 102', fee_mad: 650, inpe: 'INPE-0412890', phone: '+212 661-102030', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120' },
+      { id: 2, name: 'Dr. Karim Tazi', specialty: 'Neurologue', room: 'Labo Neuro 2', fee_mad: 850, inpe: 'INPE-0591124', phone: '+212 661-334455', avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120' },
+      { id: 3, name: 'Dr. Mike Millars', specialty: 'Psychologue', room: 'Cabinet 105', fee_mad: 500, inpe: 'INPE-0773201', phone: '+212 662-556677', avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120' },
+      { id: 4, name: 'Dr. Sarah Chen', specialty: 'Cardiologue', room: 'Salle 101', fee_mad: 600, inpe: 'INPE-0884512', phone: '+212 663-778899', avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=120' },
+      { id: 5, name: 'Dr. Nadia Berrada', specialty: 'Psychologue', room: 'Cabinet 106', fee_mad: 550, inpe: 'INPE-0912044', phone: '+212 664-990011', avatar: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=120' }
+    ];
+
     const rdvApp = {
       tenantId: Number(localStorage.getItem('cliniqo_tenant_id') || 1),
       tenantName: 'Polyclinique Grand Central',
@@ -862,17 +995,12 @@
       statusFilter: 'all',
       editingAptId: null,
       confirmDeleteAptId: null,
+      confirmDeleteDocId: null,
       activePatientId: 1,
       patients: [],
       appointments: [],
       labs: [],
-      doctors: [
-        { name: 'Dr. Alimi Jan', specialty: 'Cardiologue', room: 'Salle 102', fee: 650, avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120' },
-        { name: 'Dr. Karim Tazi', specialty: 'Neurologue', room: 'Labo Neuro 2', fee: 850, avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120' },
-        { name: 'Dr. Mike Millars', specialty: 'Psychologue', room: 'Cabinet 105', fee: 500, avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120' },
-        { name: 'Dr. Sarah Chen', specialty: 'Cardiologue', room: 'Salle 101', fee: 600, avatar: 'https://images.unsplash.com/photo-1594824813637-440263f9059f?w=120' },
-        { name: 'Dr. Nadia Berrada', specialty: 'Psychologue', room: 'Cabinet 106', fee: 550, avatar: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=120' }
-      ]
+      doctors: [...fallbackDoctors]
     };
 
     const fallbackPatients = [
@@ -1080,6 +1208,13 @@
       }
       document.getElementById('kpi-month-count').textContent = `${rdvApp.appointments.length} RDV`;
 
+      const docCount = rdvApp.doctors.length;
+      const uniqueRooms = new Set(rdvApp.doctors.map(d => d.room).filter(Boolean)).size || docCount;
+      const kpiDocEl = document.getElementById('kpi-doctors-count');
+      const kpiRoomEl = document.getElementById('kpi-rooms-badge');
+      if (kpiDocEl) kpiDocEl.textContent = docCount;
+      if (kpiRoomEl) kpiRoomEl.textContent = `${uniqueRooms} Salle${uniqueRooms > 1 ? 's' : ''} active${uniqueRooms > 1 ? 's' : ''}`;
+
       const urgentLabs = (rdvApp.labs || []).filter(l => l.status === 'flagged').length;
       document.getElementById('nav-labs-badge').textContent = urgentLabs > 0 ? `${urgentLabs} URGENT` : `${(rdvApp.labs || []).length}`;
       document.getElementById('notif-dot').classList.toggle('hidden', urgentLabs === 0);
@@ -1090,25 +1225,50 @@
       box.innerHTML = '';
       const dayApts = getAppointmentsForDate(rdvApp.selectedDate);
 
-      rdvApp.doctors.forEach(doc => {
+      rdvApp.doctors.forEach((doc, idx) => {
+        const docId = doc.id || (idx + 1);
         const active = rdvApp.doctorFilter === doc.name;
         const count = dayApts.filter(a => a.doctor === doc.name).length;
+        const feeVal = doc.fee_mad || doc.fee || 600;
+        const escName = String(doc.name).replace(/'/g, "\\'");
+        const fallbackAv = makeInitialsAvatar(doc.name);
+        const avatarSrc = doc.avatar || fallbackAv;
+        const isConfirming = Number(rdvApp.confirmDeleteDocId) === Number(docId);
+
+        const confirmBanner = isConfirming ? `
+          <div class="mt-1.5 p-2 rounded-xl bg-error-container/60 border border-error/25 flex items-center justify-between text-[10.5px]">
+            <span class="font-bold text-error truncate mr-2">Retirer ${doc.name} ?</span>
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <button onclick="executeDeleteDoctor(${docId})" class="px-2 py-0.5 rounded-lg bg-error text-white font-bold">Oui, Retirer</button>
+              <button onclick="rdvApp.confirmDeleteDocId=null; renderDoctorsFilter();" class="px-2 py-0.5 rounded-lg bg-white text-on-surface font-semibold">Annuler</button>
+            </div>
+          </div>
+        ` : '';
 
         box.insertAdjacentHTML('beforeend', `
-          <div class="p-2 rounded-xl ${active ? 'bg-secondary-container/80 border border-primary/35' : 'bg-surface-container-low/70 hover:bg-secondary-container/40 border border-transparent'} flex items-center justify-between gap-2 transition-all">
-            <button onclick="setDoctorFilter('${doc.name}')" class="flex items-center gap-2.5 min-w-0 text-left flex-1">
-              <img src="${doc.avatar}" alt="${doc.name}" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant/40 flex-shrink-0"/>
-              <div class="min-w-0 leading-tight">
-                <span class="block text-xs font-bold text-on-surface truncate">${doc.name}</span>
-                <span class="block text-[10px] text-outline truncate">${doc.specialty} • ${doc.room}</span>
-              </div>
-            </button>
-            <div class="flex items-center gap-1.5 flex-shrink-0">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-primary">${count} RDV</span>
-              <button onclick="openDaySheetForAdd(rdvApp.selectedDate, '${doc.name}')" title="Planifier avec ${doc.name}" class="w-7 h-7 rounded-full bg-white hover:bg-primary text-primary hover:text-white flex items-center justify-center transition-colors shadow-2xs">
-                <span class="material-symbols-outlined text-[14px]">calendar_add_on</span>
+          <div class="p-2 rounded-xl ${active ? 'bg-secondary-container/80 border border-primary/35' : 'bg-surface-container-low/70 hover:bg-secondary-container/40 border border-transparent'} transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <button onclick="setDoctorFilter('${escName}')" class="flex items-center gap-2.5 min-w-0 text-left flex-1">
+                <img src="${avatarSrc}" alt="${doc.name}" onerror="this.onerror=null;this.src=makeInitialsAvatar('${escName}')" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant/40 flex-shrink-0"/>
+                <div class="min-w-0 leading-tight">
+                  <span class="block text-xs font-bold text-on-surface truncate">${doc.name}</span>
+                  <span class="block text-[10px] text-outline truncate">${doc.specialty} • ${doc.room} • ${feeVal} MAD</span>
+                </div>
               </button>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-primary">${count} RDV</span>
+                <button onclick="openDaySheetForAdd(rdvApp.selectedDate, '${escName}')" title="Planifier un RDV avec ${doc.name}" class="w-6 h-6 rounded-full bg-white hover:bg-primary text-primary hover:text-white flex items-center justify-center transition-colors shadow-2xs">
+                  <span class="material-symbols-outlined text-[13px]">calendar_add_on</span>
+                </button>
+                <button onclick="openDoctorModal(${docId})" title="Modifier ${doc.name}" class="w-6 h-6 rounded-full bg-white hover:bg-secondary-container text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors shadow-2xs">
+                  <span class="material-symbols-outlined text-[13px]">edit</span>
+                </button>
+                <button onclick="rdvApp.confirmDeleteDocId=${docId}; renderDoctorsFilter();" title="Retirer ${doc.name}" class="w-6 h-6 rounded-full bg-white hover:bg-error-container text-outline hover:text-error flex items-center justify-center transition-colors shadow-2xs">
+                  <span class="material-symbols-outlined text-[13px]">delete</span>
+                </button>
+              </div>
             </div>
+            ${confirmBanner}
           </div>
         `);
       });
@@ -1395,8 +1555,34 @@
       });
     }
 
+    function populateDoctorSelect(preferredName = '') {
+      const docSel = document.getElementById('df-doctor');
+      if (!docSel) return;
+      docSel.innerHTML = rdvApp.doctors.map(d => {
+        const fee = d.fee_mad || d.fee || 600;
+        const val = `${d.name}|${d.specialty}|${d.room}|${fee}`;
+        return `<option value="${val.replace(/"/g, '&quot;')}">${d.name} • ${d.specialty} (${d.room})</option>`;
+      }).join('');
+
+      if (preferredName) {
+        let matched = false;
+        for (const opt of docSel.options) {
+          if (opt.value.split('|')[0].toLowerCase() === preferredName.toLowerCase()) {
+            docSel.value = opt.value;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          const extraVal = `${preferredName}|Spécialiste|Salle 101|600`;
+          docSel.insertAdjacentHTML('beforeend', `<option value="${extraVal.replace(/"/g, '&quot;')}">${preferredName}</option>`);
+          docSel.value = extraVal;
+        }
+      }
+    }
+
     function syncDoctorDefaultFee() {
-      const parts = document.getElementById('df-doctor').value.split('|');
+      const parts = (document.getElementById('df-doctor')?.value || '').split('|');
       if (parts[3] && !rdvApp.editingAptId) {
         document.getElementById('df-fee').value = parts[3];
       }
@@ -1421,15 +1607,11 @@
         document.getElementById('df-patient').value = apt.patient_id;
         document.getElementById('df-date').value = apt.date || rdvApp.selectedDate;
         document.getElementById('df-time').value = apt.time;
+        populateDoctorSelect(apt.doctor);
         document.getElementById('df-fee').value = apt.fee_mad || 650;
         document.getElementById('df-channel').value = apt.channel || 'Présentiel';
         document.getElementById('df-status').value = apt.status || 'confirmed';
         document.getElementById('df-reason').value = apt.reason || '';
-
-        const docSel = document.getElementById('df-doctor');
-        for (const opt of docSel.options) {
-          if (opt.value.startsWith(apt.doctor)) docSel.value = opt.value;
-        }
       } else {
         rdvApp.editingAptId = null;
         document.getElementById('df-apt-id').value = '';
@@ -1441,12 +1623,7 @@
         document.getElementById('df-status').value = 'confirmed';
         document.getElementById('df-reason').value = '';
 
-        if (presetDoctor) {
-          const docSel = document.getElementById('df-doctor');
-          for (const opt of docSel.options) {
-            if (opt.value.startsWith(presetDoctor)) docSel.value = opt.value;
-          }
-        }
+        populateDoctorSelect(presetDoctor || (rdvApp.doctorFilter !== 'all' ? rdvApp.doctorFilter : ''));
         syncDoctorDefaultFee();
       }
       renderDaySheetContent();
@@ -1567,13 +1744,194 @@
     }
 
     // =========================================================================
+    // GESTION DES MÉDECINS / PRATICIENS (AJOUTER / MODIFIER / SUPPRIMER)
+    // =========================================================================
+    function refreshInitialsPreview() {
+      const nameVal = document.getElementById('doc-name')?.value.trim() || 'Dr. Nouveau Médecin';
+      const initialsUri = makeInitialsAvatar(nameVal);
+      const img = document.getElementById('doc-av-initials-img');
+      if (img) img.src = initialsUri;
+      if (document.getElementById('doc-avatar-url')?.dataset.mode === 'initials') {
+        document.getElementById('doc-avatar-url').value = initialsUri;
+      }
+    }
+
+    function pickDoctorAvatar(val, btnEl) {
+      document.querySelectorAll('.doc-av-chip').forEach(b => {
+        b.classList.remove('border-primary', 'bg-secondary-container/50');
+        b.classList.add('border-transparent');
+      });
+      if (btnEl) {
+        btnEl.classList.remove('border-transparent');
+        btnEl.classList.add('border-primary', 'bg-secondary-container/50');
+      }
+      const hidden = document.getElementById('doc-avatar-url');
+      if (val === 'initials') {
+        hidden.dataset.mode = 'initials';
+        hidden.value = makeInitialsAvatar(document.getElementById('doc-name')?.value.trim() || 'Dr');
+      } else {
+        hidden.dataset.mode = 'photo';
+        hidden.value = val;
+      }
+    }
+
+    function openDoctorModal(docId = null, autoSelectInForm = false) {
+      rdvApp.confirmDeleteDocId = null;
+      document.getElementById('doc-select-after').value = autoSelectInForm ? '1' : '0';
+
+      if (docId) {
+        const doc = rdvApp.doctors.find((d, i) => Number(d.id || (i + 1)) === Number(docId));
+        if (!doc) return;
+        document.getElementById('doc-edit-id').value = doc.id || docId;
+        document.getElementById('doc-modal-title').textContent = 'Modifier le Médecin';
+        document.getElementById('doc-submit-btn').textContent = 'Enregistrer les Modifications';
+        document.getElementById('doc-name').value = doc.name || '';
+        document.getElementById('doc-specialty').value = doc.specialty || 'Cardiologue';
+        document.getElementById('doc-room').value = doc.room || 'Salle 108';
+        document.getElementById('doc-fee').value = doc.fee_mad || doc.fee || 600;
+        document.getElementById('doc-inpe').value = doc.inpe || '';
+        document.getElementById('doc-phone').value = doc.phone || '+212 661-506070';
+        refreshInitialsPreview();
+
+        const av = doc.avatar || '';
+        if (!av || av.startsWith('data:image/svg+xml')) {
+          pickDoctorAvatar('initials', document.getElementById('doc-av-initials-btn'));
+        } else {
+          document.getElementById('doc-avatar-url').dataset.mode = 'photo';
+          document.getElementById('doc-avatar-url').value = av;
+          document.querySelectorAll('.doc-av-chip').forEach(b => {
+            const img = b.querySelector('img');
+            const match = img && img.src === av;
+            b.classList.toggle('border-primary', match);
+            b.classList.toggle('bg-secondary-container/50', match);
+            b.classList.toggle('border-transparent', !match);
+          });
+        }
+      } else {
+        document.getElementById('doc-edit-id').value = '';
+        document.getElementById('doc-modal-title').textContent = 'Ajouter un Médecin';
+        document.getElementById('doc-submit-btn').textContent = 'Ajouter à l’Équipe Médicale';
+        document.getElementById('doc-name').value = '';
+        document.getElementById('doc-specialty').value = 'Cardiologue';
+        document.getElementById('doc-room').value = `Salle ${106 + rdvApp.doctors.length}`;
+        document.getElementById('doc-fee').value = 600;
+        document.getElementById('doc-inpe').value = '';
+        document.getElementById('doc-phone').value = '+212 661-506070';
+        refreshInitialsPreview();
+        pickDoctorAvatar('initials', document.getElementById('doc-av-initials-btn'));
+      }
+
+      openModal('doctor-modal');
+      setTimeout(() => document.getElementById('doc-name')?.focus(), 40);
+    }
+
+    async function submitDoctorForm(e) {
+      e.preventDefault();
+      const editId = document.getElementById('doc-edit-id').value.trim();
+      const autoSelect = document.getElementById('doc-select-after').value === '1';
+      let name = document.getElementById('doc-name').value.trim();
+      if (!name) return;
+      if (!/^(Dr\.|Pr\.|Docteur|Professeur)\s/i.test(name)) {
+        name = 'Dr. ' + name;
+      }
+
+      const avatarField = document.getElementById('doc-avatar-url');
+      const avatar = avatarField.dataset.mode === 'initials'
+        ? makeInitialsAvatar(name)
+        : (avatarField.value.trim() || makeInitialsAvatar(name));
+
+      const payload = {
+        name,
+        specialty: document.getElementById('doc-specialty').value,
+        room: document.getElementById('doc-room').value.trim() || 'Salle 108',
+        fee_mad: Number(document.getElementById('doc-fee').value) || 600,
+        inpe: document.getElementById('doc-inpe').value.trim().toUpperCase(),
+        phone: document.getElementById('doc-phone').value.trim(),
+        avatar
+      };
+
+      try {
+        const url = editId ? `${API_BASE}/doctors/${editId}` : `${API_BASE}/doctors`;
+        const method = editId ? 'PUT' : 'POST';
+        const res = await fetch(url, { method, headers: apiHeaders(), body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (!res.ok) {
+          notify(data.message || 'Impossible d’enregistrer ce médecin', 'err');
+          return;
+        }
+        syncFromServerState(data.state);
+        const savedDoc = data.doctor || payload;
+        if (autoSelect || !document.getElementById('day-apt-form').classList.contains('hidden')) {
+          populateDoctorSelect(savedDoc.name);
+          if (!rdvApp.editingAptId) document.getElementById('df-fee').value = savedDoc.fee_mad || 600;
+        }
+        closeModal('doctor-modal');
+        notify(editId ? `Fiche de ${savedDoc.name} mise à jour` : `${savedDoc.name} ajouté à l’équipe médicale !`);
+        return;
+      } catch (_) {
+        if (editId) {
+          const idx = rdvApp.doctors.findIndex((d, i) => Number(d.id || (i + 1)) === Number(editId));
+          if (idx >= 0) rdvApp.doctors[idx] = { ...rdvApp.doctors[idx], ...payload };
+        } else {
+          rdvApp.doctors.push({ id: Date.now(), ...payload });
+        }
+        renderAll();
+        if (autoSelect || !document.getElementById('day-apt-form').classList.contains('hidden')) {
+          populateDoctorSelect(payload.name);
+          if (!rdvApp.editingAptId) document.getElementById('df-fee').value = payload.fee_mad;
+        }
+        closeModal('doctor-modal');
+        notify(editId ? `Fiche de ${payload.name} mise à jour` : `${payload.name} ajouté à l’équipe médicale !`);
+      }
+    }
+
+    async function executeDeleteDoctor(docId) {
+      rdvApp.confirmDeleteDocId = null;
+      if (rdvApp.doctors.length <= 1) {
+        notify('Au moins un praticien actif est requis dans la clinique', 'err');
+        renderDoctorsFilter();
+        return;
+      }
+      const targetDoc = rdvApp.doctors.find((d, i) => Number(d.id || (i + 1)) === Number(docId));
+      try {
+        const res = await fetch(`${API_BASE}/doctors/${docId}`, { method: 'DELETE', headers: apiHeaders() });
+        const data = await res.json();
+        if (!res.ok) {
+          notify(data.message || 'Suppression impossible', 'err');
+          renderDoctorsFilter();
+          return;
+        }
+        if (targetDoc && rdvApp.doctorFilter === targetDoc.name) {
+          rdvApp.doctorFilter = 'all';
+          document.getElementById('board-doctor-pill')?.classList.add('hidden');
+        }
+        syncFromServerState(data.state);
+        if (!document.getElementById('day-apt-form').classList.contains('hidden')) {
+          populateDoctorSelect();
+        }
+        notify(`${targetDoc ? targetDoc.name : 'Médecin'} retiré de la liste active`);
+        return;
+      } catch (_) {
+        rdvApp.doctors = rdvApp.doctors.filter((d, i) => Number(d.id || (i + 1)) !== Number(docId));
+        if (targetDoc && rdvApp.doctorFilter === targetDoc.name) {
+          rdvApp.doctorFilter = 'all';
+          document.getElementById('board-doctor-pill')?.classList.add('hidden');
+        }
+        renderAll();
+        notify('Praticien retiré');
+      }
+    }
+
+    // =========================================================================
     // DOSSIER PATIENT (DME) & NOUVEAU PATIENT
     // =========================================================================
     function openDmeDrawer(patientId) {
       rdvApp.activePatientId = Number(patientId);
       const p = rdvApp.patients.find(x => Number(x.id) === Number(patientId)) || rdvApp.patients[0];
       if (!p) return;
-      document.getElementById('dme-avatar').src = p.avatar;
+      const avEl = document.getElementById('dme-avatar');
+      avEl.onerror = () => { avEl.onerror = null; avEl.src = makeInitialsAvatar(`${p.first} ${p.last}`); };
+      avEl.src = p.avatar || makeInitialsAvatar(`${p.first} ${p.last}`);
       document.getElementById('dme-name').textContent = `${p.first} ${p.last}`;
       document.getElementById('dme-code').textContent = `#${p.code}`;
       document.getElementById('dme-meta').textContent = `${p.age} ans • CIN ${p.cin} • Groupe ${p.blood}`;
@@ -1723,13 +2081,20 @@
       const q = query.toLowerCase();
       const box = document.getElementById('global-search-results');
       const items = [
+        { icon: 'person_add', title: 'Ajouter un Nouveau Médecin / Praticien', sub: 'Équipe médicale & salles', go: () => { closeModal('search-modal'); openDoctorModal(); } },
+        { icon: 'calendar_add_on', title: 'Nouveau Rendez-vous (Raccourci : N)', sub: 'Ouvrir le formulaire', go: () => { closeModal('search-modal'); openDaySheetForAdd(rdvApp.selectedDate); } },
+        ...rdvApp.doctors.map(d => ({
+          icon: 'stethoscope',
+          title: `${d.name} (${d.specialty})`,
+          sub: `${d.room} • ${d.fee_mad || d.fee || 600} MAD`,
+          go: () => { closeModal('search-modal'); setDoctorFilter(d.name); }
+        })),
         ...rdvApp.appointments.map(a => {
           const p = rdvApp.patients.find(x => Number(x.id) === Number(a.patient_id));
           const d = a.date || TODAY_ISO;
           return { icon: 'event', title: `${d} à ${a.time} — ${p ? p.first + ' ' + p.last : a.doctor}`, sub: `${a.doctor} (${a.room})`, go: () => { closeModal('search-modal'); onSelectCalendarDay(d, true); } };
         }),
-        ...rdvApp.patients.map(p => ({ icon: 'person', title: `${p.first} ${p.last} (${p.code})`, sub: `${p.department} • CIN ${p.cin}`, go: () => { closeModal('search-modal'); openDmeDrawer(p.id); } })),
-        { icon: 'calendar_add_on', title: 'Nouveau Rendez-vous (Raccourci : N)', sub: 'Ouvrir le formulaire', go: () => { closeModal('search-modal'); openDaySheetForAdd(rdvApp.selectedDate); } }
+        ...rdvApp.patients.map(p => ({ icon: 'person', title: `${p.first} ${p.last} (${p.code})`, sub: `${p.department} • CIN ${p.cin}`, go: () => { closeModal('search-modal'); openDmeDrawer(p.id); } }))
       ].filter(x => `${x.title} ${x.sub}`.toLowerCase().includes(q));
 
       box.innerHTML = '';
@@ -1777,6 +2142,13 @@
         document.getElementById('active-branch-name').textContent = st.tenant.short || st.tenant.name;
         document.getElementById('tenant-subtitle-pill').textContent = `• ${st.tenant.branch}`;
       }
+      if (st.doctors && Array.isArray(st.doctors) && st.doctors.length > 0) {
+        rdvApp.doctors = st.doctors;
+        if (rdvApp.doctorFilter !== 'all' && !rdvApp.doctors.some(d => d.name === rdvApp.doctorFilter)) {
+          rdvApp.doctorFilter = 'all';
+          document.getElementById('board-doctor-pill')?.classList.add('hidden');
+        }
+      }
       if (st.patients) rdvApp.patients = st.patients;
       if (st.appointments) rdvApp.appointments = st.appointments;
       if (st.labs) rdvApp.labs = st.labs;
@@ -1802,17 +2174,20 @@
         document.getElementById(`tenant-dot-${n}`).className = `w-2 h-2 rounded-full ${n === rdvApp.tenantId ? 'bg-brand-soft-green' : 'bg-transparent'}`;
       });
 
+      rdvApp.doctors = [...fallbackDoctors];
       rdvApp.patients = fallbackPatients;
       rdvApp.appointments = fallbackAppointments;
+      populateDoctorSelect();
       renderAll();
       await fetchTenantState(false);
 
-      // Paramètres URL optionnels (?date=2026-10-30&add=1&doctor=Dr.%20Alimi%20Jan)
+      // Paramètres URL optionnels (?date=2026-10-30&add=1&doctor=Dr.%20Alimi%20Jan&add_doctor=1)
       const params = new URLSearchParams(window.location.search);
       const qDate = params.get('date');
       const qDoc = params.get('doctor') || '';
       const qAdd = params.get('add');
       const qOpen = params.get('sheet');
+      const qAddDoc = params.get('add_doctor');
 
       if (qDate && /^\d{4}-\d{2}-\d{2}$/.test(qDate)) {
         rdvApp.selectedDate = qDate;
@@ -1821,7 +2196,9 @@
         rdvApp.calMonth = m - 1;
         renderAll();
       }
-      if (qAdd === '1') {
+      if (qAddDoc === '1') {
+        openDoctorModal();
+      } else if (qAdd === '1') {
         openDaySheetForAdd(rdvApp.selectedDate, qDoc);
       } else if (qOpen === '1') {
         openDaySheet(rdvApp.selectedDate);
@@ -1842,7 +2219,7 @@
         e.preventDefault();
         openModal('search-modal');
       } else if (e.key === 'Escape') {
-        ['patient-modal', 'search-modal', 'settings-modal', 'print-modal'].forEach(closeModal);
+        ['doctor-modal', 'patient-modal', 'search-modal', 'settings-modal', 'print-modal'].forEach(closeModal);
         closeDmeDrawer();
         closeDaySheet();
       } else if (!inInput && !e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'n') {

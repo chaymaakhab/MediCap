@@ -357,9 +357,10 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <span class="text-[12.5px] font-semibold text-on-surface-variant">Nos Spécialistes</span>
-              <a href="rendez-vous.html" title="Ouvrir l’agenda des spécialistes" class="text-outline hover:text-primary transition-colors">
-                <span class="material-symbols-outlined text-[17px]">more_horiz</span>
-              </a>
+              <button onclick="openDoctorModal()" class="px-2 py-0.5 rounded-full bg-secondary-container hover:bg-primary text-primary hover:text-white text-[10px] font-bold flex items-center gap-0.5 transition-colors">
+                <span class="material-symbols-outlined text-[12px]">add</span>
+                Médecin
+              </button>
             </div>
             <div class="flex items-baseline justify-between mb-2">
               <span id="kpi-specialists-val" class="text-[22px] font-extrabold tracking-tight text-on-surface leading-none">120+</span>
@@ -369,15 +370,15 @@
             <div class="grid grid-cols-3 gap-1 mb-2">
               <button onclick="filterSpecialists('Psychologue', this)" class="spec-chip rounded-lg py-1 px-1 text-center bg-primary text-white shadow-2xs transition-all">
                 <span class="block text-[9.5px] font-medium opacity-90 truncate">Psychologue</span>
-                <span class="block text-[10.5px] font-bold leading-tight">12</span>
+                <span id="spec-cnt-psy" class="block text-[10.5px] font-bold leading-tight">12</span>
               </button>
               <button onclick="filterSpecialists('Cardiologue', this)" class="spec-chip rounded-lg py-1 px-1 text-center bg-surface-container-low text-on-surface-variant hover:bg-secondary-container/70 transition-all">
                 <span class="block text-[9.5px] font-medium truncate">Cardiologue</span>
-                <span class="block text-[10.5px] font-bold text-on-surface leading-tight">08</span>
+                <span id="spec-cnt-cardio" class="block text-[10.5px] font-bold text-on-surface leading-tight">08</span>
               </button>
               <button onclick="filterSpecialists('Neurologue', this)" class="spec-chip rounded-lg py-1 px-1 text-center bg-surface-container-low text-on-surface-variant hover:bg-secondary-container/70 transition-all">
                 <span class="block text-[9.5px] font-medium truncate">Neurologue</span>
-                <span class="block text-[10.5px] font-bold text-on-surface leading-tight">05</span>
+                <span id="spec-cnt-neuro" class="block text-[10.5px] font-bold text-on-surface leading-tight">05</span>
               </button>
             </div>
           </div>
@@ -850,6 +851,79 @@
     </div>
   </div>
 
+  <!-- Modale Ajouter un Médecin / Spécialiste -->
+  <div id="doctor-modal" onclick="closeModal('doctor-modal')" class="fixed inset-0 z-[65] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-secondary-container text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[18px]">stethoscope</span>
+          </span>
+          <div>
+            <h3 class="text-base font-extrabold text-on-surface leading-tight">Ajouter un Médecin</h3>
+            <span class="text-[10.5px] text-outline">Synchronisé avec l’Agenda &amp; Rendez-vous</span>
+          </div>
+        </div>
+        <button onclick="closeModal('doctor-modal')" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="submitNewDoctor(event)" class="space-y-2.5 text-xs">
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Nom complet du Praticien *</label>
+          <input id="doc-name" required type="text" placeholder="Ex : Dr. Yassine Alami"
+                 class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary"/>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Spécialité *</label>
+            <select id="doc-specialty" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary">
+              <option value="Cardiologue">Cardiologue</option>
+              <option value="Neurologue">Neurologue</option>
+              <option value="Psychologue">Psychologue</option>
+              <option value="Médecin Généraliste">Médecin Généraliste</option>
+              <option value="Pédiatre">Pédiatre</option>
+              <option value="Dermatologue">Dermatologue</option>
+              <option value="Gynécologue">Gynécologue</option>
+              <option value="Urologue">Urologue</option>
+              <option value="Oncologue">Oncologue</option>
+              <option value="Radiologue">Radiologue</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Salle / Cabinet *</label>
+            <input id="doc-room" required type="text" placeholder="Ex : Salle 108" value="Salle 108"
+                   class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Tarif (MAD) *</label>
+            <input id="doc-fee" required type="number" min="50" step="50" value="600"
+                   class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-extrabold text-primary focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Code INPE</label>
+            <input id="doc-inpe" type="text" placeholder="INPE-0642100"
+                   class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-mono uppercase text-[11px] focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Téléphone</label>
+            <input id="doc-phone" type="text" value="+212 661-506070"
+                   class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px] focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow mt-1 transition-all">
+          Ajouter à l’Équipe Médicale
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Modale Prescription Bilan Laboratoire -->
   <div id="lab-modal" onclick="closeModal('lab-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
     <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
@@ -1039,6 +1113,14 @@
     const API_BASE = 'http://127.0.0.1:8001/api/v1';
     const TODAY_ISO = '2026-10-29';
 
+    function makeInitialsAvatar(name) {
+      const cleaned = String(name || 'Dr').replace(/^(Dr\.|Pr\.|Docteur|Professeur)\s+/i, '').trim();
+      const parts = cleaned.split(/\s+/).filter(Boolean);
+      const initials = ((parts[0]?.[0] || 'D') + (parts[1]?.[0] || parts[0]?.[1] || 'R')).toUpperCase();
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#005131"/><stop offset="100%" stop-color="#176b45"/></linearGradient></defs><rect width="96" height="96" rx="48" fill="url(#g)"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Plus Jakarta Sans, sans-serif" font-weight="800" font-size="34">${initials}</text></svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+
     const saas = {
       tenantId: Number(localStorage.getItem('cliniqo_tenant_id') || 1),
       tenantName: 'Polyclinique Grand Central',
@@ -1095,11 +1177,11 @@
         { m: 'Juin', total: '27 980,00', rev: '27 980', icu: '9 840,00', er: '8 920,00', h1: 44, h2: 38, h3: 34 }
       ],
       doctors: [
-        { name: 'Dr. Alimi Jan', specialty: 'Cardiologue', room: 'Salle 102', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120' },
-        { name: 'Dr. Mike Millars', specialty: 'Psychologue', room: 'Cabinet 105', avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120' },
-        { name: 'Dr. Karim Tazi', specialty: 'Neurologue', room: 'Labo Neuro 2', avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120' },
-        { name: 'Dr. Sarah Chen', specialty: 'Cardiologue', room: 'Salle 101', avatar: 'https://images.unsplash.com/photo-1594824813637-440263f9059f?w=120' },
-        { name: 'Dr. Nadia Berrada', specialty: 'Psychologue', room: 'Cabinet 106', avatar: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=120' }
+        { id: 1, name: 'Dr. Alimi Jan', specialty: 'Cardiologue', room: 'Salle 102', fee_mad: 650, avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120' },
+        { id: 3, name: 'Dr. Mike Millars', specialty: 'Psychologue', room: 'Cabinet 105', fee_mad: 500, avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120' },
+        { id: 2, name: 'Dr. Karim Tazi', specialty: 'Neurologue', room: 'Labo Neuro 2', fee_mad: 850, avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120' },
+        { id: 4, name: 'Dr. Sarah Chen', specialty: 'Cardiologue', room: 'Salle 101', fee_mad: 600, avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?w=120' },
+        { id: 5, name: 'Dr. Nadia Berrada', specialty: 'Psychologue', room: 'Cabinet 106', fee_mad: 550, avatar: 'https://images.unsplash.com/photo-1527613426441-4da17471b66d?w=120' }
       ],
       patients: [],
       appointments: [],
@@ -1258,16 +1340,29 @@
       const container = document.getElementById('specialist-doctors-list');
       container.innerHTML = '';
       document.getElementById('kpi-specialists-val').textContent = `${saas.kpis.specialists_count || 120}+`;
+
+      const psyCount = 10 + saas.doctors.filter(d => d.specialty === 'Psychologue').length;
+      const cardioCount = 6 + saas.doctors.filter(d => d.specialty === 'Cardiologue').length;
+      const neuroCount = 4 + saas.doctors.filter(d => d.specialty === 'Neurologue').length;
+      const psyEl = document.getElementById('spec-cnt-psy');
+      const carEl = document.getElementById('spec-cnt-cardio');
+      const neuEl = document.getElementById('spec-cnt-neuro');
+      if (psyEl) psyEl.textContent = String(psyCount).padStart(2, '0');
+      if (carEl) carEl.textContent = String(cardioCount).padStart(2, '0');
+      if (neuEl) neuEl.textContent = String(neuroCount).padStart(2, '0');
+
       const list = saas.specialistFilter === 'all'
         ? saas.doctors
         : saas.doctors.filter(d => d.specialty === saas.specialistFilter);
 
       list.forEach(doc => {
         const encodedDoc = encodeURIComponent(doc.name);
+        const escName = String(doc.name).replace(/'/g, "\\'");
+        const avSrc = doc.avatar || makeInitialsAvatar(doc.name);
         container.insertAdjacentHTML('beforeend', `
           <div class="flex items-center justify-between py-0.5 group">
             <div class="flex items-center gap-2 min-w-0">
-              <img src="${doc.avatar}" alt="${doc.name}" class="w-[26px] h-[26px] rounded-full object-cover flex-shrink-0 ring-1 ring-outline-variant/40"/>
+              <img src="${avSrc}" alt="${doc.name}" onerror="this.onerror=null;this.src=makeInitialsAvatar('${escName}')" class="w-[26px] h-[26px] rounded-full object-cover flex-shrink-0 ring-1 ring-outline-variant/40"/>
               <div class="min-w-0 leading-tight">
                 <span class="block text-[11px] font-bold text-on-surface truncate">${doc.name}</span>
                 <span class="block text-[9.5px] text-outline truncate">${doc.specialty} • ${doc.room}</span>
@@ -2012,11 +2107,69 @@
       notify(`Devise affichée : ${c}`);
     }
 
+    function openDoctorModal() {
+      document.getElementById('doc-name').value = '';
+      document.getElementById('doc-specialty').value = 'Cardiologue';
+      document.getElementById('doc-room').value = `Salle ${106 + saas.doctors.length}`;
+      document.getElementById('doc-fee').value = 600;
+      document.getElementById('doc-inpe').value = '';
+      document.getElementById('doc-phone').value = '+212 661-506070';
+      openModal('doctor-modal');
+      setTimeout(() => document.getElementById('doc-name')?.focus(), 40);
+    }
+
+    async function submitNewDoctor(e) {
+      e.preventDefault();
+      let name = document.getElementById('doc-name').value.trim();
+      if (!name) return;
+      if (!/^(Dr\.|Pr\.|Docteur|Professeur)\s/i.test(name)) {
+        name = 'Dr. ' + name;
+      }
+
+      const payload = {
+        name,
+        specialty: document.getElementById('doc-specialty').value,
+        room: document.getElementById('doc-room').value.trim() || 'Salle 108',
+        fee_mad: Number(document.getElementById('doc-fee').value) || 600,
+        inpe: document.getElementById('doc-inpe').value.trim().toUpperCase(),
+        phone: document.getElementById('doc-phone').value.trim(),
+        avatar: makeInitialsAvatar(name)
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/doctors`, { method: 'POST', headers: apiHeaders(), body: JSON.stringify(payload) });
+        const data = await res.json();
+        if (!res.ok) {
+          notify(data.message || 'Impossible d’ajouter ce médecin', 'err');
+          return;
+        }
+        syncFromServerState(data.state);
+        closeModal('doctor-modal');
+        e.target.reset();
+        notify(`${(data.doctor || payload).name} ajouté à l’équipe médicale !`);
+        return;
+      } catch (_) {
+        saas.doctors.push({ id: Date.now(), ...payload });
+        saas.kpis.specialists_count = Number(saas.kpis.specialists_count || 120) + 1;
+        renderAll();
+        closeModal('doctor-modal');
+        e.target.reset();
+        notify(`${payload.name} ajouté à l’équipe médicale !`);
+      }
+    }
+
     function renderGlobalSearch(query) {
       const q = query.toLowerCase();
       const box = document.getElementById('global-search-results');
       const items = [
+        { icon: 'person_add', title: 'Ajouter un Nouveau Médecin / Spécialiste', sub: 'Équipe médicale & salles', go: () => { closeModal('search-modal'); openDoctorModal(); } },
         { icon: 'calendar_month', title: 'Ouvrir la page dédiée Rendez-vous & Agenda', sub: 'Navigation directe', go: () => { window.location.href = 'rendez-vous.html'; } },
+        ...saas.doctors.map(d => ({
+          icon: 'stethoscope',
+          title: `${d.name} (${d.specialty})`,
+          sub: `${d.room} • Planifier RDV`,
+          go: () => { window.location.href = `rendez-vous.html?add=1&doctor=${encodeURIComponent(d.name)}`; }
+        })),
         ...saas.patients.map(p => ({ icon: 'person', title: `${p.first} ${p.last} (${p.code})`, sub: `${p.department} • CIN ${p.cin}`, go: () => { closeModal('search-modal'); openDmeDrawer(p.id); } })),
         ...saas.invoices.map(i => ({ icon: 'receipt_long', title: `${i.num} — ${i.patient}`, sub: `${i.total} MAD (${i.cnss_status})`, go: () => { closeModal('search-modal'); switchTab('finance'); } }))
       ].filter(x => `${x.title} ${x.sub}`.toLowerCase().includes(q));
@@ -2039,6 +2192,9 @@
         document.getElementById('tenant-subtitle-pill').textContent = `• ${st.tenant.branch}`;
       }
       if (st.kpis) saas.kpis = st.kpis;
+      if (st.doctors && Array.isArray(st.doctors) && st.doctors.length > 0) {
+        saas.doctors = st.doctors;
+      }
       if (st.weekly_patients) saas.weeklyPatients = st.weekly_patients;
       if (st.patients) saas.patients = st.patients;
       if (st.appointments) saas.appointments = st.appointments;
@@ -2101,7 +2257,7 @@
         e.preventDefault();
         openModal('search-modal');
       } else if (e.key === 'Escape') {
-        ['patient-modal', 'lab-modal', 'invoice-modal', 'payment-modal', 'print-modal', 'search-modal', 'settings-modal'].forEach(closeModal);
+        ['doctor-modal', 'patient-modal', 'lab-modal', 'invoice-modal', 'payment-modal', 'print-modal', 'search-modal', 'settings-modal'].forEach(closeModal);
         closeDmeDrawer();
       } else if (!inInput && !e.ctrlKey && !e.metaKey) {
         if (e.key === '1') switchTab('overview');
