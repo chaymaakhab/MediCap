@@ -3,9 +3,13 @@
 declare(strict_types=1);
 
 /**
- * Cliniqo Medical Cloud — Multi-Tenant Stateful SaaS REST API Engine (v2)
- * Enforces Tenant Isolation (X-Tenant-ID), Anti-Overlap Scheduling, DME Persistence,
- * Auto-Billing on Completed Consultations, MAD Partial Payments, CNSS Pipeline & CNDP Audit Logs.
+ * Cliniqo Medical Cloud — Production Multi-Tenant SaaS Engine (v3)
+ * Features:
+ * - Multi-Date Calendar Scheduling + Triple Anti-Overlap Engine (Doctor, Room & Patient per Date+Time)
+ * - Full Appointment CRUD: Create (POST), Update/Modify (PUT/PATCH), Status + Auto-Bill (PATCH), Delete (DELETE)
+ * - Full Patient Registry CRUD + Persisted DME Vitals & Signed ICD-11 Clinical Notes
+ * - Lab Pathology Queue: Dispatch, Measured Value Entry, Validation & Delete
+ * - Moroccan Financial Engine (MAD): Partial Payments, Strict Balance Math, CNSS/AMO Stepper & CNDP Audit Logs
  */
 
 $requestStart = microtime(true);
@@ -24,7 +28,7 @@ $storageDir = dirname(__DIR__) . '/storage';
 if (!is_dir($storageDir)) {
     mkdir($storageDir, 0775, true);
 }
-$dbFile = $storageDir . '/saas_multitenant_v2.json';
+$dbFile = $storageDir . '/saas_multitenant_v3.json';
 
 function buildTenantSeed(int $tenantId): array
 {
@@ -142,7 +146,7 @@ function buildTenantSeed(int $tenantId): array
                 'hr' => '81 bpm',
                 'avatar' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120',
                 'notes' => [
-                    ['date' => '29-10-2026 09:48', 'doctor' => 'Dr. Karim Tazi', 'icd' => '8A80 • Migraine Aura', 'text' => 'EEG mapping normal alpha wave symmetry. Prescribed preventive magnesium & follow-up in 14d.'],
+                    ['date' => '29-10-2026 09:48', 'doctor' => 'Dr. Karim Tazi', 'icd' => '8A80 • Migraine Aura', 'text' => 'EEG mapping normal alpha wave symmetry. Follow-up in 14 days.'],
                 ],
             ],
             [
@@ -204,16 +208,28 @@ function buildTenantSeed(int $tenantId): array
             ],
         ],
         'appointments' => [
-            ['id' => 101, 'patient_id' => 1, 'time' => '09:00', 'doctor' => 'Dr. Alimi Jan', 'specialty' => 'Cardiologist', 'room' => 'Suite 102', 'reason' => 'Echocardiogram & Serum K+ Follow-up', 'status' => 'completed', 'fee_mad' => 650, 'billed' => true],
-            ['id' => 102, 'patient_id' => 2, 'time' => '09:45', 'doctor' => 'Dr. Karim Tazi', 'specialty' => 'Neurologist', 'room' => 'Neuro Lab 2', 'reason' => 'EEG Telemetry & Nerve Mapping', 'status' => 'in_progress', 'fee_mad' => 850, 'billed' => true],
-            ['id' => 103, 'patient_id' => 3, 'time' => '10:30', 'doctor' => 'Dr. Mike Millars', 'specialty' => 'Psychologist', 'room' => 'Consult 105', 'reason' => 'Behavioral Stress & Sleep Assessment', 'status' => 'waiting', 'fee_mad' => 500, 'billed' => false],
-            ['id' => 104, 'patient_id' => 4, 'time' => '11:15', 'doctor' => 'Dr. Sarah Chen', 'specialty' => 'Cardiologist', 'room' => 'Suite 101', 'reason' => 'Renal Doppler & Hypertension Control', 'status' => 'confirmed', 'fee_mad' => 600, 'billed' => true],
-            ['id' => 105, 'patient_id' => 5, 'time' => '14:00', 'doctor' => 'Dr. Alimi Jan', 'specialty' => 'Cardiologist', 'room' => 'Suite 102', 'reason' => 'Preventive Cardiac Stress Test', 'status' => 'confirmed', 'fee_mad' => 750, 'billed' => false],
+            // Past & Current Week Multi-Day Appointments for Mini Calendar
+            ['id' => 98, 'patient_id' => 3, 'date' => '2026-10-27', 'time' => '10:00', 'doctor' => 'Dr. Sarah Chen', 'specialty' => 'Cardiologist', 'room' => 'Suite 101', 'reason' => 'Pre-screening Biomarker Review', 'status' => 'completed', 'fee_mad' => 600, 'billed' => true],
+            ['id' => 99, 'patient_id' => 4, 'date' => '2026-10-28', 'time' => '11:30', 'doctor' => 'Dr. Alimi Jan', 'specialty' => 'Cardiologist', 'room' => 'Suite 102', 'reason' => 'Arterial Pressure Baseline', 'status' => 'completed', 'fee_mad' => 650, 'billed' => true],
+            ['id' => 100, 'patient_id' => 1, 'date' => '2026-10-28', 'time' => '15:00', 'doctor' => 'Dr. Karim Tazi', 'specialty' => 'Neurologist', 'room' => 'Neuro Lab 2', 'reason' => 'Neuro-Vascular Doppler', 'status' => 'completed', 'fee_mad' => 850, 'billed' => true],
+
+            // Today: 2026-10-29
+            ['id' => 101, 'patient_id' => 1, 'date' => '2026-10-29', 'time' => '09:00', 'doctor' => 'Dr. Alimi Jan', 'specialty' => 'Cardiologist', 'room' => 'Suite 102', 'reason' => 'Echocardiogram & Serum K+ Follow-up', 'status' => 'completed', 'fee_mad' => 650, 'billed' => true],
+            ['id' => 102, 'patient_id' => 2, 'date' => '2026-10-29', 'time' => '09:45', 'doctor' => 'Dr. Karim Tazi', 'specialty' => 'Neurologist', 'room' => 'Neuro Lab 2', 'reason' => 'EEG Telemetry & Nerve Mapping', 'status' => 'in_progress', 'fee_mad' => 850, 'billed' => true],
+            ['id' => 103, 'patient_id' => 3, 'date' => '2026-10-29', 'time' => '10:30', 'doctor' => 'Dr. Mike Millars', 'specialty' => 'Psychologist', 'room' => 'Consult 105', 'reason' => 'Behavioral Stress & Sleep Assessment', 'status' => 'waiting', 'fee_mad' => 500, 'billed' => false],
+            ['id' => 104, 'patient_id' => 4, 'date' => '2026-10-29', 'time' => '11:15', 'doctor' => 'Dr. Sarah Chen', 'specialty' => 'Cardiologist', 'room' => 'Suite 101', 'reason' => 'Renal Doppler & Hypertension Control', 'status' => 'confirmed', 'fee_mad' => 600, 'billed' => true],
+            ['id' => 105, 'patient_id' => 5, 'date' => '2026-10-29', 'time' => '14:00', 'doctor' => 'Dr. Alimi Jan', 'specialty' => 'Cardiologist', 'room' => 'Suite 102', 'reason' => 'Preventive Cardiac Stress Test', 'status' => 'confirmed', 'fee_mad' => 750, 'billed' => false],
+
+            // Upcoming Days: Oct 30, Oct 31, Nov 2
+            ['id' => 106, 'patient_id' => 2, 'date' => '2026-10-30', 'time' => '09:30', 'doctor' => 'Dr. Karim Tazi', 'specialty' => 'Neurologist', 'room' => 'Neuro Lab 2', 'reason' => 'Post-EEG Medication Titration', 'status' => 'confirmed', 'fee_mad' => 700, 'billed' => false],
+            ['id' => 107, 'patient_id' => 5, 'date' => '2026-10-30', 'time' => '11:00', 'doctor' => 'Dr. Sarah Chen', 'specialty' => 'Cardiologist', 'room' => 'Suite 101', 'reason' => 'Holter 24h Readout', 'status' => 'confirmed', 'fee_mad' => 600, 'billed' => false],
+            ['id' => 108, 'patient_id' => 3, 'date' => '2026-10-31', 'time' => '10:15', 'doctor' => 'Dr. Alimi Jan', 'specialty' => 'Cardiologist', 'room' => 'Suite 102', 'reason' => 'Cardio-Oncology Clearance', 'status' => 'waiting', 'fee_mad' => 650, 'billed' => false],
+            ['id' => 109, 'patient_id' => 1, 'date' => '2026-11-02', 'time' => '09:00', 'doctor' => 'Dr. Alimi Jan', 'specialty' => 'Cardiologist', 'room' => 'Suite 102', 'reason' => 'Electrolyte Control Follow-up', 'status' => 'confirmed', 'fee_mad' => 550, 'billed' => false],
         ],
         'labs' => [
             ['id' => 501, 'code' => 'LAB-2026-881', 'patient_id' => 1, 'patient_name' => 'Eleanor Pena', 'test_name' => 'Serum Electrolytes & Potassium (K+)', 'category' => 'Biochemistry', 'value' => '5.8 mEq/L', 'reference' => '3.5 - 5.1 mEq/L', 'priority' => 'STAT', 'status' => 'flagged', 'ordered_by' => 'Dr. Alimi Jan', 'timestamp' => '09:18'],
             ['id' => 502, 'code' => 'LAB-2026-882', 'patient_id' => 2, 'patient_name' => 'Wade Warren', 'test_name' => '12-Lead ECG + High-Sens Troponin-I', 'category' => 'Cardiology', 'value' => '0.012 ng/mL', 'reference' => '< 0.040 ng/mL', 'priority' => 'Urgent', 'status' => 'in_analysis', 'ordered_by' => 'Dr. Karim Tazi', 'timestamp' => '09:50'],
-            ['id' => 503, 'code' => 'LAB-2026-883', 'patient_id' => 3, 'patient_name' => 'Salma Bennani', 'test_name' => 'CBC Complete Blood &CA-125 Biomarker', 'category' => 'Oncology', 'value' => 'WBC 6.4 x10³/µL', 'reference' => '4.5 - 11.0 x10³/µL', 'priority' => 'Routine', 'status' => 'validated', 'ordered_by' => 'Dr. Sarah Chen', 'timestamp' => '08:42'],
+            ['id' => 503, 'code' => 'LAB-2026-883', 'patient_id' => 3, 'patient_name' => 'Salma Bennani', 'test_name' => 'CBC Complete Blood & CA-125 Biomarker', 'category' => 'Oncology', 'value' => 'WBC 6.4 x10³/µL', 'reference' => '4.5 - 11.0 x10³/µL', 'priority' => 'Routine', 'status' => 'validated', 'ordered_by' => 'Dr. Sarah Chen', 'timestamp' => '08:42'],
             ['id' => 504, 'code' => 'LAB-2026-884', 'patient_id' => 4, 'patient_name' => 'Youssef El Amrani', 'test_name' => 'Renal Function (Creatinine & eGFR)', 'category' => 'Urology', 'value' => '0.94 mg/dL', 'reference' => '0.70 - 1.20 mg/dL', 'priority' => 'Routine', 'status' => 'validated', 'ordered_by' => 'Dr. Sarah Chen', 'timestamp' => '08:15'],
         ],
         'invoices' => [
@@ -276,12 +292,76 @@ function parseCoverageInfo(string $cov): array
     return ['org' => 'Direct Pay', 'rate' => 0.0];
 }
 
+/**
+ * Triple Anti-Overlap Check: Doctor, Room, and Patient on the same Date + Time
+ */
+function checkScheduleConflict(array $appointments, string $date, string $time, string $doctor, string $room, int $patientId, ?int $ignoreAptId = null): ?string
+{
+    foreach ($appointments as $apt) {
+        if ($ignoreAptId !== null && (int) $apt['id'] === $ignoreAptId) {
+            continue;
+        }
+        if (($apt['status'] ?? '') === 'cancelled') {
+            continue;
+        }
+        $aptDate = (string) ($apt['date'] ?? '2026-10-29');
+        $aptTime = (string) ($apt['time'] ?? '');
+        if ($aptDate === $date && $aptTime === $time) {
+            if ($apt['doctor'] === $doctor) {
+                return "Conflict: {$doctor} already has an appointment on {$date} at {$time}.";
+            }
+            if ($room !== '' && ($apt['room'] ?? '') === $room) {
+                return "Room Conflict: {$room} is already occupied on {$date} at {$time} ({$apt['doctor']}).";
+            }
+            if ((int) ($apt['patient_id'] ?? 0) === $patientId) {
+                return "Patient Conflict: This patient already has an appointment on {$date} at {$time}.";
+            }
+        }
+    }
+    return null;
+}
+
+/**
+ * Helper to auto-generate a MAD invoice when an appointment transitions to 'completed'
+ */
+function maybeAutoBillAppointment(array &$state, array &$apt): ?array
+{
+    if (($apt['status'] ?? '') !== 'completed' || !empty($apt['billed'])) {
+        return null;
+    }
+    $apt['billed'] = true;
+    $patientObj = $state['patients'][0] ?? ['id' => 1, 'first' => 'Patient', 'last' => '', 'coverage' => 'Direct Pay'];
+    foreach ($state['patients'] as $p) {
+        if ((int) $p['id'] === (int) $apt['patient_id']) {
+            $patientObj = $p;
+            break;
+        }
+    }
+    $covInfo = parseCoverageInfo((string) ($patientObj['coverage'] ?? 'Direct Pay'));
+    $fee = (float) ($apt['fee_mad'] ?? 600);
+    $autoInv = [
+        'id' => (int) round(microtime(true) * 1000),
+        'num' => 'INV-2026-' . random_int(1000, 9999),
+        'patient_id' => (int) $patientObj['id'],
+        'patient' => trim($patientObj['first'] . ' ' . $patientObj['last']),
+        'service' => $apt['reason'] . ' (' . $apt['doctor'] . ')',
+        'total' => $fee,
+        'paid' => 0.00,
+        'method' => 'Pending Desk',
+        'cnss_org' => $covInfo['org'],
+        'cnss_est' => round($fee * $covInfo['rate'], 2),
+        'cnss_status' => $covInfo['rate'] > 0 ? 'Ready' : 'N/A',
+    ];
+    array_unshift($state['invoices'], $autoInv);
+    return $autoInv;
+}
+
 function respondJson(array $payload, float $start, int $code = 200): void
 {
     http_response_code($code);
     $payload['meta'] = [
         'latency_ms' => round((microtime(true) - $start) * 1000, 1),
-        'api_version' => 'v2.1-multitenant',
+        'api_version' => 'v3.0-calendar-crud',
     ];
     echo json_encode($payload, JSON_UNESCAPED_UNICODE);
     exit;
@@ -297,18 +377,23 @@ if (!isset($db[$tenantKey])) {
 }
 $state = &$db[$tenantKey];
 
+// Sort appointments chronologically by date + time
+usort($state['appointments'], static function (array $a, array $b): int {
+    return strcmp(($a['date'] ?? '2026-10-29') . ' ' . ($a['time'] ?? '00:00'), ($b['date'] ?? '2026-10-29') . ' ' . ($b['time'] ?? '00:00'));
+});
+
 // Health Check
 if ($uri === '/' || $uri === '/api/v1' || $uri === '/api/v1/health') {
     respondJson([
         'success' => true,
-        'service' => 'Cliniqo Medical Multi-Tenant SaaS API',
+        'service' => 'Cliniqo Medical Multi-Tenant SaaS API v3',
         'tenant_id' => (int) $tenantKey,
         'tenant_name' => $state['tenant']['name'],
         'status' => 'healthy',
     ], $requestStart);
 }
 
-// Full Tenant State & Overview
+// Full Tenant State
 if (($uri === '/api/v1/state' || $uri === '/api/v1/dashboard/overview') && $method === 'GET') {
     respondJson([
         'success' => true,
@@ -324,7 +409,9 @@ if ($uri === '/api/v1/reset' && $method === 'POST') {
     respondJson(['success' => true, 'state' => $db[$tenantKey]], $requestStart);
 }
 
-// Patients List & Create
+// =========================================================================
+// PATIENTS CRUD & DME PERSISTENCE
+// =========================================================================
 if ($uri === '/api/v1/patients' && $method === 'GET') {
     respondJson(['success' => true, 'data' => $state['patients']], $requestStart);
 }
@@ -371,7 +458,21 @@ if ($uri === '/api/v1/patients' && $method === 'POST') {
     respondJson(['success' => true, 'patient' => $newPatient, 'state' => $state], $requestStart, 201);
 }
 
-// Save Patient DME Vitals & Signed ICD-11 Clinical Note
+if (preg_match('#^/api/v1/patients/(\d+)$#', $uri, $m) && $method === 'DELETE') {
+    $patId = (int) $m[1];
+    $state['patients'] = array_values(array_filter($state['patients'], static fn(array $p): bool => (int) $p['id'] !== $patId));
+    $state['appointments'] = array_values(array_filter($state['appointments'], static fn(array $a): bool => (int) $a['patient_id'] !== $patId));
+    array_unshift($state['audit_logs'], [
+        'time' => date('H:i:s'),
+        'actor' => 'Dr. Jackson',
+        'action' => 'ARCHIVE_PATIENT',
+        'target' => "Patient ID #{$patId}",
+        'status' => 'ARCHIVED',
+    ]);
+    saveAllTenants($dbFile, $db);
+    respondJson(['success' => true, 'state' => $state], $requestStart);
+}
+
 if (preg_match('#^/api/v1/patients/(\d+)/dme$#', $uri, $m) && $method === 'POST') {
     $patId = (int) $m[1];
     $body = readBody();
@@ -386,8 +487,8 @@ if (preg_match('#^/api/v1/patients/(\d+)/dme$#', $uri, $m) && $method === 'POST'
             if (!empty($body['hr'])) {
                 $pat['hr'] = trim((string) $body['hr']);
             }
-            if (!empty($body['allergy'])) {
-                $pat['allergy'] = trim((string) $body['allergy']);
+            if (isset($body['allergy'])) {
+                $pat['allergy'] = trim((string) $body['allergy']) ?: 'None reported';
             }
             $noteText = trim((string) ($body['note'] ?? ''));
             if ($noteText !== '') {
@@ -397,7 +498,7 @@ if (preg_match('#^/api/v1/patients/(\d+)/dme$#', $uri, $m) && $method === 'POST'
                 array_unshift($pat['notes'], [
                     'date' => date('d-m-Y H:i'),
                     'doctor' => trim((string) ($body['doctor'] ?? 'Dr. Jackson')),
-                    'icd' => trim((string) ($body['icd'] ?? 'ICD-11 Clinical Follow-up')),
+                    'icd' => trim((string) ($body['icd'] ?? 'ICD-11 Follow-up')),
                     'text' => $noteText,
                 ]);
             }
@@ -416,86 +517,157 @@ if (preg_match('#^/api/v1/patients/(\d+)/dme$#', $uri, $m) && $method === 'POST'
     respondJson(['success' => true, 'state' => $state], $requestStart);
 }
 
-// Appointments List & Anti-Overlap Booking
+// =========================================================================
+// APPOINTMENTS FULL CRUD (GET BY DATE, CREATE, FULL MODIFY/PUT, STATUS, DELETE)
+// =========================================================================
 if ($uri === '/api/v1/appointments' && $method === 'GET') {
-    respondJson(['success' => true, 'data' => $state['appointments']], $requestStart);
+    $dateFilter = trim((string) ($_GET['date'] ?? ''));
+    $list = $dateFilter !== ''
+        ? array_values(array_filter($state['appointments'], static fn(array $a): bool => ($a['date'] ?? '2026-10-29') === $dateFilter))
+        : $state['appointments'];
+    respondJson(['success' => true, 'data' => $list], $requestStart);
 }
 
+// CREATE APPOINTMENT
 if ($uri === '/api/v1/appointments' && $method === 'POST') {
     $body = readBody();
-    $doctor = trim((string) ($body['doctor'] ?? 'Dr. Alimi Jan'));
+    $patientId = (int) ($body['patient_id'] ?? 1);
+    $date = trim((string) ($body['date'] ?? '2026-10-29'));
     $time = trim((string) ($body['time'] ?? '15:00'));
+    $doctor = trim((string) ($body['doctor'] ?? 'Dr. Alimi Jan'));
+    $specialty = trim((string) ($body['specialty'] ?? 'Cardiologist'));
+    $room = trim((string) ($body['room'] ?? 'Suite 102'));
+    $reason = trim((string) ($body['reason'] ?? 'Specialist Consultation'));
+    $status = trim((string) ($body['status'] ?? 'confirmed'));
+    $feeMad = max(50, (int) ($body['fee_mad'] ?? 600));
 
-    foreach ($state['appointments'] as $apt) {
-        if ($apt['doctor'] === $doctor && $apt['time'] === $time && $apt['status'] !== 'cancelled') {
-            respondJson([
-                'success' => false,
-                'message' => "Anti-Overlap Conflict: {$doctor} already has a consultation at {$time}.",
-            ], $requestStart, 409);
-        }
+    $conflict = checkScheduleConflict($state['appointments'], $date, $time, $doctor, $room, $patientId, null);
+    if ($conflict !== null) {
+        respondJson(['success' => false, 'message' => $conflict], $requestStart, 409);
     }
 
     $newApt = [
         'id' => (int) round(microtime(true) * 1000),
-        'patient_id' => (int) ($body['patient_id'] ?? 1),
+        'patient_id' => $patientId,
+        'date' => $date,
         'time' => $time,
         'doctor' => $doctor,
-        'specialty' => trim((string) ($body['specialty'] ?? 'Cardiologist')),
-        'room' => trim((string) ($body['room'] ?? 'Suite 102')),
-        'reason' => trim((string) ($body['reason'] ?? 'Specialist Consultation')),
-        'status' => 'confirmed',
-        'fee_mad' => max(100, (int) ($body['fee_mad'] ?? 600)),
+        'specialty' => $specialty,
+        'room' => $room,
+        'reason' => $reason,
+        'status' => $status,
+        'fee_mad' => $feeMad,
         'billed' => false,
     ];
+
+    $autoInv = maybeAutoBillAppointment($state, $newApt);
     $state['appointments'][] = $newApt;
+    usort($state['appointments'], static fn(array $a, array $b): int => strcmp(($a['date'] ?? '') . ' ' . ($a['time'] ?? ''), ($b['date'] ?? '') . ' ' . ($b['time'] ?? '')));
+
     array_unshift($state['audit_logs'], [
         'time' => date('H:i:s'),
-        'actor' => 'Scheduler',
-        'action' => 'BOOK_SLOT_VERIFIED',
-        'target' => "{$doctor} @ {$time}",
+        'actor' => 'Calendar Scheduler',
+        'action' => 'ADD_APPOINTMENT',
+        'target' => "{$doctor} on {$date} @ {$time}",
         'status' => 'CONFIRMED',
     ]);
     saveAllTenants($dbFile, $db);
-    respondJson(['success' => true, 'appointment' => $newApt, 'state' => $state], $requestStart, 201);
+    respondJson(['success' => true, 'appointment' => $newApt, 'auto_invoice' => $autoInv, 'state' => $state], $requestStart, 201);
 }
 
-// Update Appointment Status + Auto-Generate Invoice on 'completed'
+// MODIFY / UPDATE FULL APPOINTMENT (PUT or PATCH /api/v1/appointments/{id})
+if (preg_match('#^/api/v1/appointments/(\d+)$#', $uri, $m) && ($method === 'PUT' || $method === 'PATCH')) {
+    $aptId = (int) $m[1];
+    $body = readBody();
+    $foundIdx = null;
+    foreach ($state['appointments'] as $idx => $existing) {
+        if ((int) $existing['id'] === $aptId) {
+            $foundIdx = $idx;
+            break;
+        }
+    }
+    if ($foundIdx === null) {
+        respondJson(['success' => false, 'message' => 'Appointment not found.'], $requestStart, 404);
+    }
+
+    $curr = $state['appointments'][$foundIdx];
+    $patientId = isset($body['patient_id']) ? (int) $body['patient_id'] : (int) $curr['patient_id'];
+    $date = isset($body['date']) ? trim((string) $body['date']) : (string) ($curr['date'] ?? '2026-10-29');
+    $time = isset($body['time']) ? trim((string) $body['time']) : (string) $curr['time'];
+    $doctor = isset($body['doctor']) ? trim((string) $body['doctor']) : (string) $curr['doctor'];
+    $specialty = isset($body['specialty']) ? trim((string) $body['specialty']) : (string) ($curr['specialty'] ?? 'Cardiologist');
+    $room = isset($body['room']) ? trim((string) $body['room']) : (string) ($curr['room'] ?? 'Suite 102');
+    $reason = isset($body['reason']) ? trim((string) $body['reason']) : (string) $curr['reason'];
+    $status = isset($body['status']) ? trim((string) $body['status']) : (string) $curr['status'];
+    $feeMad = isset($body['fee_mad']) ? max(50, (int) $body['fee_mad']) : (int) ($curr['fee_mad'] ?? 600);
+
+    $conflict = checkScheduleConflict($state['appointments'], $date, $time, $doctor, $room, $patientId, $aptId);
+    if ($conflict !== null) {
+        respondJson(['success' => false, 'message' => $conflict], $requestStart, 409);
+    }
+
+    $curr['patient_id'] = $patientId;
+    $curr['date'] = $date;
+    $curr['time'] = $time;
+    $curr['doctor'] = $doctor;
+    $curr['specialty'] = $specialty;
+    $curr['room'] = $room;
+    $curr['reason'] = $reason;
+    $curr['status'] = $status;
+    $curr['fee_mad'] = $feeMad;
+
+    $autoInv = maybeAutoBillAppointment($state, $curr);
+    $state['appointments'][$foundIdx] = $curr;
+    usort($state['appointments'], static fn(array $a, array $b): int => strcmp(($a['date'] ?? '') . ' ' . ($a['time'] ?? ''), ($b['date'] ?? '') . ' ' . ($b['time'] ?? '')));
+
+    array_unshift($state['audit_logs'], [
+        'time' => date('H:i:s'),
+        'actor' => 'Calendar Scheduler',
+        'action' => 'MODIFY_APPOINTMENT',
+        'target' => "APT #{$aptId} ({$date} @ {$time})",
+        'status' => 'UPDATED',
+    ]);
+    saveAllTenants($dbFile, $db);
+    respondJson(['success' => true, 'appointment' => $curr, 'auto_invoice' => $autoInv, 'state' => $state], $requestStart);
+}
+
+// DELETE APPOINTMENT (DELETE /api/v1/appointments/{id})
+if (preg_match('#^/api/v1/appointments/(\d+)$#', $uri, $m) && $method === 'DELETE') {
+    $aptId = (int) $m[1];
+    $deletedInfo = "APT #{$aptId}";
+    foreach ($state['appointments'] as $a) {
+        if ((int) $a['id'] === $aptId) {
+            $deletedInfo = "{$a['doctor']} ({$a['date']} @ {$a['time']})";
+            break;
+        }
+    }
+    $state['appointments'] = array_values(array_filter(
+        $state['appointments'],
+        static fn(array $a): bool => (int) $a['id'] !== $aptId
+    ));
+
+    array_unshift($state['audit_logs'], [
+        'time' => date('H:i:s'),
+        'actor' => 'Calendar Scheduler',
+        'action' => 'DELETE_APPOINTMENT',
+        'target' => $deletedInfo,
+        'status' => 'REMOVED',
+    ]);
+    saveAllTenants($dbFile, $db);
+    respondJson(['success' => true, 'state' => $state], $requestStart);
+}
+
+// QUICK STATUS UPDATE + AUTO-BILL
 if (preg_match('#^/api/v1/appointments/(\d+)/status$#', $uri, $m) && ($method === 'PATCH' || $method === 'POST')) {
     $aptId = (int) $m[1];
     $body = readBody();
     $newStatus = trim((string) ($body['status'] ?? 'completed'));
-    $autoInvoiceCreated = null;
+    $autoInv = null;
 
     foreach ($state['appointments'] as &$apt) {
         if ((int) $apt['id'] === $aptId) {
             $apt['status'] = $newStatus;
-
-            if ($newStatus === 'completed' && empty($apt['billed'])) {
-                $apt['billed'] = true;
-                $patientObj = $state['patients'][0] ?? ['id' => 1, 'first' => 'Patient', 'last' => '', 'coverage' => 'Direct Pay'];
-                foreach ($state['patients'] as $p) {
-                    if ((int) $p['id'] === (int) $apt['patient_id']) {
-                        $patientObj = $p;
-                        break;
-                    }
-                }
-                $covInfo = parseCoverageInfo((string) ($patientObj['coverage'] ?? 'Direct Pay'));
-                $fee = (float) ($apt['fee_mad'] ?? 600);
-                $autoInvoiceCreated = [
-                    'id' => (int) round(microtime(true) * 1000),
-                    'num' => 'INV-2026-' . random_int(1000, 9999),
-                    'patient_id' => (int) $patientObj['id'],
-                    'patient' => trim($patientObj['first'] . ' ' . $patientObj['last']),
-                    'service' => $apt['reason'] . ' (' . $apt['doctor'] . ')',
-                    'total' => $fee,
-                    'paid' => 0.00,
-                    'method' => 'Pending Desk',
-                    'cnss_org' => $covInfo['org'],
-                    'cnss_est' => round($fee * $covInfo['rate'], 2),
-                    'cnss_status' => $covInfo['rate'] > 0 ? 'Ready' : 'N/A',
-                ];
-                array_unshift($state['invoices'], $autoInvoiceCreated);
-            }
+            $autoInv = maybeAutoBillAppointment($state, $apt);
             break;
         }
     }
@@ -504,15 +676,17 @@ if (preg_match('#^/api/v1/appointments/(\d+)/status$#', $uri, $m) && ($method ==
     array_unshift($state['audit_logs'], [
         'time' => date('H:i:s'),
         'actor' => 'Clinical Suite',
-        'action' => $autoInvoiceCreated ? 'COMPLETE_AND_AUTOBILL' : 'UPDATE_APT_STATUS',
+        'action' => $autoInv ? 'COMPLETE_AND_AUTOBILL' : 'UPDATE_APT_STATUS',
         'target' => "APT #{$aptId} -> {$newStatus}",
         'status' => 'LOGGED',
     ]);
     saveAllTenants($dbFile, $db);
-    respondJson(['success' => true, 'auto_invoice' => $autoInvoiceCreated, 'state' => $state], $requestStart);
+    respondJson(['success' => true, 'auto_invoice' => $autoInv, 'state' => $state], $requestStart);
 }
 
-// Lab Diagnostics: Order & Supervisor Validation
+// =========================================================================
+// LABS: ORDER, VALIDATE WITH MEASURED VALUE, DELETE
+// =========================================================================
 if ($uri === '/api/v1/labs' && $method === 'POST') {
     $body = readBody();
     $priority = trim((string) ($body['priority'] ?? 'Urgent'));
@@ -552,7 +726,7 @@ if (preg_match('#^/api/v1/labs/(\d+)/validate$#', $uri, $m) && ($method === 'PAT
             if (!empty($body['value'])) {
                 $lab['value'] = trim((string) $body['value']);
             } elseif ($lab['value'] === 'Analyzer Running') {
-                $lab['value'] = 'Within Normal Limits';
+                $lab['value'] = 'Normal Range Verified';
             }
             break;
         }
@@ -569,7 +743,16 @@ if (preg_match('#^/api/v1/labs/(\d+)/validate$#', $uri, $m) && ($method === 'PAT
     respondJson(['success' => true, 'state' => $state], $requestStart);
 }
 
-// Invoices: List, Create, Allocate Partial MAD Payment & Advance CNSS Status
+if (preg_match('#^/api/v1/labs/(\d+)$#', $uri, $m) && $method === 'DELETE') {
+    $id = (int) $m[1];
+    $state['labs'] = array_values(array_filter($state['labs'], static fn(array $l): bool => (int) $l['id'] !== $id));
+    saveAllTenants($dbFile, $db);
+    respondJson(['success' => true, 'state' => $state], $requestStart);
+}
+
+// =========================================================================
+// INVOICES, PARTIAL PAYMENTS (MAD) & CNSS PIPELINE
+// =========================================================================
 if ($uri === '/api/v1/invoices' && $method === 'GET') {
     respondJson(['success' => true, 'data' => $state['invoices']], $requestStart);
 }
@@ -670,10 +853,6 @@ if (preg_match('#^/api/v1/invoices/(\d+)/cnss$#', $uri, $m) && ($method === 'PAT
     unset($inv);
     saveAllTenants($dbFile, $db);
     respondJson(['success' => true, 'state' => $state], $requestStart);
-}
-
-if ($uri === '/api/v1/cnss/claims' && $method === 'GET') {
-    respondJson(['success' => true, 'data' => $state['invoices']], $requestStart);
 }
 
 respondJson([

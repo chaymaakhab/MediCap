@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cliniqo Medical | Diagnostic Monitoring & Clinical Cloud SaaS</title>
 
-  <!-- Favicon (Official Green Cliniqo Mark) -->
   <link rel="icon" type="image/svg+xml" href="../assets/logo.svg"/>
 
-  <!-- Fonts & Icons (Matching Landing Page) -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
@@ -16,7 +14,7 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // 100% Unified Color Tokens from Cliniqo Landing Page (index.html)
+    // Unified Cliniqo Landing Page Emerald & Clinical Sage Design Tokens
     tailwind.config = {
       theme: {
         extend: {
@@ -53,7 +51,7 @@
             bento: '0 2px 16px -4px rgba(0, 81, 49, 0.05), 0 1px 2px rgba(25, 28, 27, 0.03)',
             pill: '0 2px 10px -2px rgba(0, 81, 49, 0.06)',
             emeraldGlow: '0 4px 14px -2px rgba(0, 81, 49, 0.28)',
-            floatCard: '0 12px 30px -6px rgba(0, 33, 17, 0.10), 0 2px 8px -2px rgba(0, 33, 17, 0.04)'
+            floatCard: '0 12px 30px -6px rgba(0, 33, 17, 0.11), 0 2px 8px -2px rgba(0, 33, 17, 0.04)'
           }
         }
       }
@@ -71,7 +69,7 @@
       font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     }
 
-    .slim-scroll::-webkit-scrollbar { width: 3px; height: 3px; }
+    .slim-scroll::-webkit-scrollbar { width: 3.5px; height: 3.5px; }
     .slim-scroll::-webkit-scrollbar-track { background: #eef2ef; border-radius: 99px; }
     .slim-scroll::-webkit-scrollbar-thumb { background: #10b981; border-radius: 99px; }
 
@@ -81,7 +79,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .drawer-enter { animation: slideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+    .drawer-enter { animation: slideIn 0.24s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes slideIn {
       from { transform: translateX(100%); }
       to { transform: translateX(0); }
@@ -95,11 +93,11 @@
 
     .bento-card {
       background: #ffffff;
-      border: 1px solid rgba(191, 201, 192, 0.35);
+      border: 1px solid rgba(191, 201, 192, 0.36);
       transition: border-color 0.22s ease, box-shadow 0.22s ease;
     }
     .bento-card:hover {
-      border-color: rgba(16, 185, 129, 0.38);
+      border-color: rgba(16, 185, 129, 0.4);
       box-shadow: 0 8px 24px -6px rgba(0, 81, 49, 0.08);
     }
 
@@ -124,23 +122,23 @@
 
 <body class="min-h-screen bg-surface-container-low text-on-surface selection:bg-primary-fixed selection:text-primary">
 
-  <!-- Floating Interactive Chart Cursor Tooltip -->
+  <!-- Interactive Chart Hover Tooltip -->
   <div id="chart-tooltip" class="fixed z-[95] hidden pointer-events-none px-2.5 py-1 rounded-lg bg-on-primary-fixed text-white text-[10.5px] font-semibold shadow-lg whitespace-nowrap"></div>
 
   <!-- Toast Stack -->
   <div id="toast-stack" class="fixed bottom-4 right-4 z-[90] flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- ========================================================================= -->
-  <!-- COMPACT SAAS SHELL (MAX-W-[1140px] — FITS CLEANLY ON ONE SCREEN) -->
+  <!-- COMPACT SAAS SHELL (MAX-W-[1160px]) -->
   <!-- ========================================================================= -->
-  <div class="max-w-[1140px] mx-auto px-3.5 sm:px-5 pt-3.5 pb-8">
+  <div class="max-w-[1160px] mx-auto px-3.5 sm:px-5 pt-3.5 pb-8">
 
     <!-- TOP FLOATING CAPSULE HEADER -->
     <header class="flex flex-wrap items-center justify-between gap-2.5 mb-3.5">
 
-      <!-- Left: Official Green Cliniqo Logo + Compact Tenant Switcher -->
+      <!-- Left: Official Green Cliniqo Logo + Multi-Tenant Switcher -->
       <div class="flex items-center gap-2 relative">
-        <a href="../index.html" title="Retour à la Landing Page Cliniqo" class="flex items-center gap-2 group focus:outline-none">
+        <a href="../index.html" title="Back to Cliniqo Public Site" class="flex items-center gap-2 group focus:outline-none">
           <div class="w-8 h-8 rounded-xl bg-surface-container-lowest border border-outline-variant/35 shadow-pill flex items-center justify-center p-1 group-hover:scale-105 transition-transform">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-full h-full" fill="none">
               <defs>
@@ -167,32 +165,30 @@
           </div>
         </a>
 
-        <!-- Multi-Tenant Clinic Switcher Pill -->
         <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest border border-outline-variant/35 hover:border-primary/40 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-pill transition-all">
           <span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green animate-pulse"></span>
           <span id="active-branch-name">Grand Central</span>
           <span class="material-symbols-outlined text-[14px] text-outline">expand_more</span>
         </button>
 
-        <!-- Multi-Tenant Dropdown -->
         <div id="branch-menu" onclick="event.stopPropagation()" class="hidden absolute left-0 top-10 w-60 bg-surface-container-lowest rounded-2xl shadow-floatCard border border-outline-variant/40 p-1.5 z-50 modal-pop">
           <div class="px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wider text-outline">Multi-Tenant Clinic Switcher</div>
-          <button onclick="switchTenant(1)" class="tenant-opt w-full text-left px-2.5 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-[11.5px] font-semibold text-on-surface">
+          <button onclick="switchTenant(1)" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-[11.5px] font-semibold text-on-surface">
             <div><span class="block">Polyclinique Grand Central</span><span class="text-[10px] text-outline font-normal">Casablanca • Primary &amp; Cardio</span></div>
             <span id="tenant-dot-1" class="w-2 h-2 rounded-full bg-brand-soft-green"></span>
           </button>
-          <button onclick="switchTenant(2)" class="tenant-opt w-full text-left px-2.5 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-[11.5px] font-semibold text-on-surface">
+          <button onclick="switchTenant(2)" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-[11.5px] font-semibold text-on-surface">
             <div><span class="block">Centre Diagnostic Anfa</span><span class="text-[10px] text-outline font-normal">Casablanca • Lab &amp; Oncology</span></div>
             <span id="tenant-dot-2" class="w-2 h-2 rounded-full bg-transparent"></span>
           </button>
-          <button onclick="switchTenant(3)" class="tenant-opt w-full text-left px-2.5 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-[11.5px] font-semibold text-on-surface">
+          <button onclick="switchTenant(3)" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-[11.5px] font-semibold text-on-surface">
             <div><span class="block">Clinique Agdal Santé</span><span class="text-[10px] text-outline font-normal">Rabat • Multi-Specialty</span></div>
             <span id="tenant-dot-3" class="w-2 h-2 rounded-full bg-transparent"></span>
           </button>
         </div>
       </div>
 
-      <!-- Center: Compact Floating Pill Navigation (Exact Screenshot Layout + Landing Page Greens) -->
+      <!-- Center: Floating Pill Navigation -->
       <nav aria-label="Primary SaaS Navigation" class="order-3 md:order-2 w-full md:w-auto overflow-x-auto slim-scroll">
         <div class="inline-flex items-center bg-surface-container-lowest border border-outline-variant/35 rounded-full p-1 shadow-pill gap-0.5 min-w-max">
           <button id="tab-overview" onclick="switchTab('overview')" class="saas-tab px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow transition-all">
@@ -215,7 +211,7 @@
         </div>
       </nav>
 
-      <!-- Right: Compact Search + Welcome Jackson Capsule + API Badge -->
+      <!-- Right: Search + User Capsule -->
       <div class="order-2 md:order-3 flex items-center gap-2 relative">
         <button onclick="openModal('search-modal')" title="Command Search (Ctrl+K)" class="h-8 px-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/35 shadow-pill flex items-center gap-1.5 text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all text-[11px] font-semibold">
           <span class="material-symbols-outlined text-[15px]">search</span>
@@ -252,7 +248,7 @@
             <span class="text-[11px] font-bold text-on-surface">Triage &amp; System Status</span>
             <span id="api-latency-badge" class="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">API Connected</span>
           </div>
-          <div id="notif-stat-card" class="p-2.5 rounded-xl bg-error-container/45 border border-error/20 space-y-1">
+          <div class="p-2.5 rounded-xl bg-error-container/45 border border-error/20 space-y-1">
             <div class="flex items-center justify-between text-[11px] font-bold text-error">
               <span>STAT Serum K+ 5.8 mEq/L</span>
               <span class="text-[9.5px]">09:18</span>
@@ -268,7 +264,7 @@
     </header>
 
     <!-- ========================================================================= -->
-    <!-- COMPACT SUB-HEADER ROW: DYNAMIC TITLE + FOREST PILL + QUICK ACTIONS -->
+    <!-- COMPACT SUB-HEADER ROW -->
     <!-- ========================================================================= -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3.5">
       <div class="flex items-baseline gap-2.5">
@@ -281,36 +277,27 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <!-- Deep Forest Date Selector Pill (Landing Page Primary #005131) -->
-        <div class="relative">
-          <button onclick="toggleDateMenu(event)" class="bg-primary hover:bg-primary-hover text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold flex items-center gap-1.5 shadow-xs transition-colors">
-            <span class="material-symbols-outlined text-[14px] text-primary-light">calendar_today</span>
-            <span id="selected-date-label">29-10-2026</span>
-            <span class="material-symbols-outlined text-[14px]">expand_more</span>
-          </button>
-          <div id="date-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 mt-1.5 w-44 bg-surface-container-lowest rounded-xl shadow-floatCard border border-outline-variant/40 p-1 z-40 modal-pop text-[11px] font-semibold">
-            <button onclick="applyDatePreset('today', '29-10-2026')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-surface-container-low text-on-surface flex justify-between"><span>Today (29-10-2026)</span><span class="text-brand-soft-green">●</span></button>
-            <button onclick="applyDatePreset('week', '22-10 — 29-10')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-surface-container-low text-on-surface-variant">Last 7 Days</button>
-            <button onclick="applyDatePreset('month', 'October 2026')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-surface-container-low text-on-surface-variant">October 2026</button>
-          </div>
-        </div>
+        <!-- Clicking the Date Pill opens the Day Appointments Side Fichier! -->
+        <button onclick="openDaySheet(saas.selectedDate)" title="Open Day Appointments Side Sheet" class="bg-primary hover:bg-primary-hover text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold flex items-center gap-1.5 shadow-xs transition-colors">
+          <span class="material-symbols-outlined text-[14px] text-primary-light">calendar_month</span>
+          <span id="selected-date-label">29-10-2026</span>
+          <span id="selected-date-count-pill" class="px-1.5 py-0.2 rounded-full bg-white/15 text-[10px] font-bold">5 Rdv</span>
+        </button>
 
-        <!-- Export CSV Pill -->
         <button onclick="exportActiveCsv()" class="bg-surface-container-lowest hover:bg-secondary-container/60 border border-outline-variant/40 text-on-surface rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold flex items-center gap-1.5 shadow-pill transition-all">
           <span class="material-symbols-outlined text-[15px] text-primary">download</span>
           <span>Export CSV</span>
         </button>
 
-        <!-- Primary Contextual Action Pill -->
         <button id="primary-cta-btn" onclick="handlePrimaryCta()" class="bg-secondary-container hover:bg-primary text-primary hover:text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-bold flex items-center gap-1 shadow-pill transition-all">
           <span class="material-symbols-outlined text-[15px]">add</span>
-          <span id="primary-cta-label">New Report</span>
+          <span id="primary-cta-label">Add Appointment</span>
         </button>
       </div>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- VIEW 1: OVERVIEW — COMPACT BENTO GRID IN LANDING PAGE EMERALD PALETTE -->
+    <!-- VIEW 1: OVERVIEW — BENTO GRID + INTEGRATED COMPACT MINI CALENDAR -->
     <!-- ========================================================================= -->
     <section id="view-overview" class="saas-view space-y-3">
 
@@ -318,7 +305,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 
         <!-- CARD 1: Total Patients Today -->
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[184px]">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[180px]">
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <span class="text-[12.5px] font-semibold text-on-surface-variant">Total Patients Today</span>
@@ -328,17 +315,17 @@
             </div>
             <div class="flex items-baseline gap-2">
               <span id="kpi-patients-val" class="text-[24px] font-extrabold tracking-tight text-on-surface leading-none">248</span>
-              <span id="kpi-patients-day-hint" class="text-[10.5px] font-semibold text-primary bg-secondary-container/70 px-1.5 py-0.5 rounded-md">Sat • +65%</span>
+              <span id="kpi-patients-day-hint" class="text-[10px] font-bold text-primary bg-secondary-container/70 px-1.5 py-0.5 rounded-md">Sat • +65%</span>
             </div>
           </div>
 
-          <div class="pt-5">
-            <div id="patients-bars-grid" class="grid grid-cols-7 gap-1.5 items-end h-[82px]"></div>
+          <div class="pt-4">
+            <div id="patients-bars-grid" class="grid grid-cols-7 gap-1.5 items-end h-[78px]"></div>
           </div>
         </div>
 
         <!-- CARD 2: Tests Conducted -->
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[184px]">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[180px]">
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <span class="text-[12.5px] font-semibold text-on-surface-variant">Tests Conducted</span>
@@ -348,17 +335,17 @@
             </div>
             <div class="flex items-baseline justify-between">
               <span id="kpi-tests-val" class="text-[24px] font-extrabold tracking-tight text-on-surface leading-none">1,024</span>
-              <span id="heatmap-hover-label" class="text-[10px] font-semibold text-primary truncate max-w-[115px]">Electrolytes • 86%</span>
+              <span id="heatmap-hover-label" class="text-[10px] font-semibold text-primary truncate max-w-[110px]">Electrolytes • 86%</span>
             </div>
           </div>
 
-          <div class="relative pt-3.5">
+          <div class="relative pt-3">
             <div id="tests-heatmap-grid" class="grid grid-cols-4 gap-1"></div>
           </div>
         </div>
 
         <!-- CARD 3: Today's Revenue -->
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[184px]">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[180px]">
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <span class="text-[12.5px] font-semibold text-on-surface-variant">Today's Revenue</span>
@@ -372,17 +359,17 @@
             </div>
           </div>
 
-          <div class="relative pt-4">
-            <div id="revenue-equalizer" class="flex items-end justify-between h-[80px] px-1 relative"></div>
+          <div class="relative pt-3.5">
+            <div id="revenue-equalizer" class="flex items-end justify-between h-[76px] px-1 relative"></div>
           </div>
         </div>
 
         <!-- CARD 4: Our Specialist -->
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[184px]">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[180px]">
           <div>
             <div class="flex items-center justify-between mb-1">
               <span class="text-[12.5px] font-semibold text-on-surface-variant">Our Specialist</span>
-              <button onclick="openModal('appointment-modal')" title="Book Specialist Slot" class="text-outline hover:text-primary transition-colors">
+              <button onclick="openDaySheetForAdd(saas.selectedDate)" title="Book Specialist Slot" class="text-outline hover:text-primary transition-colors">
                 <span class="material-symbols-outlined text-[17px]">more_horiz</span>
               </button>
             </div>
@@ -391,7 +378,6 @@
               <button onclick="filterSpecialists('all', null)" class="text-[10px] font-bold text-primary hover:underline">All staff</button>
             </div>
 
-            <!-- 3 Compact Specialty Selector Chips -->
             <div class="grid grid-cols-3 gap-1 mb-2">
               <button onclick="filterSpecialists('Psychologist', this)" class="spec-chip rounded-lg py-1 px-1 text-center bg-primary text-white shadow-2xs transition-all">
                 <span class="block text-[9.5px] font-medium opacity-90 truncate">Psychologist</span>
@@ -408,33 +394,32 @@
             </div>
           </div>
 
-          <div id="specialist-doctors-list" class="slim-scroll max-h-[72px] overflow-y-auto pr-1 space-y-1.5"></div>
+          <div id="specialist-doctors-list" class="slim-scroll max-h-[68px] overflow-y-auto pr-1 space-y-1.5"></div>
         </div>
 
       </div>
 
-      <!-- MIDDLE 2 COMPACT ANALYTICS CARDS -->
+      <!-- ROW 2 (12 COLS): BED TREND (5) + AVG DIAGNOSE (4) + COMPACT MINI CALENDAR (3) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
 
-        <!-- LEFT (7 COLS): Hospital Bed Occupying Trend -->
-        <div class="lg:col-span-7 bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between">
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-            <h2 class="text-[13.5px] font-bold text-on-surface">Hospital Bed Occupying Trend</h2>
-            <button onclick="cycleBedTrendPeriod()" class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-[10.5px] font-semibold text-on-surface-variant flex items-center gap-1 transition-colors">
-              <span id="bed-period-label">Last 6 months • Oct 2026</span>
+        <!-- COL 1-5 (5 COLS): Hospital Bed Occupying Trend -->
+        <div class="lg:col-span-5 bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <h2 class="text-[13px] font-bold text-on-surface">Hospital Bed Occupying Trend</h2>
+            <button onclick="cycleBedTrendPeriod()" class="px-2.5 py-0.5 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-[10px] font-semibold text-on-surface-variant flex items-center gap-0.5 transition-colors">
+              <span id="bed-period-label">Last 6m</span>
               <span class="material-symbols-outlined text-[13px]">expand_more</span>
             </button>
           </div>
 
-          <div class="flex gap-3 items-end">
-            <div class="flex flex-col justify-between h-[166px] pb-5 text-[10px] font-semibold text-outline select-none">
+          <div class="flex gap-2.5 items-end">
+            <div class="flex flex-col justify-between h-[172px] pb-5 text-[9.5px] font-semibold text-outline select-none">
               <span>25</span><span>20</span><span>15</span><span>10</span><span>0</span>
             </div>
 
             <div class="flex-1 relative">
-              <div class="text-[10px] font-semibold text-outline mb-1">Total patients admitted (Click any month to inspect)</div>
+              <div class="text-[9.5px] font-semibold text-outline mb-1">Total patients admitted</div>
 
-              <!-- Subtle Horizontal Gridlines -->
               <div class="absolute inset-x-0 top-5 bottom-5 flex flex-col justify-between pointer-events-none">
                 <div class="border-b border-surface-container"></div>
                 <div class="border-b border-surface-container/70"></div>
@@ -443,132 +428,170 @@
                 <div></div>
               </div>
 
-              <!-- Smooth Trend Curve -->
-              <svg class="absolute inset-x-0 top-4 h-[138px] w-full pointer-events-none z-10" viewBox="0 0 600 140" preserveAspectRatio="none" fill="none">
+              <svg class="absolute inset-x-0 top-4 h-[142px] w-full pointer-events-none z-10" viewBox="0 0 600 140" preserveAspectRatio="none" fill="none">
                 <path d="M 45 108 C 120 102, 175 88, 240 68 C 310 46, 385 18, 450 16 C 505 15, 545 32, 575 44"
                       stroke="#88d7a8" stroke-width="1.6" fill="none"/>
               </svg>
 
-              <!-- Compact Floating Frosted Breakdown Card -->
-              <div id="bed-floating-card" class="sm:absolute z-20 sm:left-[25%] sm:top-[14px] mb-2 sm:mb-0 bg-surface-container-lowest/95 backdrop-blur-md rounded-xl p-2.5 shadow-floatCard border border-outline-variant/45 w-full sm:w-[178px] transition-all">
-                <div class="flex items-baseline justify-between mb-1.5">
-                  <span id="bed-card-total" class="text-[16px] font-extrabold tracking-tight text-on-surface">28,356.00</span>
-                  <span id="bed-card-curr" class="text-[9.5px] font-bold text-primary">MAD</span>
+              <!-- Floating Breakdown Card -->
+              <div id="bed-floating-card" class="sm:absolute z-20 sm:left-[12%] sm:top-[14px] mb-2 sm:mb-0 bg-surface-container-lowest/95 backdrop-blur-md rounded-xl p-2.5 shadow-floatCard border border-outline-variant/45 w-full sm:w-[164px] transition-all">
+                <div class="flex items-baseline justify-between mb-1">
+                  <span id="bed-card-total" class="text-[14.5px] font-extrabold tracking-tight text-on-surface">28,356.00</span>
+                  <span id="bed-card-curr" class="text-[9px] font-bold text-primary">MAD</span>
                 </div>
-                <div class="space-y-1 text-[10px]">
+                <div class="space-y-0.5 text-[9.5px]">
                   <div class="flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green"></span>Total Revenue</span>
+                    <span class="flex items-center gap-1 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green"></span>Revenue</span>
                     <strong id="bed-card-rev" class="font-bold text-on-surface">28,374</strong>
                   </div>
                   <div class="flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-primary-light"></span>ICU Wing</span>
+                    <span class="flex items-center gap-1 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-primary-light"></span>ICU Wing</span>
                     <strong id="bed-card-icu" class="font-bold text-on-surface">10,347.50</strong>
                   </div>
                   <div class="flex items-center justify-between">
-                    <span class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>Emergency</span>
+                    <span class="flex items-center gap-1 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>Emergency</span>
                     <strong id="bed-card-er" class="font-bold text-on-surface">9,903.05</strong>
                   </div>
                 </div>
               </div>
 
-              <!-- 6 Stacked Rounded-Block Month Columns -->
-              <div id="bed-columns-grid" class="grid grid-cols-6 gap-2 sm:gap-2.5 items-end h-[150px] relative z-10 pt-2"></div>
+              <div id="bed-columns-grid" class="grid grid-cols-6 gap-1.5 sm:gap-2 items-end h-[156px] relative z-10 pt-2"></div>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT (5 COLS): Avg Diagnose Patients (Compact Stem Plot) -->
-        <div class="lg:col-span-5 bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between">
-          <div class="flex items-center justify-between mb-2">
-            <h2 class="text-[13.5px] font-bold text-on-surface">Avg Diagnose Patients</h2>
-            <button onclick="cycleDiagnosePeriod()" class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-[10.5px] font-semibold text-on-surface-variant flex items-center gap-1 transition-colors">
+        <!-- COL 6-9 (4 COLS): Avg Diagnose Patients -->
+        <div class="lg:col-span-4 bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-1.5">
+            <h2 class="text-[13px] font-bold text-on-surface">Avg Diagnose Patients</h2>
+            <button onclick="cycleDiagnosePeriod()" class="px-2.5 py-0.5 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-[10px] font-semibold text-on-surface-variant flex items-center gap-0.5 transition-colors">
               <span id="diag-period-label">Weekly</span>
               <span class="material-symbols-outlined text-[13px]">expand_more</span>
             </button>
           </div>
 
           <div class="relative h-[182px] flex flex-col justify-end">
-            <!-- Vertical Stems -->
             <div class="absolute inset-x-0 top-2 bottom-6 pointer-events-none">
-              <div class="absolute left-[14%] top-[28px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
-              <div class="absolute left-[31%] top-[82px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
+              <div class="absolute left-[15%] top-[28px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
+              <div class="absolute left-[32%] top-[82px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
               <div class="absolute left-[63%] top-[120px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
               <div class="absolute left-[79%] top-[36px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
             </div>
 
-            <!-- Neurology -->
-            <button onclick="jumpToDepartment('Neurology')" class="group absolute left-[2%] top-[4px] bg-surface-container-lowest hover:bg-secondary-container/40 rounded-full p-1.5 pr-3.5 shadow-floatCard border border-outline-variant/35 flex items-center gap-2 hover:-translate-y-0.5 transition-all text-left z-10">
-              <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 ring-2 ring-primary-light/40">
-                <span class="material-symbols-outlined text-[16px] text-primary-fixed">neurology</span>
+            <button onclick="jumpToDepartment('Neurology')" class="group absolute left-[1%] top-[4px] bg-surface-container-lowest hover:bg-secondary-container/40 rounded-full p-1 pr-3 shadow-floatCard border border-outline-variant/35 flex items-center gap-1.5 hover:-translate-y-0.5 transition-all text-left z-10">
+              <div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[14px] text-primary-fixed">neurology</span>
               </div>
               <div>
-                <span class="block text-[11.5px] font-bold text-on-surface group-hover:text-primary leading-none">Neurology</span>
-                <span id="diag-neuro-count" class="block text-[9.5px] text-outline mt-0.5">Patients-120</span>
+                <span class="block text-[11px] font-bold text-on-surface group-hover:text-primary leading-none">Neurology</span>
+                <span id="diag-neuro-count" class="block text-[9px] text-outline mt-0.5">Patients-120</span>
               </div>
             </button>
 
-            <!-- Oncology -->
-            <button onclick="jumpToDepartment('Oncology')" class="group absolute right-[2%] top-[12px] bg-surface-container-lowest hover:bg-secondary-container/40 rounded-full p-1.5 pr-3.5 shadow-floatCard border border-outline-variant/35 flex items-center gap-2 hover:-translate-y-0.5 transition-all text-left z-10">
-              <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0 ring-2 ring-primary-light/40">
-                <span class="material-symbols-outlined text-[16px] text-primary-fixed">biotech</span>
+            <button onclick="jumpToDepartment('Oncology')" class="group absolute right-[1%] top-[12px] bg-surface-container-lowest hover:bg-secondary-container/40 rounded-full p-1 pr-3 shadow-floatCard border border-outline-variant/35 flex items-center gap-1.5 hover:-translate-y-0.5 transition-all text-left z-10">
+              <div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[14px] text-primary-fixed">biotech</span>
               </div>
               <div>
-                <span class="block text-[11.5px] font-bold text-on-surface group-hover:text-primary leading-none">Oncology</span>
-                <span id="diag-onco-count" class="block text-[9.5px] text-outline mt-0.5">Patients-110</span>
+                <span class="block text-[11px] font-bold text-on-surface group-hover:text-primary leading-none">Oncology</span>
+                <span id="diag-onco-count" class="block text-[9px] text-outline mt-0.5">Patients-110</span>
               </div>
             </button>
 
-            <!-- Urology -->
-            <button onclick="jumpToDepartment('Urology')" class="group absolute left-[15%] top-[62px] bg-surface-container-lowest hover:bg-secondary-container/40 rounded-full p-1.5 pr-3.5 shadow-floatCard border border-outline-variant/35 flex items-center gap-2 hover:-translate-y-0.5 transition-all text-left z-10">
-              <div class="w-8 h-8 rounded-full bg-on-primary-fixed flex items-center justify-center flex-shrink-0 ring-2 ring-brand-soft-green/40">
-                <span class="material-symbols-outlined text-[16px] text-brand-soft-mint">water_drop</span>
+            <button onclick="jumpToDepartment('Urology')" class="group absolute left-[12%] top-[62px] bg-surface-container-lowest hover:bg-secondary-container/40 rounded-full p-1 pr-3 shadow-floatCard border border-outline-variant/35 flex items-center gap-1.5 hover:-translate-y-0.5 transition-all text-left z-10">
+              <div class="w-7 h-7 rounded-full bg-on-primary-fixed flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[14px] text-brand-soft-mint">water_drop</span>
               </div>
               <div>
-                <span class="block text-[11.5px] font-bold text-on-surface group-hover:text-primary leading-none">Urology</span>
-                <span id="diag-uro-count" class="block text-[9.5px] text-outline mt-0.5">Patients-60</span>
+                <span class="block text-[11px] font-bold text-on-surface group-hover:text-primary leading-none">Urology</span>
+                <span id="diag-uro-count" class="block text-[9px] text-outline mt-0.5">Patients-60</span>
               </div>
             </button>
 
-            <!-- Cardiology -->
-            <button onclick="jumpToDepartment('Cardiology')" class="group absolute right-[6%] top-[104px] bg-surface-container-lowest hover:bg-secondary-container/40 rounded-full p-1.5 pr-3.5 shadow-floatCard border border-outline-variant/35 flex items-center gap-2 hover:-translate-y-0.5 transition-all text-left z-10">
-              <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0 ring-2 ring-brand-soft-green/40">
-                <span class="material-symbols-outlined text-[16px] text-primary-fixed">cardiology</span>
+            <button onclick="jumpToDepartment('Cardiology')" class="group absolute right-[3%] top-[104px] bg-surface-container-lowest hover:bg-secondary-container/40 rounded-full p-1 pr-3 shadow-floatCard border border-outline-variant/35 flex items-center gap-1.5 hover:-translate-y-0.5 transition-all text-left z-10">
+              <div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[14px] text-primary-fixed">cardiology</span>
               </div>
               <div>
-                <span class="block text-[11.5px] font-bold text-on-surface group-hover:text-primary leading-none">Cardiology</span>
-                <span id="diag-cardio-count" class="block text-[9.5px] text-outline mt-0.5">Patients-40</span>
+                <span class="block text-[11px] font-bold text-on-surface group-hover:text-primary leading-none">Cardiology</span>
+                <span id="diag-cardio-count" class="block text-[9px] text-outline mt-0.5">Patients-40</span>
               </div>
             </button>
 
-            <!-- Bottom Tick Ruler -->
             <div class="pt-2">
-              <div id="stem-ruler-ticks" class="flex items-end justify-between px-1.5 mb-1"></div>
-              <div class="relative h-3.5 text-[9.5px] font-semibold text-outline">
-                <span class="absolute left-[11%]">60%</span>
+              <div id="stem-ruler-ticks" class="flex items-end justify-between px-1 mb-1"></div>
+              <div class="relative h-3.5 text-[9px] font-semibold text-outline">
+                <span class="absolute left-[10%]">60%</span>
                 <span class="absolute left-[28%]">24%</span>
-                <span class="absolute left-[60%]">16%</span>
-                <span class="absolute left-[76%]">36%</span>
+                <span class="absolute left-[59%]">16%</span>
+                <span class="absolute left-[75%]">36%</span>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- COL 10-12 (3 COLS): COMPACT MINI CALENDAR ("CALUDRE SGHIRA" — CLICK DAY -> SIDE FICHIER!) -->
+        <div class="lg:col-span-3 bento-card rounded-2xl p-3.5 shadow-bento flex flex-col justify-between">
+          <div>
+            <!-- Calendar Header -->
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-1.5">
+                <span class="w-6 h-6 rounded-lg bg-secondary-container/80 text-primary flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[14px]">calendar_month</span>
+                </span>
+                <span id="mini-cal-title" class="text-[12px] font-extrabold text-on-surface">October 2026</span>
+              </div>
+              <div class="flex items-center gap-0.5">
+                <button onclick="shiftCalendarMonth(-1)" title="Previous Month" class="w-6 h-6 rounded-lg hover:bg-surface-container-low text-outline hover:text-primary flex items-center justify-center transition-colors">
+                  <span class="material-symbols-outlined text-[15px]">chevron_left</span>
+                </button>
+                <button onclick="jumpCalendarToday()" title="Jump to Today (29 Oct)" class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-surface-container-low hover:bg-secondary-container text-primary">
+                  Today
+                </button>
+                <button onclick="shiftCalendarMonth(1)" title="Next Month" class="w-6 h-6 rounded-lg hover:bg-surface-container-low text-outline hover:text-primary flex items-center justify-center transition-colors">
+                  <span class="material-symbols-outlined text-[15px]">chevron_right</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Weekday Headers -->
+            <div class="grid grid-cols-7 text-center text-[9px] font-bold text-outline uppercase tracking-wider mb-1">
+              <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+            </div>
+
+            <!-- Interactive Days Grid -->
+            <div id="mini-cal-grid" class="grid grid-cols-7 gap-0.5 text-center"></div>
+          </div>
+
+          <!-- Selected Day Quick Footer Trigger -->
+          <button onclick="openDaySheet(saas.selectedDate)" class="mt-2.5 w-full py-1.5 px-2.5 rounded-xl bg-surface-container-low hover:bg-primary hover:text-white text-on-surface transition-all flex items-center justify-between text-[10.5px] font-bold group">
+            <span class="flex items-center gap-1.5 truncate">
+              <span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green group-hover:bg-primary-fixed"></span>
+              <span id="mini-cal-footer-label">29 Oct • 5 Appointments</span>
+            </span>
+            <span class="material-symbols-outlined text-[14px] text-primary group-hover:text-white">side_navigation</span>
+          </button>
+        </div>
+
       </div>
 
-      <!-- COMPACT LIVE CLINICAL STREAM BAR -->
+      <!-- COMPACT LIVE CLINICAL STREAM BAR (FILTERED BY SELECTED CALENDAR DATE) -->
       <div class="bento-card rounded-2xl p-3.5 sm:p-4 shadow-bento">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-ping"></span>
-            <h3 class="text-[12.5px] font-bold text-on-surface">Live Patient Flow &amp; Instant DME Access</h3>
-            <span class="hidden sm:inline text-[10.5px] text-outline">• Completing a consultation auto-generates a MAD invoice</span>
+            <h3 class="text-[12.5px] font-bold text-on-surface">
+              Appointments on <span id="stream-date-badge" class="text-primary underline decoration-primary-light underline-offset-2">29-10-2026</span>
+            </h3>
+            <span class="hidden sm:inline text-[10.5px] text-outline">• Click any day in the calendar to manage its Side Sheet</span>
           </div>
           <div class="flex items-center gap-1.5">
             <button onclick="openModal('patient-modal')" class="px-3 py-1 rounded-full bg-surface-container-low hover:bg-secondary-container text-[11px] font-semibold text-on-surface transition-colors">
-              + Patient
+              + New Patient
             </button>
-            <button onclick="openModal('appointment-modal')" class="px-3 py-1 rounded-full bg-primary hover:bg-primary-hover text-[11px] font-semibold text-white transition-colors">
-              + Book Slot
+            <button onclick="openDaySheet(saas.selectedDate)" class="px-3 py-1 rounded-full bg-primary hover:bg-primary-hover text-[11px] font-semibold text-white flex items-center gap-1 transition-colors">
+              <span class="material-symbols-outlined text-[13px]">edit_calendar</span>
+              Manage Day Sheet
             </button>
           </div>
         </div>
@@ -578,7 +601,7 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- VIEW 2: TREATMENT — COMPACT SCHEDULE & INDIVIDUAL PATIENT DOSSIERS -->
+    <!-- VIEW 2: TREATMENT — FULL SCHEDULE CRUD & INDIVIDUAL PATIENT DOSSIERS -->
     <!-- ========================================================================= -->
     <section id="view-treatment" class="hidden saas-view space-y-3">
 
@@ -604,18 +627,18 @@
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-        <!-- Left 5 Cols: Practitioner Schedule with 1-Click Status Progression -->
+        <!-- Left 5 Cols: All Appointments Schedule -->
         <div class="lg:col-span-5 bento-card rounded-2xl p-4 shadow-bento space-y-3">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-[13.5px] font-bold text-on-surface">Practitioner Schedule</h3>
-              <p class="text-[10.5px] text-outline">Anti-overlap engine • 1-click Complete &amp; Auto-Bill</p>
+              <h3 class="text-[13.5px] font-bold text-on-surface">All Scheduled Consultations</h3>
+              <p class="text-[10.5px] text-outline">Add, modify, complete &amp; delete appointments</p>
             </div>
-            <button onclick="openModal('appointment-modal')" class="px-3 py-1 rounded-full bg-secondary-container text-primary hover:bg-primary hover:text-white text-[11px] font-bold transition-colors">
-              + Add Slot
+            <button onclick="openDaySheetForAdd(saas.selectedDate)" class="px-3 py-1 rounded-full bg-secondary-container text-primary hover:bg-primary hover:text-white text-[11px] font-bold transition-colors">
+              + Add Rdv
             </button>
           </div>
-          <div id="treatment-appointments-list" class="space-y-2"></div>
+          <div id="treatment-appointments-list" class="space-y-2 max-h-[380px] overflow-y-auto slim-scroll pr-1"></div>
         </div>
 
         <!-- Right 7 Cols: Patient Dossiers Registry -->
@@ -636,7 +659,7 @@
                   <th class="py-2 px-2">CIN</th>
                   <th class="py-2 px-2">Dept</th>
                   <th class="py-2 px-2">Coverage</th>
-                  <th class="py-2 pl-2 text-right">DME</th>
+                  <th class="py-2 pl-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody id="treatment-patients-tbody" class="divide-y divide-surface-container/70"></tbody>
@@ -648,7 +671,7 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- VIEW 3: LABS — COMPACT PATHOLOGY ANALYZER & STAT QUEUE -->
+    <!-- VIEW 3: LABS — PATHOLOGY ANALYZER WITH MEASURED RESULT VALIDATION -->
     <!-- ========================================================================= -->
     <section id="view-labs" class="hidden saas-view space-y-3">
 
@@ -661,7 +684,7 @@
         <div class="bento-card rounded-2xl p-3.5 shadow-bento">
           <span class="text-[11px] font-medium text-outline">STAT Critical Flags</span>
           <div class="text-xl font-extrabold text-error mt-0.5" id="lab-stat-flagged">1</div>
-          <span class="text-[10px] text-error font-semibold">Requires physician review</span>
+          <span class="text-[10px] text-error font-semibold">Requires physician sign-off</span>
         </div>
         <div class="bento-card rounded-2xl p-3.5 shadow-bento">
           <span class="text-[11px] font-medium text-outline">In Analyzer Queue</span>
@@ -679,7 +702,7 @@
       <div class="bento-card rounded-2xl p-4 shadow-bento">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-[13.5px] font-bold text-on-surface">Central Pathology &amp; Telemetry Queue</h3>
-          <span class="text-[10.5px] text-outline">HL7 Analyzer Live Feed</span>
+          <span class="text-[10.5px] text-outline">Enter measured analyzer values &amp; sign off results</span>
         </div>
         <div id="labs-cards-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
       </div>
@@ -708,7 +731,7 @@
             <div class="text-[22px] font-extrabold text-on-surface mt-0.5"><span id="fin-cnss-est">4,970.00</span> <span class="text-[10.5px] text-primary">MAD</span></div>
           </div>
           <div class="flex items-center justify-between pt-1">
-            <span class="text-[10px] text-outline">Click any CNSS badge below to advance</span>
+            <span class="text-[10px] text-outline">Click any CNSS badge to advance</span>
             <button onclick="openModal('invoice-modal')" class="px-2.5 py-1 rounded-full bg-primary text-white text-[10.5px] font-bold">+ Issue Invoice</button>
           </div>
         </div>
@@ -746,42 +769,25 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- VIEW 5: REPORTS — COMPACT ANALYTICS & IMMUTABLE CNDP AUDIT LOGS -->
+    <!-- VIEW 5: REPORTS — ANALYTICS & IMMUTABLE CNDP AUDIT LOGS -->
     <!-- ========================================================================= -->
     <section id="view-reports" class="hidden saas-view space-y-3">
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
         <div class="lg:col-span-5 bento-card rounded-2xl p-4 shadow-bento space-y-3">
           <h3 class="text-[13.5px] font-bold text-on-surface">Department Diagnostic Utilization</h3>
-          <div class="space-y-2.5 text-[11.5px]">
-            <div>
-              <div class="flex justify-between font-semibold mb-1"><span>Neurology &amp; EEG</span><span class="text-primary">36% (120 pts)</span></div>
-              <div class="h-2 rounded-full bg-surface-container-low overflow-hidden"><div class="h-full bg-primary rounded-full w-[60%]"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between font-semibold mb-1"><span>Oncology Screening</span><span class="text-primary">33% (110 pts)</span></div>
-              <div class="h-2 rounded-full bg-surface-container-low overflow-hidden"><div class="h-full bg-brand-soft-green rounded-full w-[52%]"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between font-semibold mb-1"><span>Urology &amp; Doppler</span><span class="text-primary">18% (60 pts)</span></div>
-              <div class="h-2 rounded-full bg-surface-container-low overflow-hidden"><div class="h-full bg-primary-light rounded-full w-[34%]"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between font-semibold mb-1"><span>Cardiology &amp; Vascular</span><span class="text-primary">13% (40 pts)</span></div>
-              <div class="h-2 rounded-full bg-surface-container-low overflow-hidden"><div class="h-full bg-primary-container rounded-full w-[26%]"></div></div>
-            </div>
-          </div>
+          <div id="reports-dept-bars" class="space-y-2.5 text-[11.5px]"></div>
         </div>
 
         <div class="lg:col-span-7 bento-card rounded-2xl p-4 shadow-bento space-y-3">
           <div class="flex items-center justify-between">
             <div>
               <h3 class="text-[13.5px] font-bold text-on-surface">Immutable Security Audit Trail (CNDP Law 09-08)</h3>
-              <p class="text-[10.5px] text-outline">Real-time cryptographic log of clinical &amp; financial events</p>
+              <p class="text-[10.5px] text-outline">Real-time cryptographic log of calendar, DME &amp; financial actions</p>
             </div>
             <span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">AES-256 Sealed</span>
           </div>
-          <div id="audit-logs-list" class="space-y-1.5 max-h-[210px] overflow-y-auto slim-scroll pr-1"></div>
+          <div id="audit-logs-list" class="space-y-1.5 max-h-[220px] overflow-y-auto slim-scroll pr-1"></div>
         </div>
       </div>
 
@@ -790,12 +796,156 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- COMPACT TABBED ELECTRONIC MEDICAL RECORD (DME) SLIDE-OVER DRAWER -->
+  <!-- SLIDE-OVER SIDE FICHIER: DAY APPOINTMENTS CRUD (ADD / MODIFY / DELETE) -->
   <!-- ========================================================================= -->
-  <div id="dme-drawer-backdrop" onclick="closeDmeDrawer()" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/35 backdrop-blur-xs flex justify-end">
-    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest h-full shadow-2xl p-4.5 sm:p-5 flex flex-col justify-between overflow-y-auto drawer-enter">
+  <div id="day-sheet-backdrop" onclick="closeDaySheet()" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/35 backdrop-blur-xs flex justify-end">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest h-full shadow-2xl p-4 sm:p-5 flex flex-col justify-between overflow-hidden drawer-enter">
+
+      <!-- Top Header: Date Navigation + Day KPIs + Add Button -->
+      <div class="space-y-3 pb-3 border-b border-surface-container">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <button onclick="stepSelectedDate(-1)" title="Previous Day" class="w-7 h-7 rounded-lg bg-surface-container-low hover:bg-secondary-container text-on-surface flex items-center justify-center">
+              <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+            </button>
+            <div>
+              <h3 id="day-sheet-title" class="text-[14.5px] font-extrabold text-on-surface leading-tight">Thu, 29 Oct 2026</h3>
+              <span id="day-sheet-iso" class="text-[10px] font-mono font-bold text-primary">2026-10-29</span>
+            </div>
+            <button onclick="stepSelectedDate(1)" title="Next Day" class="w-7 h-7 rounded-lg bg-surface-container-low hover:bg-secondary-container text-on-surface flex items-center justify-center">
+              <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button onclick="openDayAptForm()" class="px-3 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-[11px] font-bold flex items-center gap-1 shadow-emeraldGlow transition-all">
+              <span class="material-symbols-outlined text-[14px]">add</span>
+              Ajouter Rdv
+            </button>
+            <button onclick="closeDaySheet()" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container flex items-center justify-center text-on-surface-variant">
+              <span class="material-symbols-outlined text-[16px]">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Day Summary Pills -->
+        <div class="grid grid-cols-3 gap-2 text-center text-[10.5px]">
+          <div class="p-2 rounded-xl bg-surface-container-low">
+            <span class="text-outline block text-[9.5px]">Total Rdv</span>
+            <strong id="day-kpi-count" class="text-sm font-extrabold text-on-surface">5</strong>
+          </div>
+          <div class="p-2 rounded-xl bg-surface-container-low">
+            <span class="text-outline block text-[9.5px]">Completed</span>
+            <strong id="day-kpi-done" class="text-sm font-extrabold text-primary">1</strong>
+          </div>
+          <div class="p-2 rounded-xl bg-secondary-container/50">
+            <span class="text-primary block text-[9.5px] font-semibold">Day Fees</span>
+            <strong id="day-kpi-fees" class="text-sm font-extrabold text-primary">3,350 MAD</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable Center: Collapsible Add/Edit Form + Day's Appointments Cards -->
+      <div class="flex-1 overflow-y-auto slim-scroll py-3 space-y-3 pr-0.5">
+
+        <!-- INLINE ADD / MODIFY APPOINTMENT FORM -->
+        <form id="day-apt-form" onsubmit="submitDayAptForm(event)" class="hidden p-3.5 rounded-2xl bg-surface-container-low border border-primary/30 space-y-2.5 text-xs modal-pop">
+          <div class="flex items-center justify-between">
+            <span id="day-form-heading" class="text-xs font-extrabold text-primary flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px]">edit_calendar</span>
+              Nouveau Rendez-vous
+            </span>
+            <button type="button" onclick="closeDayAptForm()" class="text-[10.5px] font-bold text-outline hover:text-on-surface">Cancel</button>
+          </div>
+
+          <input type="hidden" id="df-apt-id" value=""/>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="font-bold text-on-surface-variant text-[11px]">Patient *</label>
+              <button type="button" onclick="openModal('patient-modal')" class="text-[10px] font-bold text-primary hover:underline">+ Quick New Patient</button>
+            </div>
+            <select id="df-patient" required class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary"></select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold text-on-surface-variant text-[11px] mb-1">Date *</label>
+              <input id="df-date" required type="date" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-mono font-bold text-on-surface text-[11px] focus:outline-none focus:border-primary"/>
+            </div>
+            <div>
+              <label class="block font-bold text-on-surface-variant text-[11px] mb-1">Heure *</label>
+              <input id="df-time" required type="time" value="10:00" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-mono font-bold text-on-surface text-[11px] focus:outline-none focus:border-primary"/>
+            </div>
+          </div>
+
+          <!-- Quick Time Slot Presets -->
+          <div class="flex flex-wrap gap-1">
+            <button type="button" onclick="document.getElementById('df-time').value='08:30'" class="px-2 py-0.5 rounded bg-white hover:bg-secondary-container text-[10px] font-mono font-semibold">08:30</button>
+            <button type="button" onclick="document.getElementById('df-time').value='09:30'" class="px-2 py-0.5 rounded bg-white hover:bg-secondary-container text-[10px] font-mono font-semibold">09:30</button>
+            <button type="button" onclick="document.getElementById('df-time').value='11:00'" class="px-2 py-0.5 rounded bg-white hover:bg-secondary-container text-[10px] font-mono font-semibold">11:00</button>
+            <button type="button" onclick="document.getElementById('df-time').value='14:30'" class="px-2 py-0.5 rounded bg-white hover:bg-secondary-container text-[10px] font-mono font-semibold">14:30</button>
+            <button type="button" onclick="document.getElementById('df-time').value='16:00'" class="px-2 py-0.5 rounded bg-white hover:bg-secondary-container text-[10px] font-mono font-semibold">16:00</button>
+          </div>
+
+          <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-8">
+              <label class="block font-bold text-on-surface-variant text-[11px] mb-1">Praticien &amp; Salle *</label>
+              <select id="df-doctor" onchange="syncDoctorDefaultFee()" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-semibold text-on-surface text-[11px] focus:outline-none">
+                <option value="Dr. Alimi Jan|Cardiologist|Suite 102|650">Dr. Alimi Jan • Suite 102</option>
+                <option value="Dr. Karim Tazi|Neurologist|Neuro Lab 2|850">Dr. Karim Tazi • Neuro Lab 2</option>
+                <option value="Dr. Mike Millars|Psychologist|Consult 105|500">Dr. Mike Millars • Consult 105</option>
+                <option value="Dr. Sarah Chen|Cardiologist|Suite 101|600">Dr. Sarah Chen • Suite 101</option>
+                <option value="Dr. Nadia Berrada|Psychologist|Consult 106|550">Dr. Nadia Berrada • Consult 106</option>
+              </select>
+            </div>
+            <div class="col-span-4">
+              <label class="block font-bold text-on-surface-variant text-[11px] mb-1">Tarif (MAD)</label>
+              <input id="df-fee" required type="number" min="50" step="50" value="650" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-bold text-primary text-[11px] focus:outline-none"/>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-7">
+              <label class="block font-bold text-on-surface-variant text-[11px] mb-1">Motif Clinique *</label>
+              <input id="df-reason" required type="text" placeholder="Ex: Contrôle Echo-Doppler"
+                     class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-medium text-on-surface text-[11px] focus:outline-none focus:border-primary"/>
+            </div>
+            <div class="col-span-5">
+              <label class="block font-bold text-on-surface-variant text-[11px] mb-1">Statut</label>
+              <select id="df-status" class="w-full px-2 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-bold text-on-surface text-[11px] focus:outline-none">
+                <option value="confirmed">Confirmed</option>
+                <option value="waiting">Waiting</option>
+                <option value="in_progress">In Consult</option>
+                <option value="completed">Completed (Bill)</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="df-submit-btn" class="w-full py-2 rounded-full bg-primary hover:bg-primary-hover text-white font-bold text-xs shadow-emeraldGlow transition-all">
+            Enregistrer le Rendez-vous
+          </button>
+        </form>
+
+        <!-- LIST OF APPOINTMENTS FOR THIS DAY -->
+        <div id="day-sheet-list" class="space-y-2.5"></div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="pt-2.5 border-t border-surface-container flex items-center justify-between text-[10.5px] text-outline">
+        <span>Anti-overlap: Doctor + Room + Patient</span>
+        <button onclick="closeDaySheet(); switchTab('treatment');" class="font-bold text-primary hover:underline">Full Schedule View &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SLIDE-OVER DRAWER: ELECTRONIC MEDICAL RECORD (DME) -->
+  <!-- ========================================================================= -->
+  <div id="dme-drawer-backdrop" onclick="closeDmeDrawer()" class="fixed inset-0 z-[55] hidden bg-on-primary-fixed/35 backdrop-blur-xs flex justify-end">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest h-full shadow-2xl p-4 sm:p-5 flex flex-col justify-between overflow-y-auto drawer-enter">
       <div class="space-y-3.5">
-        <!-- Patient Header -->
         <div class="flex items-start justify-between pb-3 border-b border-surface-container">
           <div class="flex items-center gap-3">
             <img id="dme-avatar" class="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/20" src="" alt="Patient"/>
@@ -812,14 +962,12 @@
           </button>
         </div>
 
-        <!-- Internal DME Sub-Tabs -->
         <div class="grid grid-cols-3 bg-surface-container-low p-1 rounded-xl text-[11px] font-bold">
-          <button id="dme-tab-vitals" onclick="switchDmeTab('vitals')" class=" py-1.5 rounded-lg bg-white text-primary shadow-2xs">Vitals &amp; Note</button>
+          <button id="dme-tab-vitals" onclick="switchDmeTab('vitals')" class="py-1.5 rounded-lg bg-white text-primary shadow-2xs">Vitals &amp; Note</button>
           <button id="dme-tab-history" onclick="switchDmeTab('history')" class="py-1.5 rounded-lg text-outline hover:text-on-surface">ICD-11 History</button>
           <button id="dme-tab-billing" onclick="switchDmeTab('billing')" class="py-1.5 rounded-lg text-outline hover:text-on-surface">Labs &amp; Billing</button>
         </div>
 
-        <!-- DME SUB-VIEW 1: VITALS, STATUS & CLINICAL NOTE -->
         <div id="dme-panel-vitals" class="space-y-3">
           <div class="grid grid-cols-2 gap-2 text-[11px]">
             <div class="p-2.5 rounded-xl bg-error-container/40 border border-error/15">
@@ -832,7 +980,6 @@
             </div>
           </div>
 
-          <!-- Editable Live Vitals + ECG -->
           <div class="p-3 rounded-2xl bg-surface-container-low space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[11px] font-bold text-on-surface">Bedside Telemetry (Editable)</span>
@@ -857,18 +1004,6 @@
             </svg>
           </div>
 
-          <!-- Encounter Status Quick Controls -->
-          <div class="space-y-1">
-            <label class="text-[10.5px] font-bold text-outline uppercase">Consultation Status (Complete = Auto-Bill)</label>
-            <div class="grid grid-cols-4 gap-1.5 text-[10.5px] font-bold">
-              <button onclick="updateEncounterStatus('waiting')" class="py-1.5 rounded-lg bg-amber-50 text-amber-800 hover:bg-amber-100">Waiting</button>
-              <button onclick="updateEncounterStatus('confirmed')" class="py-1.5 rounded-lg bg-surface-container-low text-on-surface hover:bg-secondary-container">Confirmed</button>
-              <button onclick="updateEncounterStatus('in_progress')" class="py-1.5 rounded-lg bg-secondary-container text-primary hover:bg-primary hover:text-white">In Consult</button>
-              <button onclick="updateEncounterStatus('completed')" class="py-1.5 rounded-lg bg-primary text-white hover:bg-primary-hover">Complete</button>
-            </div>
-          </div>
-
-          <!-- Sign New ICD-11 Clinical Note -->
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
               <label class="text-[10.5px] font-bold text-outline uppercase">New ICD-11 Clinical Note</label>
@@ -884,10 +1019,7 @@
           </div>
         </div>
 
-        <!-- DME SUB-VIEW 2: PERSISTED ICD-11 NOTES HISTORY -->
         <div id="dme-panel-history" class="hidden space-y-2 max-h-[340px] overflow-y-auto slim-scroll"></div>
-
-        <!-- DME SUB-VIEW 3: PATIENT LABS & INVOICES -->
         <div id="dme-panel-billing" class="hidden space-y-2.5 max-h-[340px] overflow-y-auto slim-scroll"></div>
       </div>
 
@@ -905,56 +1037,11 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- COMPACT MODALS (APPOINTMENT, PATIENT, LAB, INVOICE, PAYMENT, PRINT, SEARCH, SETTINGS) -->
+  <!-- COMPACT MODALS (PATIENT, LAB, INVOICE, PAYMENT, PRINT, SEARCH, SETTINGS) -->
   <!-- ========================================================================= -->
 
-  <!-- Book Appointment Modal -->
-  <div id="appointment-modal" onclick="if(event.target===this)closeModal('appointment-modal')" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-surface-container-lowest rounded-2xl max-w-sm w-full p-5 shadow-floatCard border border-outline-variant/40 space-y-3.5 modal-pop">
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-extrabold text-on-surface">Book Specialist Slot</h3>
-        <button onclick="closeModal('appointment-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-outline"><span class="material-symbols-outlined text-[16px]">close</span></button>
-      </div>
-      <form onsubmit="submitNewAppointment(event)" class="space-y-3 text-xs">
-        <div>
-          <label class="block font-semibold text-on-surface-variant mb-1">Patient *</label>
-          <select id="apt-patient-select" class="w-full px-3 py-2 rounded-xl bg-surface-container-low font-semibold text-on-surface focus:outline-none"></select>
-        </div>
-        <div class="grid grid-cols-2 gap-2.5">
-          <div>
-            <label class="block font-semibold text-on-surface-variant mb-1">Specialist *</label>
-            <select id="apt-doc-select" class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low font-semibold text-on-surface">
-              <option value="Dr. Alimi Jan|Cardiologist|Suite 102|650">Dr. Alimi Jan (650 MAD)</option>
-              <option value="Dr. Mike Millars|Psychologist|Consult 105|500">Dr. Mike Millars (500 MAD)</option>
-              <option value="Dr. Karim Tazi|Neurologist|Neuro Lab 2|850">Dr. Karim Tazi (850 MAD)</option>
-              <option value="Dr. Sarah Chen|Cardiologist|Suite 101|600">Dr. Sarah Chen (600 MAD)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-on-surface-variant mb-1">Time Slot *</label>
-            <select id="apt-time-select" class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low font-semibold text-on-surface">
-              <option value="11:45">11:45 AM</option>
-              <option value="12:30">12:30 PM</option>
-              <option value="15:00">03:00 PM</option>
-              <option value="16:15">04:15 PM</option>
-              <option value="09:45">09:45 AM (Conflict Test)</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <label class="block font-semibold text-on-surface-variant mb-1">Reason *</label>
-          <input id="apt-reason-input" required type="text" placeholder="e.g. Echo-Doppler Control"
-                 class="w-full px-3 py-2 rounded-xl bg-surface-container-low font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30"/>
-        </div>
-        <button type="submit" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold text-xs shadow-emeraldGlow transition-all">
-          Confirm Anti-Overlap Slot
-        </button>
-      </form>
-    </div>
-  </div>
-
   <!-- Register Patient Modal -->
-  <div id="patient-modal" onclick="if(event.target===this)closeModal('patient-modal')" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="patient-modal" onclick="if(event.target===this)closeModal('patient-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-surface-container-lowest rounded-2xl max-w-sm w-full p-5 shadow-floatCard border border-outline-variant/40 space-y-3.5 modal-pop">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-extrabold text-on-surface">Register Patient Dossier</h3>
@@ -1009,7 +1096,7 @@
   </div>
 
   <!-- Order Lab Modal -->
-  <div id="lab-modal" onclick="if(event.target===this)closeModal('lab-modal')" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="lab-modal" onclick="if(event.target===this)closeModal('lab-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-surface-container-lowest rounded-2xl max-w-sm w-full p-5 shadow-floatCard border border-outline-variant/40 space-y-3.5 modal-pop">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-extrabold text-on-surface">Order Diagnostic Lab Panel</h3>
@@ -1052,7 +1139,7 @@
   </div>
 
   <!-- Issue New Invoice Modal -->
-  <div id="invoice-modal" onclick="if(event.target===this)closeModal('invoice-modal')" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="invoice-modal" onclick="if(event.target===this)closeModal('invoice-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-surface-container-lowest rounded-2xl max-w-sm w-full p-5 shadow-floatCard border border-outline-variant/40 space-y-3.5 modal-pop">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-extrabold text-on-surface">Issue Clinical Invoice (MAD)</h3>
@@ -1064,7 +1151,7 @@
           <select id="inv-patient-select" class="w-full px-3 py-2 rounded-xl bg-surface-container-low font-semibold"></select>
         </div>
         <div>
-          <label class="block font-semibold text-on-surface-variant mb-1">Clinical Act / Description *</label>
+          <label class="block font-semibold text-on-surface-variant mb-1">Clinical Act *</label>
           <input id="inv-service" required type="text" placeholder="e.g. Holter ECG 24h + Specialist Consult"
                  class="w-full px-3 py-2 rounded-xl bg-surface-container-low font-medium focus:outline-none"/>
         </div>
@@ -1074,7 +1161,7 @@
             <input id="inv-total" required type="number" min="50" step="10" value="800" class="w-full px-3 py-2 rounded-xl bg-surface-container-low font-bold"/>
           </div>
           <div>
-            <label class="block font-semibold text-on-surface-variant mb-1">Initial Deposit (MAD)</label>
+            <label class="block font-semibold text-on-surface-variant mb-1">Initial Paid (MAD)</label>
             <input id="inv-paid" type="number" min="0" step="10" value="300" class="w-full px-3 py-2 rounded-xl bg-surface-container-low font-bold text-primary"/>
           </div>
         </div>
@@ -1086,7 +1173,7 @@
   </div>
 
   <!-- Collect Payment Modal -->
-  <div id="payment-modal" onclick="if(event.target===this)closeModal('payment-modal')" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="payment-modal" onclick="if(event.target===this)closeModal('payment-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-surface-container-lowest rounded-2xl max-w-xs w-full p-5 shadow-floatCard border border-outline-variant/40 space-y-3 modal-pop">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-extrabold text-on-surface">Collect Payment (MAD)</h3>
@@ -1118,7 +1205,7 @@
   </div>
 
   <!-- Printable Receipt / Prescription Modal -->
-  <div id="print-modal" onclick="if(event.target===this)closeModal('print-modal')" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="print-modal" onclick="if(event.target===this)closeModal('print-modal')" class="fixed inset-0 z-[65] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
     <div id="printable-sheet" class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-floatCard border border-outline-variant/40 space-y-3.5 modal-pop">
       <div class="flex items-center justify-between pb-2.5 border-b border-surface-container">
         <div class="flex items-center gap-2">
@@ -1141,11 +1228,11 @@
   </div>
 
   <!-- Global Command Search Modal (Ctrl+K) -->
-  <div id="search-modal" onclick="if(event.target===this)closeModal('search-modal')" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-start justify-center pt-16 p-4">
+  <div id="search-modal" onclick="if(event.target===this)closeModal('search-modal')" class="fixed inset-0 z-[65] hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-start justify-center pt-16 p-4">
     <div class="bg-surface-container-lowest rounded-2xl max-w-md w-full p-3 shadow-floatCard border border-outline-variant/40 space-y-2 modal-pop">
       <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-container-low">
         <span class="material-symbols-outlined text-primary text-[18px]">search</span>
-        <input id="global-search-input" oninput="renderGlobalSearch(this.value)" type="text" placeholder="Search patient, CIN, lab test, or press 1-5 for tabs..."
+        <input id="global-search-input" oninput="renderGlobalSearch(this.value)" type="text" placeholder="Search patient, CIN, appointment date, or lab..."
                class="w-full bg-transparent text-xs font-semibold text-on-surface focus:outline-none"/>
         <kbd class="text-[9.5px] font-bold px-1.5 py-0.5 rounded bg-white text-outline">ESC</kbd>
       </div>
@@ -1153,8 +1240,8 @@
     </div>
   </div>
 
-  <!-- Workspace Settings Modal -->
-  <div id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')" class="fixed inset-0 z-50 hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
+  <!-- Settings Modal -->
+  <div id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')" class="fixed inset-0 z-[65] hidden bg-on-primary-fixed/35 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-surface-container-lowest rounded-2xl max-w-xs w-full p-5 shadow-floatCard border border-outline-variant/40 space-y-3.5 modal-pop">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-extrabold text-on-surface">Workspace Settings</h3>
@@ -1174,12 +1261,12 @@
         <div class="p-3 rounded-xl bg-surface-container-low flex items-center justify-between">
           <div>
             <span class="font-bold text-on-surface block">Reset Clinic Sandbox</span>
-            <span class="text-[10px] text-outline">Restore initial tenant records</span>
+            <span class="text-[10px] text-outline">Restore initial seed data</span>
           </div>
           <button onclick="resetTenantData()" class="px-2.5 py-1 rounded-lg bg-white hover:bg-error-container text-error font-bold text-[11px] transition-colors">Reset</button>
         </div>
         <div class="p-2.5 rounded-xl bg-secondary-container/50 text-[10.5px] text-on-surface-variant">
-          Shortcuts: <kbd class="px-1 bg-white rounded font-bold">1–5</kbd> Tabs • <kbd class="px-1 bg-white rounded font-bold">⌘K</kbd> Search • <kbd class="px-1 bg-white rounded font-bold">N</kbd> Book Slot
+          Shortcuts: <kbd class="px-1 bg-white rounded font-bold">1–5</kbd> Tabs • <kbd class="px-1 bg-white rounded font-bold">⌘K</kbd> Search • <kbd class="px-1 bg-white rounded font-bold">N</kbd> Add Rdv
         </div>
       </div>
       <button onclick="closeModal('settings-modal')" class="w-full py-2 rounded-full bg-primary text-white font-bold text-xs">Save &amp; Close</button>
@@ -1187,10 +1274,11 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- UNIFIED FRONTEND + MULTI-TENANT REST API SAAS ENGINE -->
+  <!-- COMPLETE APPLICATION LOGIC ENGINE (CALENDAR + SIDE FICHIER CRUD + API v3) -->
   <!-- ========================================================================= -->
   <script>
     const API_BASE = 'http://127.0.0.1:8001/api/v1';
+    const TODAY_ISO = '2026-10-29';
 
     const saas = {
       tenantId: 1,
@@ -1200,6 +1288,14 @@
       currency: 'MAD',
       deptFilter: 'all',
       specialistFilter: 'Psychologist',
+
+      // Calendar & Side Sheet State
+      calYear: 2026,
+      calMonth: 9, // 0-indexed: 9 = October
+      selectedDate: TODAY_ISO,
+      confirmDeleteAptId: null,
+      editingAptId: null,
+
       selectedPatientDay: 6,
       selectedBedMonth: 4,
       activePatientId: 1,
@@ -1215,7 +1311,6 @@
         { day: 'Sat', count: 248, growth: '+65%', h: 92 }
       ],
 
-      // 4x4 Cohort Heatmap in Landing Page Emerald & Sage Palette
       heatmapCells: [
         { label: 'CBC Panel', rate: '62%', tone: 'bg-surface-container' },
         { label: 'Lipid Profile', rate: '74%', tone: 'bg-secondary-container' },
@@ -1250,11 +1345,11 @@
       ],
 
       doctors: [
-        { name: 'Dr. Mike Millars', specialty: 'Psychologist', room: 'Consult 105', avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120' },
-        { name: 'Dr. Alimi Jan', specialty: 'Cardiologist', room: 'Suite 102', avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120' },
-        { name: 'Dr. Sarah Chen', specialty: 'Cardiologist', room: 'Suite 101', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120' },
-        { name: 'Dr. Karim Tazi', specialty: 'Neurologist', room: 'Neuro Lab 2', avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120' },
-        { name: 'Dr. Nadia Berrada', specialty: 'Psychologist', room: 'Consult 106', avatar: 'https://images.unsplash.com/photo-1594824813637-440263f9059f?w=120' }
+        { name: 'Dr. Mike Millars', specialty: 'Psychologist', room: 'Consult 105', fee: 500, avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=120' },
+        { name: 'Dr. Alimi Jan', specialty: 'Cardiologist', room: 'Suite 102', fee: 650, avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120' },
+        { name: 'Dr. Sarah Chen', specialty: 'Cardiologist', room: 'Suite 101', fee: 600, avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120' },
+        { name: 'Dr. Karim Tazi', specialty: 'Neurologist', room: 'Neuro Lab 2', fee: 850, avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120' },
+        { name: 'Dr. Nadia Berrada', specialty: 'Psychologist', room: 'Consult 106', fee: 550, avatar: 'https://images.unsplash.com/photo-1594824813637-440263f9059f?w=120' }
       ],
 
       bedMonths: [
@@ -1279,12 +1374,15 @@
         { id: 1, code: 'PT-4429', first: 'Eleanor', last: 'Pena', cin: 'BE-882910', age: 58, gender: 'F', blood: 'A+', phone: '+212 661-234890', coverage: 'CNSS AMO (80%)', department: 'Cardiology', allergy: 'Penicillin', bp: '126/80', spo2: '98.6%', hr: '74 bpm', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120', notes: [{ date: '29-10-2026 09:12', doctor: 'Dr. Alimi Jan', icd: 'BA00 • Hypertension', text: 'Stable sinus rhythm. Serum K+ ordered.' }] },
         { id: 2, code: 'PT-9014', first: 'Wade', last: 'Warren', cin: 'BH-441092', age: 44, gender: 'M', blood: 'O+', phone: '+212 662-981120', coverage: 'CNOPS (85%)', department: 'Neurology', allergy: 'None reported', bp: '132/84', spo2: '97.9%', hr: '81 bpm', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120', notes: [] },
         { id: 3, code: 'PT-9132', first: 'Salma', last: 'Bennani', cin: 'BK-619204', age: 33, gender: 'F', blood: 'B+', phone: '+212 664-771230', coverage: 'Wafa Assurance (90%)', department: 'Oncology', allergy: 'Sulfonamides', bp: '118/75', spo2: '99.1%', hr: '68 bpm', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120', notes: [] },
-        { id: 4, code: 'PT-7945', first: 'Youssef', last: 'El Amrani', cin: 'CD-778231', age: 49, gender: 'M', blood: 'AB+', phone: '+212 668-334519', coverage: 'CNSS AMO (80%)', department: 'Urology', allergy: 'Aspirin', bp: '122/78', spo2: '98.4%', hr: '72 bpm', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120', notes: [] }
+        { id: 4, code: 'PT-7945', first: 'Youssef', last: 'El Amrani', cin: 'CD-778231', age: 49, gender: 'M', blood: 'AB+', phone: '+212 668-334519', coverage: 'CNSS AMO (80%)', department: 'Urology', allergy: 'Aspirin', bp: '122/78', spo2: '98.4%', hr: '72 bpm', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120', notes: [] },
+        { id: 5, code: 'PT-8310', first: 'Dianne', last: 'Russell', cin: 'AB-502918', age: 37, gender: 'F', blood: 'O-', phone: '+212 661-908214', coverage: 'Direct Pay', department: 'Cardiology', allergy: 'None reported', bp: '116/74', spo2: '99.2%', hr: '66 bpm', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120', notes: [] }
       ],
       appointments: [
-        { id: 101, patient_id: 1, time: '09:00', doctor: 'Dr. Alimi Jan', specialty: 'Cardiologist', room: 'Suite 102', reason: 'Echocardiogram & Serum K+', status: 'completed', fee_mad: 650, billed: true },
-        { id: 102, patient_id: 2, time: '09:45', doctor: 'Dr. Karim Tazi', specialty: 'Neurologist', room: 'Neuro Lab 2', reason: 'EEG Telemetry Mapping', status: 'in_progress', fee_mad: 850, billed: true },
-        { id: 103, patient_id: 3, time: '10:30', doctor: 'Dr. Mike Millars', specialty: 'Psychologist', room: 'Consult 105', reason: 'Sleep & Stress Consult', status: 'waiting', fee_mad: 500, billed: false }
+        { id: 99, patient_id: 4, date: '2026-10-28', time: '11:30', doctor: 'Dr. Alimi Jan', specialty: 'Cardiologist', room: 'Suite 102', reason: 'Arterial Pressure Baseline', status: 'completed', fee_mad: 650, billed: true },
+        { id: 101, patient_id: 1, date: '2026-10-29', time: '09:00', doctor: 'Dr. Alimi Jan', specialty: 'Cardiologist', room: 'Suite 102', reason: 'Echocardiogram & Serum K+', status: 'completed', fee_mad: 650, billed: true },
+        { id: 102, patient_id: 2, date: '2026-10-29', time: '09:45', doctor: 'Dr. Karim Tazi', specialty: 'Neurologist', room: 'Neuro Lab 2', reason: 'EEG Telemetry Mapping', status: 'in_progress', fee_mad: 850, billed: true },
+        { id: 103, patient_id: 3, date: '2026-10-29', time: '10:30', doctor: 'Dr. Mike Millars', specialty: 'Psychologist', room: 'Consult 105', reason: 'Sleep & Stress Consult', status: 'waiting', fee_mad: 500, billed: false },
+        { id: 106, patient_id: 2, date: '2026-10-30', time: '09:30', doctor: 'Dr. Karim Tazi', specialty: 'Neurologist', room: 'Neuro Lab 2', reason: 'Post-EEG Titration', status: 'confirmed', fee_mad: 700, billed: false }
       ],
       labs: [
         { id: 501, code: 'LAB-2026-881', patient_id: 1, patient_name: 'Eleanor Pena', test_name: 'Serum Potassium (K+)', category: 'Biochemistry', value: '5.8 mEq/L', reference: '3.5 - 5.1 mEq/L', priority: 'STAT', status: 'flagged', ordered_by: 'Dr. Alimi Jan', timestamp: '09:18' },
@@ -1299,17 +1397,16 @@
       ]
     };
 
-    // Tooltip Helper
+    // Helpers
     const tipEl = document.getElementById('chart-tooltip');
     function showTip(e, text) {
       tipEl.textContent = text;
       tipEl.classList.remove('hidden');
-      tipEl.style.left = (e.clientX + 12) + 'px';
-      tipEl.style.top = (e.clientY - 28) + 'px';
+      tipEl.style.left = Math.min(window.innerWidth - 190, e.clientX + 12) + 'px';
+      tipEl.style.top = (e.clientY - 30) + 'px';
     }
     function hideTip() { tipEl.classList.add('hidden'); }
 
-    // Toast Helper
     function notify(msg, tone = 'ok') {
       const stack = document.getElementById('toast-stack');
       const el = document.createElement('div');
@@ -1321,15 +1418,414 @@
         el.style.opacity = '0';
         el.style.transition = 'opacity 0.2s ease';
         setTimeout(() => el.remove(), 220);
-      }, 3000);
+      }, 3100);
     }
 
     function apiHeaders() {
       return { 'Content-Type': 'application/json', 'X-Tenant-ID': String(saas.tenantId) };
     }
 
+    function formatIsoToDmy(iso) {
+      const [y, m, d] = (iso || TODAY_ISO).split('-');
+      return `${d}-${m}-${y}`;
+    }
+
+    function formatIsoHuman(iso) {
+      const dt = new Date(iso + 'T12:00:00');
+      return dt.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function getAppointmentsForDate(isoDate) {
+      return saas.appointments
+        .filter(a => (a.date || TODAY_ISO) === isoDate)
+        .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+    }
+
     // =========================================================================
-    // RENDER COMPACT OVERVIEW CHARTS (LANDING PAGE EMERALD SYSTEM)
+    // COMPACT MINI CALENDAR ENGINE + DAY APPOINTMENTS SIDE FICHIER CRUD
+    // =========================================================================
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    function renderMiniCalendar() {
+      const grid = document.getElementById('mini-cal-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      document.getElementById('mini-cal-title').textContent = `${monthNames[saas.calMonth]} ${saas.calYear}`;
+
+      // Count appointments per YYYY-MM-DD
+      const countsByDate = {};
+      saas.appointments.forEach(a => {
+        const d = a.date || TODAY_ISO;
+        countsByDate[d] = (countsByDate[d] || 0) + 1;
+      });
+
+      const firstDayJs = new Date(saas.calYear, saas.calMonth, 1).getDay(); // 0=Sun..6=Sat
+      const startOffset = (firstDayJs + 6) % 7; // Monday=0..Sunday=6
+      const daysInMonth = new Date(saas.calYear, saas.calMonth + 1, 0).getDate();
+
+      // Empty leading cells
+      for (let i = 0; i < startOffset; i++) {
+        grid.insertAdjacentHTML('beforeend', `<span class="h-7"></span>`);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const mm = String(saas.calMonth + 1).padStart(2, '0');
+        const dd = String(day).padStart(2, '0');
+        const iso = `${saas.calYear}-${mm}-${dd}`;
+        const count = countsByDate[iso] || 0;
+        const isSelected = iso === saas.selectedDate;
+        const isToday = iso === TODAY_ISO;
+
+        let btnCls = 'text-on-surface hover:bg-secondary-container/70 font-semibold';
+        if (isSelected) {
+          btnCls = 'bg-primary text-white font-extrabold shadow-emeraldGlow';
+        } else if (isToday) {
+          btnCls = 'bg-secondary-container text-primary font-extrabold ring-1 ring-primary/30';
+        }
+
+        const dotHtml = count > 0
+          ? `<span class="flex items-center justify-center gap-0.5 mt-0.5">
+               <span class="w-1 h-1 rounded-full ${isSelected ? 'bg-primary-fixed' : 'bg-brand-soft-green'}"></span>
+               ${count > 2 ? `<span class="w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-primary'}"></span>` : ''}
+             </span>`
+          : `<span class="h-1.5 block"></span>`;
+
+        grid.insertAdjacentHTML('beforeend', `
+          <button onclick="onCalendarDayClick('${iso}')"
+                  onmousemove="showTip(event, '${dd}/${mm}/${saas.calYear} • ${count} appointment(s) — Click to open')"
+                  onmouseleave="hideTip()"
+                  class="h-7 rounded-lg text-[10.5px] flex flex-col items-center justify-center transition-all ${btnCls}">
+            <span class="leading-none">${day}</span>
+            ${dotHtml}
+          </button>
+        `);
+      }
+
+      // Sync top date pill & calendar footer
+      const selCount = countsByDate[saas.selectedDate] || 0;
+      document.getElementById('selected-date-label').textContent = formatIsoToDmy(saas.selectedDate);
+      document.getElementById('selected-date-count-pill').textContent = `${selCount} Rdv`;
+      document.getElementById('stream-date-badge').textContent = formatIsoToDmy(saas.selectedDate);
+      const shortDate = new Date(saas.selectedDate + 'T12:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+      document.getElementById('mini-cal-footer-label').textContent = `${shortDate} • ${selCount} Rdv`;
+    }
+
+    function shiftCalendarMonth(delta) {
+      saas.calMonth += delta;
+      if (saas.calMonth < 0) { saas.calMonth = 11; saas.calYear--; }
+      if (saas.calMonth > 11) { saas.calMonth = 0; saas.calYear++; }
+      renderMiniCalendar();
+    }
+
+    function jumpCalendarToday() {
+      saas.calYear = 2026;
+      saas.calMonth = 9;
+      saas.selectedDate = TODAY_ISO;
+      renderMiniCalendar();
+      renderOverviewQueue();
+    }
+
+    function onCalendarDayClick(isoDate) {
+      hideTip();
+      saas.selectedDate = isoDate;
+      const [y, m] = isoDate.split('-').map(Number);
+      saas.calYear = y;
+      saas.calMonth = m - 1;
+      renderMiniCalendar();
+      renderOverviewQueue();
+      openDaySheet(isoDate);
+    }
+
+    function stepSelectedDate(deltaDays) {
+      const dt = new Date(saas.selectedDate + 'T12:00:00');
+      dt.setDate(dt.getDate() + deltaDays);
+      const iso = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+      saas.selectedDate = iso;
+      saas.calYear = dt.getFullYear();
+      saas.calMonth = dt.getMonth();
+      saas.confirmDeleteAptId = null;
+      closeDayAptForm();
+      renderMiniCalendar();
+      renderOverviewQueue();
+      renderDaySheetContent();
+    }
+
+    function openDaySheet(isoDate) {
+      if (isoDate) saas.selectedDate = isoDate;
+      saas.confirmDeleteAptId = null;
+      closeDayAptForm();
+      renderMiniCalendar();
+      renderDaySheetContent();
+      document.getElementById('day-sheet-backdrop').classList.remove('hidden');
+    }
+
+    function openDaySheetForAdd(isoDate, presetDoctorName = '') {
+      openDaySheet(isoDate || saas.selectedDate);
+      openDayAptForm(null, presetDoctorName);
+    }
+
+    function closeDaySheet() {
+      document.getElementById('day-sheet-backdrop').classList.add('hidden');
+      saas.confirmDeleteAptId = null;
+    }
+
+    function renderDaySheetContent() {
+      const iso = saas.selectedDate;
+      document.getElementById('day-sheet-title').textContent = formatIsoHuman(iso);
+      document.getElementById('day-sheet-iso').textContent = iso;
+
+      const dayApts = getAppointmentsForDate(iso);
+      const doneCount = dayApts.filter(a => a.status === 'completed').length;
+      const totalFees = dayApts.reduce((sum, a) => sum + Number(a.fee_mad || 0), 0);
+
+      document.getElementById('day-kpi-count').textContent = dayApts.length;
+      document.getElementById('day-kpi-done').textContent = doneCount;
+      document.getElementById('day-kpi-fees').textContent = `${totalFees.toLocaleString('en-US')} MAD`;
+
+      const listEl = document.getElementById('day-sheet-list');
+      listEl.innerHTML = '';
+
+      if (dayApts.length === 0) {
+        listEl.insertAdjacentHTML('beforeend', `
+          <div class="p-6 rounded-2xl border border-dashed border-outline-variant/60 bg-surface-container-low/50 text-center space-y-2.5">
+            <div class="w-10 h-10 rounded-full bg-secondary-container text-primary mx-auto flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px]">event_available</span>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-on-surface">Aucun rendez-vous ce jour</p>
+              <p class="text-[11px] text-outline mt-0.5">Cliquez ci-dessous pour planifier un créneau le ${formatIsoToDmy(iso)}.</p>
+            </div>
+            <button onclick="openDayAptForm()" class="px-4 py-1.5 rounded-full bg-primary text-white text-[11px] font-bold shadow-emeraldGlow">
+              + Ajouter un Rendez-vous
+            </button>
+          </div>
+        `);
+        return;
+      }
+
+      dayApts.forEach(apt => {
+        const pat = saas.patients.find(p => Number(p.id) === Number(apt.patient_id)) || saas.patients[0] || { first: 'Patient', last: '', code: 'PT-0000', cin: '-', avatar: '' };
+        const st = stMeta[apt.status] || stMeta.confirmed;
+        const isEditing = Number(saas.editingAptId) === Number(apt.id);
+        const isConfirmingDelete = Number(saas.confirmDeleteAptId) === Number(apt.id);
+
+        const deleteConfirmHtml = isConfirmingDelete ? `
+          <div class="mt-2 p-2 rounded-xl bg-error-container/60 border border-error/25 flex items-center justify-between text-[10.5px]">
+            <span class="font-bold text-error">Supprimer ce rendez-vous ?</span>
+            <div class="flex items-center gap-1.5">
+              <button onclick="executeDeleteAppointment(${apt.id})" class="px-2.5 py-1 rounded-lg bg-error text-white font-bold">Oui, Supprimer</button>
+              <button onclick="saas.confirmDeleteAptId=null; renderDaySheetContent();" class="px-2 py-1 rounded-lg bg-white text-on-surface font-semibold">Annuler</button>
+            </div>
+          </div>
+        ` : '';
+
+        listEl.insertAdjacentHTML('beforeend', `
+          <div class="p-3 rounded-2xl ${isEditing ? 'bg-secondary-container/45 border-2 border-primary' : 'bg-surface-container-low/85 border border-outline-variant/25'} space-y-2 transition-all">
+            <div class="flex items-start justify-between gap-2">
+              <div onclick="openDmeDrawer(${pat.id})" class="flex items-center gap-2.5 min-w-0 cursor-pointer group">
+                <span class="px-2 py-1 rounded-lg bg-white font-mono text-[11px] font-extrabold text-primary shadow-2xs">${apt.time}</span>
+                <img src="${pat.avatar}" alt="${pat.first}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-1 ring-primary/20"/>
+                <div class="min-w-0 leading-tight">
+                  <span class="block text-xs font-extrabold text-on-surface group-hover:text-primary truncate">${pat.first} ${pat.last}</span>
+                  <span class="block text-[10px] text-outline font-mono">#${pat.code} • ${pat.cin}</span>
+                </div>
+              </div>
+              <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${st.cls}">${st.label}</span>
+            </div>
+
+            <div class="pl-1 text-[11px] text-on-surface-variant flex items-center justify-between">
+              <span class="truncate"><strong>${apt.doctor}</strong> (${apt.room}) — ${apt.reason}</span>
+              <strong class="text-primary font-bold ml-2 whitespace-nowrap">${apt.fee_mad || 600} MAD</strong>
+            </div>
+
+            <!-- Action Toolbar: Complete & Bill | Modifier | Supprimer -->
+            <div class="pt-1.5 border-t border-outline-variant/25 flex items-center justify-between gap-1.5">
+              <div>
+                ${apt.status !== 'completed'
+                  ? `<button onclick="quickAdvanceApt(${apt.id}, '${apt.status}')" class="px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary text-primary hover:text-white text-[10px] font-bold inline-flex items-center gap-1 transition-colors">
+                       <span class="material-symbols-outlined text-[13px]">check_circle</span>
+                       ${apt.status === 'in_progress' ? 'Complete & Bill' : 'Start Consult'}
+                     </button>`
+                  : `<span class="text-[10px] font-bold text-primary inline-flex items-center gap-0.5"><span class="material-symbols-outlined text-[13px]">receipt_long</span> Facturé</span>`
+                }
+              </div>
+
+              <div class="flex items-center gap-1">
+                <button onclick="openDayAptForm(${apt.id})" class="px-2.5 py-1 rounded-lg bg-white hover:bg-secondary-container text-on-surface text-[10px] font-bold inline-flex items-center gap-1 border border-outline-variant/30 transition-colors">
+                  <span class="material-symbols-outlined text-[13px] text-primary">edit</span>
+                  Modifier
+                </button>
+                <button onclick="saas.confirmDeleteAptId=${apt.id}; renderDaySheetContent();" class="px-2.5 py-1 rounded-lg bg-white hover:bg-error-container text-error text-[10px] font-bold inline-flex items-center gap-1 border border-outline-variant/30 transition-colors">
+                  <span class="material-symbols-outlined text-[13px]">delete</span>
+                  Supprimer
+                </button>
+              </div>
+            </div>
+
+            ${deleteConfirmHtml}
+          </div>
+        `);
+      });
+    }
+
+    function syncDoctorDefaultFee() {
+      const parts = document.getElementById('df-doctor').value.split('|');
+      if (parts[3] && !saas.editingAptId) {
+        document.getElementById('df-fee').value = parts[3];
+      }
+    }
+
+    function openDayAptForm(aptId = null, presetDoctorName = '') {
+      const form = document.getElementById('day-apt-form');
+      form.classList.remove('hidden');
+      saas.confirmDeleteAptId = null;
+
+      // Sync patient dropdown options
+      document.getElementById('df-patient').innerHTML = saas.patients
+        .map(p => `<option value="${p.id}">${p.first} ${p.last} (${p.code} • ${p.cin})</option>`)
+        .join('');
+
+      if (aptId) {
+        const apt = saas.appointments.find(a => Number(a.id) === Number(aptId));
+        if (!apt) return;
+        saas.editingAptId = apt.id;
+        document.getElementById('df-apt-id').value = apt.id;
+        document.getElementById('day-form-heading').innerHTML = `<span class="material-symbols-outlined text-[15px]">edit</span> Modifier le Rendez-vous (${apt.time})`;
+        document.getElementById('df-submit-btn').textContent = 'Enregistrer les Modifications';
+        document.getElementById('df-patient').value = apt.patient_id;
+        document.getElementById('df-date').value = apt.date || saas.selectedDate;
+        document.getElementById('df-time').value = apt.time;
+        document.getElementById('df-fee').value = apt.fee_mad || 600;
+        document.getElementById('df-reason').value = apt.reason || '';
+        document.getElementById('df-status').value = apt.status || 'confirmed';
+
+        const docSel = document.getElementById('df-doctor');
+        for (const opt of docSel.options) {
+          if (opt.value.startsWith(apt.doctor)) docSel.value = opt.value;
+        }
+      } else {
+        saas.editingAptId = null;
+        document.getElementById('df-apt-id').value = '';
+        document.getElementById('day-form-heading').innerHTML = `<span class="material-symbols-outlined text-[15px]">add_circle</span> Ajouter un Rendez-vous`;
+        document.getElementById('df-submit-btn').textContent = 'Ajouter au Planning';
+        document.getElementById('df-date').value = saas.selectedDate;
+        document.getElementById('df-time').value = '11:30';
+        document.getElementById('df-reason').value = '';
+        document.getElementById('df-status').value = 'confirmed';
+        if (presetDoctorName) {
+          const docSel = document.getElementById('df-doctor');
+          for (const opt of docSel.options) {
+            if (opt.value.startsWith(presetDoctorName)) docSel.value = opt.value;
+          }
+        }
+        syncDoctorDefaultFee();
+      }
+      renderDaySheetContent();
+    }
+
+    function closeDayAptForm() {
+      saas.editingAptId = null;
+      const form = document.getElementById('day-apt-form');
+      if (form) form.classList.add('hidden');
+      renderDaySheetContent();
+    }
+
+    async function submitDayAptForm(e) {
+      e.preventDefault();
+      const editId = document.getElementById('df-apt-id').value.trim();
+      const patient_id = Number(document.getElementById('df-patient').value);
+      const date = document.getElementById('df-date').value;
+      const time = document.getElementById('df-time').value;
+      const [doctor, specialty, room] = document.getElementById('df-doctor').value.split('|');
+      const fee_mad = Number(document.getElementById('df-fee').value) || 600;
+      const reason = document.getElementById('df-reason').value.trim();
+      const status = document.getElementById('df-status').value;
+
+      const payload = { patient_id, date, time, doctor, specialty, room, fee_mad, reason, status };
+
+      try {
+        const url = editId ? `${API_BASE}/appointments/${editId}` : `${API_BASE}/appointments`;
+        const method = editId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: apiHeaders(),
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          notify(data.message || 'Conflit horaire détecté !', 'err');
+          return;
+        }
+        saas.selectedDate = date;
+        const [y, m] = date.split('-').map(Number);
+        saas.calYear = y;
+        saas.calMonth = m - 1;
+        saas.editingAptId = null;
+        document.getElementById('day-apt-form').classList.add('hidden');
+        syncFromServerState(data.state);
+        renderDaySheetContent();
+        if (data.auto_invoice) {
+          notify(`${editId ? 'Modifié' : 'Ajouté'} + Facture auto ${data.auto_invoice.num} générée !`);
+        } else {
+          notify(editId ? `Rendez-vous modifié (${date} à ${time})` : `Rendez-vous ajouté (${date} à ${time})`);
+        }
+        return;
+      } catch (_) {
+        // Offline local fallback with anti-overlap check
+        const conflict = saas.appointments.find(a =>
+          Number(a.id) !== Number(editId || 0) &&
+          (a.date || TODAY_ISO) === date &&
+          a.time === time &&
+          (a.doctor === doctor || a.room === room || Number(a.patient_id) === patient_id)
+        );
+        if (conflict) {
+          notify(`Conflit horaire le ${date} à ${time} (${doctor})`, 'err');
+          return;
+        }
+        if (editId) {
+          const idx = saas.appointments.findIndex(a => Number(a.id) === Number(editId));
+          if (idx >= 0) saas.appointments[idx] = { ...saas.appointments[idx], ...payload };
+        } else {
+          saas.appointments.push({ id: Date.now(), ...payload, billed: false });
+        }
+        saas.selectedDate = date;
+        saas.editingAptId = null;
+        document.getElementById('day-apt-form').classList.add('hidden');
+        renderAll();
+        renderDaySheetContent();
+        notify(editId ? 'Rendez-vous modifié' : 'Rendez-vous ajouté');
+      }
+    }
+
+    async function executeDeleteAppointment(aptId) {
+      saas.confirmDeleteAptId = null;
+      if (Number(saas.editingAptId) === Number(aptId)) {
+        saas.editingAptId = null;
+        document.getElementById('day-apt-form').classList.add('hidden');
+      }
+      try {
+        const res = await fetch(`${API_BASE}/appointments/${aptId}`, {
+          method: 'DELETE',
+          headers: apiHeaders()
+        });
+        const data = await res.json();
+        if (res.ok && data.state) {
+          syncFromServerState(data.state);
+          renderDaySheetContent();
+          notify('Rendez-vous supprimé avec succès');
+          return;
+        }
+      } catch (_) {}
+
+      saas.appointments = saas.appointments.filter(a => Number(a.id) !== Number(aptId));
+      renderAll();
+      renderDaySheetContent();
+      notify('Rendez-vous supprimé');
+    }
+
+    // =========================================================================
+    // RENDER OVERVIEW CHARTS & CARDS
     // =========================================================================
     function renderPatientsBars() {
       const grid = document.getElementById('patients-bars-grid');
@@ -1354,7 +1850,7 @@
                   onmousemove="showTip(event, '${item.day}: ${item.count} patients (${item.growth})')"
                   onmouseleave="hideTip()"
                   class="flex flex-col items-center justify-end h-full focus:outline-none relative">
-            <div class="relative w-full flex justify-center items-end h-[64px]">
+            <div class="relative w-full flex justify-center items-end h-[62px]">
               ${pillHtml}
               <div style="height:${item.h}%" class="w-4 rounded-full ${barCls} transition-all duration-300"></div>
             </div>
@@ -1378,7 +1874,7 @@
         ` : '';
 
         grid.insertAdjacentHTML('beforeend', `
-          <div onmousemove="showTip(event, '${cell.label} • Positivity/Rate ${cell.rate}'); document.getElementById('heatmap-hover-label').textContent='${cell.label} • ${cell.rate}';"
+          <div onmousemove="showTip(event, '${cell.label} • Rate ${cell.rate}'); document.getElementById('heatmap-hover-label').textContent='${cell.label} • ${cell.rate}';"
                onmouseleave="hideTip()"
                onclick="switchTab('labs')"
                class="relative h-5 rounded-[6px] ${cell.tone} hover:ring-1 hover:ring-primary cursor-pointer transition-all flex items-center justify-center">
@@ -1433,15 +1929,15 @@
         container.insertAdjacentHTML('beforeend', `
           <div class="flex items-center justify-between py-0.5 group">
             <div class="flex items-center gap-2 min-w-0">
-              <img src="${doc.avatar}" alt="${doc.name}" class="w-7 h-7 rounded-full object-cover flex-shrink-0 ring-1 ring-outline-variant/40"/>
+              <img src="${doc.avatar}" alt="${doc.name}" class="w-[26px] h-[26px] rounded-full object-cover flex-shrink-0 ring-1 ring-outline-variant/40"/>
               <div class="min-w-0 leading-tight">
                 <span class="block text-[11px] font-bold text-on-surface truncate">${doc.name}</span>
                 <span class="block text-[9.5px] text-outline truncate">${doc.specialty} • ${doc.room}</span>
               </div>
             </div>
-            <button onclick="quickBookDoctor('${doc.name}')" title="Book ${doc.name}"
+            <button onclick="openDaySheetForAdd(saas.selectedDate, '${doc.name}')" title="Book ${doc.name} on ${formatIsoToDmy(saas.selectedDate)}"
                     class="w-6 h-6 rounded-full bg-surface-container-low group-hover:bg-primary group-hover:text-white text-primary flex items-center justify-center transition-colors flex-shrink-0">
-              <span class="material-symbols-outlined text-[13px]">call</span>
+              <span class="material-symbols-outlined text-[13px]">calendar_add_on</span>
             </button>
           </div>
         `);
@@ -1463,14 +1959,6 @@
       renderSpecialistsList();
     }
 
-    function quickBookDoctor(name) {
-      const sel = document.getElementById('apt-doc-select');
-      for (const opt of sel.options) {
-        if (opt.value.startsWith(name)) sel.value = opt.value;
-      }
-      openModal('appointment-modal');
-    }
-
     function renderBedTrend() {
       const grid = document.getElementById('bed-columns-grid');
       grid.innerHTML = '';
@@ -1487,11 +1975,11 @@
         const topCls = isSel ? 'bg-brand-soft-green' : 'bg-surface-container group-hover:bg-primary-light/60';
         const midCls = isSel ? 'bg-primary-light/70' : 'bg-surface-container-low';
         const botCls = isSel ? 'bg-secondary-container/80' : 'bg-surface';
-        const ringNode = isSel ? `<span class="w-3.5 h-3.5 rounded-full bg-white border-[3px] border-primary absolute -top-2 left-1/2 -translate-x-1/2 z-20"></span>` : '';
+        const ringNode = isSel ? `<span class="w-3 h-3 rounded-full bg-white border-[2.5px] border-primary absolute -top-1.5 left-1/2 -translate-x-1/2 z-20"></span>` : '';
 
         grid.insertAdjacentHTML('beforeend', `
           <button onclick="saas.selectedBedMonth=${idx}; renderBedTrend();"
-                  onmousemove="showTip(event, '${item.m} 2026 • Revenue ${item.total} ${saas.currency}')"
+                  onmousemove="showTip(event, '${item.m} 2026 • ${item.total} ${saas.currency}')"
                   onmouseleave="hideTip()"
                   class="group flex flex-col items-center justify-end h-full focus:outline-none">
             <div class="w-full flex flex-col gap-0.5 justify-end relative">
@@ -1499,7 +1987,7 @@
               <div style="height:${item.h2}px" class="w-full rounded-lg ${midCls} transition-all duration-300"></div>
               <div style="height:${item.h3}px" class="w-full rounded-lg ${botCls} transition-all duration-300"></div>
             </div>
-            <span class="text-[10px] ${isSel ? 'font-extrabold text-primary' : 'text-outline'} mt-1.5">${item.m}</span>
+            <span class="text-[9.5px] ${isSel ? 'font-extrabold text-primary' : 'text-outline'} mt-1">${item.m}</span>
           </button>
         `);
       });
@@ -1508,15 +1996,15 @@
     function renderStemRuler() {
       const ruler = document.getElementById('stem-ruler-ticks');
       ruler.innerHTML = '';
-      const activeIdx = new Set([5, 11, 22, 28]);
-      for (let i = 0; i < 36; i++) {
+      const activeIdx = new Set([4, 10, 19, 25]);
+      for (let i = 0; i < 30; i++) {
         const hit = activeIdx.has(i);
         ruler.insertAdjacentHTML('beforeend', `<span class="${hit ? 'h-2 w-[2px] bg-primary' : 'h-1.5 w-[1px] bg-outline-variant/60'} rounded-full"></span>`);
       }
     }
 
     // =========================================================================
-    // RENDER OPERATIONAL VIEWS + 1-CLICK CLINICAL ACTIONS
+    // OPERATIONAL VIEWS (OVERVIEW STREAM, TREATMENT, LABS, FINANCE, REPORTS)
     // =========================================================================
     const stMeta = {
       completed: { label: 'Completed', cls: 'bg-secondary-container text-primary' },
@@ -1528,27 +2016,37 @@
     function renderOverviewQueue() {
       const box = document.getElementById('overview-live-queue');
       box.innerHTML = '';
-      saas.appointments.slice(0, 6).forEach(apt => {
+      const dayApts = getAppointmentsForDate(saas.selectedDate);
+
+      if (dayApts.length === 0) {
+        box.innerHTML = `
+          <div class="col-span-full py-4 text-center text-xs text-outline">
+            No appointments scheduled on <strong>${formatIsoToDmy(saas.selectedDate)}</strong>.
+            <button onclick="openDaySheetForAdd(saas.selectedDate)" class="ml-2 font-bold text-primary hover:underline">+ Add Appointment</button>
+          </div>`;
+        return;
+      }
+
+      dayApts.forEach(apt => {
         const pat = saas.patients.find(p => Number(p.id) === Number(apt.patient_id)) || saas.patients[0];
         if (!pat) return;
         const st = stMeta[apt.status] || stMeta.confirmed;
-        const quickNext = apt.status !== 'completed'
-          ? `<button onclick="event.stopPropagation(); quickAdvanceApt(${apt.id}, '${apt.status}')" title="Advance Status" class="px-2 py-0.5 rounded-full bg-white hover:bg-primary hover:text-white text-primary border border-primary/20 text-[9.5px] font-bold transition-colors">${apt.status === 'in_progress' ? 'Complete & Bill' : 'Start'}</button>`
-          : `<span class="text-[9.5px] font-bold px-2 py-0.5 rounded-full ${st.cls}">Billed ✓</span>`;
 
         box.insertAdjacentHTML('beforeend', `
-          <div onclick="openDmeDrawer(${pat.id})" class="p-2.5 rounded-xl bg-surface-container-low/80 hover:bg-secondary-container/45 border border-transparent hover:border-primary/25 cursor-pointer transition-all flex items-center justify-between gap-2">
+          <div onclick="openDaySheet('${apt.date || TODAY_ISO}')" class="p-2.5 rounded-xl bg-surface-container-low/80 hover:bg-secondary-container/45 border border-transparent hover:border-primary/25 cursor-pointer transition-all flex items-center justify-between gap-2">
             <div class="flex items-center gap-2.5 min-w-0">
               <img src="${pat.avatar}" alt="${pat.first}" class="w-8 h-8 rounded-full object-cover flex-shrink-0"/>
               <div class="min-w-0 leading-tight">
                 <div class="flex items-center gap-1.5">
                   <span class="text-[11.5px] font-bold text-on-surface truncate">${pat.first} ${pat.last}</span>
-                  <span class="text-[9.5px] font-mono text-outline">${apt.time}</span>
+                  <span class="text-[9.5px] font-mono font-bold text-primary">${apt.time}</span>
                 </div>
                 <span class="block text-[10px] text-outline truncate mt-0.5">${apt.doctor} • ${apt.room}</span>
               </div>
             </div>
-            <div class="flex items-center gap-1 flex-shrink-0">${quickNext}</div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-full ${st.cls}">${st.label}</span>
+            </div>
           </div>
         `);
       });
@@ -1565,18 +2063,16 @@
         const data = await res.json();
         if (res.ok && data.state) {
           syncFromServerState(data.state);
-          if (data.auto_invoice) {
-            notify(`Completed & auto-issued ${data.auto_invoice.num} (${data.auto_invoice.total} MAD)!`);
-          } else {
-            notify(`Consultation started (In Consult)`);
-          }
+          renderDaySheetContent();
+          if (data.auto_invoice) notify(`Completed & auto-issued ${data.auto_invoice.num} (${data.auto_invoice.total} MAD)!`);
+          else notify('Consultation started (In Consult)');
           return;
         }
       } catch (_) {}
       const apt = saas.appointments.find(a => Number(a.id) === Number(aptId));
       if (apt) apt.status = nextStatus;
       renderAll();
-      notify(`Updated consultation status to ${nextStatus}`);
+      renderDaySheetContent();
     }
 
     function renderTreatmentView() {
@@ -1591,20 +2087,29 @@
         if (!pat) return;
         if (saas.deptFilter !== 'all' && pat.department !== saas.deptFilter) return;
         const st = stMeta[apt.status] || stMeta.confirmed;
-        const actionBtn = apt.status !== 'completed'
-          ? `<button onclick="event.stopPropagation(); quickAdvanceApt(${apt.id}, '${apt.status}')" class="px-2 py-0.5 rounded-full bg-primary text-white text-[9.5px] font-bold hover:bg-primary-hover">${apt.status === 'in_progress' ? 'Complete & Bill' : 'Start'}</button>`
-          : `<span class="text-[9.5px] font-bold px-2 py-0.5 rounded-full ${st.cls}">Completed</span>`;
+        const aptDate = apt.date || TODAY_ISO;
 
         aptList.insertAdjacentHTML('beforeend', `
-          <div onclick="openDmeDrawer(${pat.id})" class="p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/50 cursor-pointer transition-all flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <span class="text-[10.5px] font-mono font-bold text-primary bg-white px-2 py-1 rounded-lg">${apt.time}</span>
+          <div class="p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/45 transition-all flex items-center justify-between gap-2">
+            <div onclick="openDaySheet('${aptDate}')" class="flex items-center gap-2.5 min-w-0 cursor-pointer">
+              <div class="text-center bg-white px-2 py-1 rounded-lg leading-tight">
+                <span class="block text-[9px] font-mono text-outline">${aptDate.slice(5)}</span>
+                <span class="block text-[10.5px] font-mono font-extrabold text-primary">${apt.time}</span>
+              </div>
               <div class="min-w-0 leading-tight">
                 <span class="block text-[11.5px] font-bold text-on-surface truncate">${pat.first} ${pat.last}</span>
                 <span class="block text-[10px] text-outline truncate mt-0.5">${apt.doctor} • ${apt.fee_mad || 600} MAD</span>
               </div>
             </div>
-            ${actionBtn}
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${st.cls}">${st.label}</span>
+              <button onclick="openDaySheet('${aptDate}'); openDayAptForm(${apt.id});" title="Modify" class="w-6 h-6 rounded-lg bg-white hover:bg-secondary-container text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[13px]">edit</span>
+              </button>
+              <button onclick="executeDeleteAppointment(${apt.id})" title="Delete" class="w-6 h-6 rounded-lg bg-white hover:bg-error-container text-error flex items-center justify-center">
+                <span class="material-symbols-outlined text-[13px]">delete</span>
+              </button>
+            </div>
           </div>
         `);
       });
@@ -1631,7 +2136,12 @@
             <td class="py-2 px-2"><span class="px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface-variant font-semibold text-[10px]">${p.department}</span></td>
             <td class="py-2 px-2"><span class="px-2 py-0.5 rounded-full bg-secondary-container text-primary font-bold text-[10px]">${p.coverage}</span></td>
             <td class="py-2 pl-2 text-right">
-              <button class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold">DME</button>
+              <div class="inline-flex items-center gap-1">
+                <button class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold">DME</button>
+                <button onclick="event.stopPropagation(); archivePatient(${p.id});" title="Archive Patient" class="w-6 h-6 rounded-full bg-surface-container-low hover:bg-error-container text-error flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[13px]">delete</span>
+                </button>
+              </div>
             </td>
           </tr>
         `);
@@ -1641,9 +2151,27 @@
       document.getElementById('badge-treatment').textContent = saas.appointments.length;
 
       const opts = saas.patients.map(p => `<option value="${p.id}">${p.first} ${p.last} (${p.code} • ${p.cin})</option>`).join('');
-      document.getElementById('apt-patient-select').innerHTML = opts;
       document.getElementById('lab-patient-select').innerHTML = opts;
       document.getElementById('inv-patient-select').innerHTML = opts;
+    }
+
+    async function archivePatient(patId) {
+      if (saas.patients.length <= 1) {
+        notify('At least one active patient dossier is required', 'err');
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/patients/${patId}`, { method: 'DELETE', headers: apiHeaders() });
+        const data = await res.json();
+        if (res.ok && data.state) {
+          syncFromServerState(data.state);
+          notify('Patient dossier archived');
+          return;
+        }
+      } catch (_) {}
+      saas.patients = saas.patients.filter(p => Number(p.id) !== Number(patId));
+      renderAll();
+      notify('Patient dossier archived');
     }
 
     function renderLabsView() {
@@ -1657,19 +2185,32 @@
         const isStat = lab.status === 'flagged';
         const pillCls = isStat ? 'bg-error-container text-error' : (lab.status === 'validated' ? 'bg-secondary-container text-primary' : 'bg-amber-50 text-amber-800');
 
+        const resultArea = lab.status !== 'validated'
+          ? `<div class="p-2 rounded-xl bg-white flex items-center justify-between gap-2 text-[11px] mt-1">
+               <input id="lab-val-${lab.id}" type="text" value="${lab.value}" placeholder="Enter measured value..."
+                      class="w-1/2 font-bold text-primary bg-surface-container-low px-2 py-1 rounded-lg focus:outline-none"/>
+               <span class="text-[10px] text-outline truncate">Ref: ${lab.reference}</span>
+             </div>`
+          : `<div class="p-2 rounded-xl bg-white flex items-center justify-between text-[11px] mt-1">
+               <span>Result: <strong class="text-primary">${lab.value}</strong></span>
+               <span class="text-[10px] text-outline">Ref: ${lab.reference}</span>
+             </div>`;
+
         list.insertAdjacentHTML('beforeend', `
           <div class="p-3.5 rounded-2xl ${isStat ? 'bg-error-container/25 border border-error/25' : 'bg-surface-container-low border border-outline-variant/25'} flex flex-col justify-between gap-2.5">
             <div class="space-y-1">
               <div class="flex items-center justify-between">
                 <span class="font-mono text-[10px] font-bold text-outline">${lab.code} • ${lab.timestamp}</span>
-                <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-full ${pillCls}">${lab.priority} • ${lab.status.toUpperCase()}</span>
+                <div class="flex items-center gap-1">
+                  <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-full ${pillCls}">${lab.priority} • ${lab.status.toUpperCase()}</span>
+                  <button onclick="deleteLabOrder(${lab.id})" title="Delete Lab Order" class="w-5 h-5 rounded-full hover:bg-error-container text-outline hover:text-error flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[13px]">close</span>
+                  </button>
+                </div>
               </div>
               <h4 class="text-xs font-extrabold text-on-surface">${lab.test_name}</h4>
               <p class="text-[11px] text-on-surface-variant">Patient: <strong>${lab.patient_name}</strong> • ${lab.ordered_by}</p>
-              <div class="p-2 rounded-xl bg-white flex items-center justify-between text-[11px] mt-1">
-                <span>Value: <strong class="${isStat ? 'text-error' : 'text-primary'}">${lab.value}</strong></span>
-                <span class="text-[10px] text-outline">Ref: ${lab.reference}</span>
-              </div>
+              ${resultArea}
             </div>
             <div class="flex items-center justify-between pt-1">
               <button onclick="openDmeDrawer(${lab.patient_id})" class="text-[10.5px] font-bold text-primary hover:underline">Open Patient DME</button>
@@ -1687,6 +2228,20 @@
       document.getElementById('lab-stat-pending').textContent = pending;
       document.getElementById('badge-labs').textContent = flagged > 0 ? `${flagged} STAT` : `${saas.labs.length}`;
       document.getElementById('notif-dot').classList.toggle('hidden', flagged === 0);
+    }
+
+    async function deleteLabOrder(id) {
+      try {
+        const res = await fetch(`${API_BASE}/labs/${id}`, { method: 'DELETE', headers: apiHeaders() });
+        const data = await res.json();
+        if (res.ok && data.state) {
+          syncFromServerState(data.state);
+          notify('Lab order removed');
+          return;
+        }
+      } catch (_) {}
+      saas.labs = saas.labs.filter(l => Number(l.id) !== Number(id));
+      renderAll();
     }
 
     function renderFinanceView() {
@@ -1734,6 +2289,25 @@
     }
 
     function renderReportsAudit() {
+      // Dynamic Department Utilization Bars
+      const deptBox = document.getElementById('reports-dept-bars');
+      const depts = [
+        { name: 'Neurology & EEG', key: 'Neurology', base: 118, cls: 'bg-primary' },
+        { name: 'Oncology Screening', key: 'Oncology', base: 109, cls: 'bg-brand-soft-green' },
+        { name: 'Urology & Doppler', key: 'Urology', base: 59, cls: 'bg-primary-light' },
+        { name: 'Cardiology & Vascular', key: 'Cardiology', base: 38, cls: 'bg-primary-container' }
+      ];
+      const counts = depts.map(d => ({ ...d, pts: d.base + saas.patients.filter(p => p.department === d.key).length }));
+      const sumPts = counts.reduce((s, x) => s + x.pts, 0) || 1;
+      deptBox.innerHTML = counts.map(d => {
+        const pct = Math.round((d.pts / sumPts) * 100);
+        return `
+          <div>
+            <div class="flex justify-between font-semibold mb-1"><span>${d.name}</span><span class="text-primary">${pct}% (${d.pts} pts)</span></div>
+            <div class="h-2 rounded-full bg-surface-container-low overflow-hidden"><div style="width:${Math.min(100, pct * 1.5)}%" class="h-full ${d.cls} rounded-full transition-all"></div></div>
+          </div>`;
+      }).join('');
+
       const box = document.getElementById('audit-logs-list');
       box.innerHTML = '';
       saas.audit_logs.forEach(log => {
@@ -1758,6 +2332,7 @@
       renderSpecialistsList();
       renderBedTrend();
       renderStemRuler();
+      renderMiniCalendar();
       renderOverviewQueue();
       renderTreatmentView();
       renderLabsView();
@@ -1766,11 +2341,11 @@
     }
 
     // =========================================================================
-    // TAB NAVIGATION, MULTI-TENANT SWITCHER & DME SUB-TABS
+    // NAVIGATION, DME DRAWER & MODALS
     // =========================================================================
     const tabMeta = {
-      overview: { title: 'Diagnostic Monitoring', cta: 'New Report' },
-      treatment: { title: 'Treatment & Patient Schedule', cta: 'Book Slot' },
+      overview: { title: 'Diagnostic Monitoring', cta: 'Add Appointment' },
+      treatment: { title: 'Treatment & Patient Schedule', cta: 'Add Appointment' },
       labs: { title: 'Laboratory & STAT Diagnostics', cta: 'Order Lab' },
       finance: { title: 'Invoicing, Cashbox & CNSS Claims', cta: 'Issue Invoice' },
       reports: { title: 'Clinical Intelligence & CNDP Audit', cta: 'Export CSV' }
@@ -1790,11 +2365,10 @@
     }
 
     function handlePrimaryCta() {
-      if (saas.activeTab === 'treatment') openModal('appointment-modal');
+      if (saas.activeTab === 'overview' || saas.activeTab === 'treatment') openDaySheetForAdd(saas.selectedDate);
       else if (saas.activeTab === 'labs') openModal('lab-modal');
       else if (saas.activeTab === 'finance') openModal('invoice-modal');
-      else if (saas.activeTab === 'reports') exportActiveCsv();
-      else openModal('lab-modal');
+      else exportActiveCsv();
     }
 
     async function switchTenant(id) {
@@ -1825,7 +2399,7 @@
       renderTreatmentView();
     }
 
-    // Tabbed DME Drawer
+    // DME Drawer
     function switchDmeTab(sub) {
       saas.dmeSubTab = sub;
       ['vitals', 'history', 'billing'].forEach(k => {
@@ -1850,7 +2424,6 @@
       document.getElementById('dme-spo2-input').value = p.spo2 || '98.8%';
       document.getElementById('dme-hr-input').value = p.hr || '72 bpm';
 
-      // Populate Notes History
       const histBox = document.getElementById('dme-panel-history');
       const notes = p.notes || [];
       histBox.innerHTML = notes.length
@@ -1862,7 +2435,6 @@
             </div>`).join('')
         : `<p class="text-xs text-outline p-4 text-center">No signed clinical notes yet for ${p.first}.</p>`;
 
-      // Populate Patient Labs & Invoices
       const billBox = document.getElementById('dme-panel-billing');
       const pLabs = saas.labs.filter(l => Number(l.patient_id) === Number(p.id));
       const pInvs = saas.invoices.filter(i => Number(i.patient_id) === Number(p.id));
@@ -1882,36 +2454,6 @@
     }
 
     function closeDmeDrawer() { document.getElementById('dme-drawer-backdrop').classList.add('hidden'); }
-
-    async function updateEncounterStatus(newStatus) {
-      const apt = saas.appointments.find(a => Number(a.patient_id) === Number(saas.activePatientId));
-      if (!apt) {
-        notify('No scheduled slot today for this patient', 'err');
-        return;
-      }
-      await quickAdvanceAptDirect(apt.id, newStatus);
-      openDmeDrawer(saas.activePatientId);
-    }
-
-    async function quickAdvanceAptDirect(aptId, status) {
-      try {
-        const res = await fetch(`${API_BASE}/appointments/${aptId}/status`, {
-          method: 'PATCH',
-          headers: apiHeaders(),
-          body: JSON.stringify({ status })
-        });
-        const data = await res.json();
-        if (res.ok && data.state) {
-          syncFromServerState(data.state);
-          if (data.auto_invoice) notify(`Auto-generated ${data.auto_invoice.num} (${data.auto_invoice.total} MAD)`);
-          else notify(`Status set to ${status}`);
-          return;
-        }
-      } catch (_) {}
-      const apt = saas.appointments.find(a => Number(a.id) === Number(aptId));
-      if (apt) apt.status = status;
-      renderAll();
-    }
 
     async function sealClinicalEncounter() {
       const patId = saas.activePatientId;
@@ -1933,17 +2475,7 @@
         });
         const data = await res.json();
         if (res.ok && data.state) syncFromServerState(data.state);
-      } catch (_) {
-        const p = saas.patients.find(x => Number(x.id) === Number(patId));
-        if (p) {
-          p.bp = payload.bp; p.spo2 = payload.spo2; p.hr = payload.hr; p.allergy = payload.allergy;
-          if (payload.note) {
-            p.notes = p.notes || [];
-            p.notes.unshift({ date: 'Just now', doctor: 'Dr. Jackson', icd: payload.icd, text: payload.note });
-          }
-        }
-        renderAll();
-      }
+      } catch (_) {}
 
       document.getElementById('dme-note').value = '';
       openDmeDrawer(patId);
@@ -1975,39 +2507,7 @@
       openModal('print-modal');
     }
 
-    // Form Submissions (Backend Connected)
-    async function submitNewAppointment(e) {
-      e.preventDefault();
-      const patient_id = Number(document.getElementById('apt-patient-select').value);
-      const [doctor, specialty, room, fee] = document.getElementById('apt-doc-select').value.split('|');
-      const time = document.getElementById('apt-time-select').value;
-      const reason = document.getElementById('apt-reason-input').value.trim();
-
-      try {
-        const res = await fetch(`${API_BASE}/appointments`, {
-          method: 'POST',
-          headers: apiHeaders(),
-          body: JSON.stringify({ patient_id, doctor, specialty, room, time, reason, fee_mad: Number(fee) })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          notify(data.message || 'Slot conflict blocked', 'err');
-          return;
-        }
-        syncFromServerState(data.state);
-      } catch (_) {
-        if (saas.appointments.some(a => a.doctor === doctor && a.time === time)) {
-          notify(`Conflict: ${doctor} already booked at ${time}`, 'err');
-          return;
-        }
-        saas.appointments.push({ id: Date.now(), patient_id, doctor, specialty, room, time, reason, status: 'confirmed', fee_mad: Number(fee) });
-        renderAll();
-      }
-      closeModal('appointment-modal');
-      e.target.reset();
-      notify(`Booked ${doctor} at ${time}`);
-    }
-
+    // Patient, Lab & Invoice Submissions
     async function submitNewPatient(e) {
       e.preventDefault();
       const payload = {
@@ -2031,10 +2531,12 @@
           return;
         }
         syncFromServerState(data.state);
-      } catch (_) {
-        saas.patients.unshift({ id: Date.now(), code: 'PT-' + Math.floor(1000 + Math.random() * 8999), ...payload, age: 34, gender: 'M', blood: 'O+', allergy: 'None', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120', notes: [] });
-        renderAll();
-      }
+        // Also refresh Day Sheet patient dropdown if open
+        if (!document.getElementById('day-apt-form').classList.contains('hidden')) {
+          document.getElementById('df-patient').innerHTML = saas.patients.map(p => `<option value="${p.id}">${p.first} ${p.last} (${p.code} • ${p.cin})</option>`).join('');
+          document.getElementById('df-patient').value = data.patient.id;
+        }
+      } catch (_) {}
       closeModal('patient-modal');
       e.target.reset();
       notify(`Patient dossier created for ${payload.first} ${payload.last}`);
@@ -2052,7 +2554,6 @@
         priority: document.getElementById('lab-priority').value,
         ordered_by: 'Dr. Jackson'
       };
-
       try {
         const res = await fetch(`${API_BASE}/labs`, { method: 'POST', headers: apiHeaders(), body: JSON.stringify(payload) });
         const data = await res.json();
@@ -2065,15 +2566,17 @@
     }
 
     async function validateLabOrder(id) {
+      const valInput = document.getElementById(`lab-val-${id}`);
+      const measuredVal = valInput ? valInput.value.trim() : '';
       try {
-        const res = await fetch(`${API_BASE}/labs/${id}/validate`, { method: 'PATCH', headers: apiHeaders() });
+        const res = await fetch(`${API_BASE}/labs/${id}/validate`, {
+          method: 'PATCH',
+          headers: apiHeaders(),
+          body: JSON.stringify({ value: measuredVal })
+        });
         const data = await res.json();
         if (res.ok && data.state) syncFromServerState(data.state);
-      } catch (_) {
-        const l = saas.labs.find(x => Number(x.id) === Number(id));
-        if (l) l.status = 'validated';
-        renderAll();
-      }
+      } catch (_) {}
       notify('Pathology result validated & signed');
     }
 
@@ -2172,21 +2675,24 @@
 
     function exportActiveCsv() {
       const rows = [
-        ['Tenant', 'Code', 'Patient', 'CIN', 'Department', 'Coverage', 'Phone'],
-        ...saas.patients.map(p => [saas.tenantName, p.code, `${p.first} ${p.last}`, p.cin, p.department, p.coverage, p.phone])
+        ['Date', 'Time', 'Patient', 'Doctor', 'Room', 'Status', 'Fee_MAD'],
+        ...saas.appointments.map(a => {
+          const p = saas.patients.find(x => Number(x.id) === Number(a.patient_id));
+          return [a.date || TODAY_ISO, a.time, p ? `${p.first} ${p.last}` : '-', a.doctor, a.room, a.status, a.fee_mad || 600];
+        })
       ];
       const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `cliniqo-${saas.tenantId}-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `cliniqo-schedule-${saas.selectedDate}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      notify('Exported CSV report');
+      notify('Exported Appointments CSV');
     }
 
-    // UI Helpers
+    // Popovers, Search & Keyboard Shortcuts
     function openModal(id) {
       document.getElementById(id).classList.remove('hidden');
       if (id === 'search-modal') {
@@ -2199,18 +2705,8 @@
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
     function toggleBranchMenu(e) { e.stopPropagation(); document.getElementById('branch-menu').classList.toggle('hidden'); }
     function toggleNotifications(e) { e.stopPropagation(); document.getElementById('notif-popover').classList.toggle('hidden'); }
-    function toggleDateMenu(e) { e.stopPropagation(); document.getElementById('date-menu').classList.toggle('hidden'); }
 
-    function applyDatePreset(mode, label) {
-      document.getElementById('selected-date-label').textContent = label;
-      document.getElementById('date-menu').classList.add('hidden');
-      const mult = mode === 'month' ? 4 : (mode === 'week' ? 2 : 1);
-      saas.weeklyPatients[6].count = saas.kpis.patients_today * mult;
-      renderPatientsBars();
-      notify(`Date window: ${label}`);
-    }
-
-    const bedPeriods = ['Last 6 months • Oct 2026', 'Q3–Q4 • Fiscal 2026', 'Year-to-Date 2026'];
+    const bedPeriods = ['Last 6m', 'Fiscal 2026', 'YTD 2026'];
     let bedIdx = 0;
     function cycleBedTrendPeriod() {
       bedIdx = (bedIdx + 1) % bedPeriods.length;
@@ -2255,13 +2751,16 @@
       const box = document.getElementById('global-search-results');
       const items = [
         ...saas.patients.map(p => ({ icon: 'person', title: `${p.first} ${p.last} (${p.code})`, sub: `${p.department} • ${p.cin}`, go: () => { closeModal('search-modal'); openDmeDrawer(p.id); } })),
-        ...saas.labs.map(l => ({ icon: 'science', title: l.test_name, sub: `${l.code} • ${l.patient_name}`, go: () => { closeModal('search-modal'); switchTab('labs'); } })),
-        { icon: 'calendar_add_on', title: 'Book Specialist Slot', sub: 'Shortcut: N', go: () => { closeModal('search-modal'); openModal('appointment-modal'); } },
-        { icon: 'receipt_long', title: 'Issue New MAD Invoice', sub: 'Finance & CNSS', go: () => { closeModal('search-modal'); openModal('invoice-modal'); } }
+        ...saas.appointments.map(a => {
+          const p = saas.patients.find(x => Number(x.id) === Number(a.patient_id));
+          const d = a.date || TODAY_ISO;
+          return { icon: 'event', title: `${d} @ ${a.time} — ${p ? p.first + ' ' + p.last : a.doctor}`, sub: `${a.doctor} (${a.room})`, go: () => { closeModal('search-modal'); openDaySheet(d); } };
+        }),
+        { icon: 'calendar_add_on', title: 'Add New Appointment (Side Sheet)', sub: 'Shortcut: N', go: () => { closeModal('search-modal'); openDaySheetForAdd(saas.selectedDate); } }
       ].filter(x => `${x.title} ${x.sub}`.toLowerCase().includes(q));
 
       box.innerHTML = '';
-      items.forEach(it => {
+      items.slice(0, 10).forEach(it => {
         const b = document.createElement('button');
         b.className = 'w-full px-3 py-2 rounded-xl hover:bg-surface-container-low flex items-center justify-between text-left transition-colors';
         b.innerHTML = `<span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-primary">${it.icon}</span><strong class="text-on-surface">${it.title}</strong></span><span class="text-[10px] text-outline">${it.sub}</span>`;
@@ -2293,9 +2792,7 @@
         if (res.ok) {
           const payload = await res.json();
           if (payload.state) syncFromServerState(payload.state);
-          if (payload.meta) {
-            document.getElementById('api-latency-badge').textContent = `API • ${payload.meta.latency_ms}ms`;
-          }
+          if (payload.meta) document.getElementById('api-latency-badge').textContent = `API • ${payload.meta.latency_ms}ms`;
           if (announce) notify(`Loaded tenant: ${saas.tenantName}`);
           return;
         }
@@ -2317,7 +2814,6 @@
     document.addEventListener('click', () => {
       document.getElementById('branch-menu')?.classList.add('hidden');
       document.getElementById('notif-popover')?.classList.add('hidden');
-      document.getElementById('date-menu')?.classList.add('hidden');
     });
 
     document.addEventListener('keydown', (e) => {
@@ -2327,12 +2823,13 @@
         e.preventDefault();
         openModal('search-modal');
       } else if (e.key === 'Escape') {
-        ['appointment-modal', 'patient-modal', 'lab-modal', 'invoice-modal', 'payment-modal', 'print-modal', 'search-modal', 'settings-modal'].forEach(closeModal);
+        ['patient-modal', 'lab-modal', 'invoice-modal', 'payment-modal', 'print-modal', 'search-modal', 'settings-modal'].forEach(closeModal);
         closeDmeDrawer();
+        closeDaySheet();
       } else if (!inInput && !e.ctrlKey && !e.metaKey) {
         const map = { '1': 'overview', '2': 'treatment', '3': 'labs', '4': 'finance', '5': 'reports' };
         if (map[e.key]) switchTab(map[e.key]);
-        if (e.key.toLowerCase() === 'n') { e.preventDefault(); openModal('appointment-modal'); }
+        if (e.key.toLowerCase() === 'n') { e.preventDefault(); openDaySheetForAdd(saas.selectedDate); }
       }
     });
 
