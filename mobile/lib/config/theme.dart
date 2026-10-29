@@ -4,11 +4,9 @@ class CliniqoTheme {
   static const Color brandDark = Color(0xFF005131);
   static const Color brandPrimary = Color(0xFF0E5534);
   static const Color brandContainer = Color(0xFF176B45);
-  static const Color brandAccent = Color(0xFF88D7A8);
+  static const Color brandAccent = Color(0xFF10B981);
+  static const Color brandMint = Color(0xFF88D7A8);
   static const Color brandLight = Color(0xFFE8F5E9);
-  
-  static const Color royalBlue = Color(0xFF1D70F5);
-  static const Color royalPurple = Color(0xFF7C3AED);
 
   static const Color surfaceLowest = Color(0xFFFFFFFF);
   static const Color surfaceLow = Color(0xFFF2F4F2);

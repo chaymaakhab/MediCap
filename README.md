@@ -1,7 +1,7 @@
 # 🏥 Cliniqo Medical — Plateforme SaaS de Gestion des Centres Médicaux
 
 [![Release](https://img.shields.io/badge/Release-v4.8%20Enterprise-005131?style=for-the-badge)](https://github.com/chaymaakhab/cliniqo)
-[![Architecture](https://img.shields.io/badge/Architecture-Frontend%20•%20Backend%20•%20Mobile-1d70f5?style=for-the-badge)](https://github.com/chaymaakhab/cliniqo)
+[![Architecture](https://img.shields.io/badge/Architecture-Frontend%20•%20Backend%20•%20Mobile-10b981?style=for-the-badge)](https://github.com/chaymaakhab/cliniqo)
 [![Conformité](https://img.shields.io/badge/Conformit%C3%A9-CNDP%20(Loi%2009--08)%20•%20HIPAA%20•%20RGPD-176b45?style=for-the-badge)](https://github.com/chaymaakhab/cliniqo)
 
 **Cliniqo Medical** est une solution SaaS unifiée pour cliniques, polycliniques, cabinets de groupe et cabinets médicaux libéraux. Conçue pour répondre aux réalités du secteur de la santé au Maroc et à l'international (CNSS, AMO, mutuelles, tarification en Dirhams marocains MAD, conformité CNDP Loi 09-08).
@@ -86,7 +86,7 @@ Le fichier [`backend/database/seed.sql`](file:///c:/Users/pc/Desktop/cliniqo/bac
 ## 📱 3. Application Mobile Flutter (`mobile/`)
 
 - Conçue pour Android et iOS sous **Material 3**.
-- Palette officielle Cliniqo : Vert forêt impérial (`#005131`), conteneur émeraude (`#176B45`) et bleu royal (`#1D70F5`).
+- Palette officielle Cliniqo : Vert forêt impérial (`#005131`), conteneur émeraude (`#176B45`) et menthe clinique (`#10B981`).
 - Synchronisation temps réel avec l'API Laravel REST via [`ApiService`](file:///c:/Users/pc/Desktop/cliniqo/mobile/lib/services/api_service.dart).
 - Écran de garde pour praticiens avec carrousel des KPI et alertes labo en direct.
 
