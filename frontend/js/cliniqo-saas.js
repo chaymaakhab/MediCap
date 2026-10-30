@@ -1,7 +1,8 @@
 /**
  * Cliniqo Cloud — État Multi-Tenant / Multi-Branche, Authentification RBAC & Tableau de Bord (Sections 1, 3D, 3E, 4)
  */
-const API_BASE = 'http://127.0.0.1:8001/api/v1';
+let API_BASE = (window.CLINIQO_API_URL) 
+  || (typeof location !== 'undefined' && location.port === '8000' ? 'http://127.0.0.1:8000/api/v1' : 'http://127.0.0.1:8001/api/v1');
 const TODAY_ISO = '2026-10-29';
 
 function escHtml(v) {
@@ -76,22 +77,118 @@ window.saas = {
   lastReport: null
 };
 
+// ============================================================================
+// CONFIGURATION D'ISOLATION STRICTE DES 3 RÔLES DU CABINET (MONO-CABINET)
+// ============================================================================
+const ROLE_SPACES_CONFIG = {
+  owner: {
+    key: 'owner',
+    name: 'Dr. Jackson',
+    title: 'Propriétaire (Owner) — Fondateur',
+    avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120',
+    defaultTab: 'saas-owner',
+    allowedTabs: ['saas-owner', 'overview', 'patients', 'labs', 'finance', 'stock', 'reports'],
+    canManageSaas: true,
+    canManageFinance: true,
+    canAccessDme: true,
+    canPrescribe: true,
+    canManageStock: true,
+  },
+  admin: {
+    key: 'admin',
+    name: 'Sarah Benali',
+    title: 'Administrateur (Admin) — Gestionnaire',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120',
+    defaultTab: 'overview',
+    allowedTabs: ['overview', 'finance', 'stock', 'reports', 'patients', 'labs'],
+    canManageSaas: false, // ⛔ INTERDIT D'ACCÉDER À L'ESPACE OWNER
+    canManageFinance: true, // ✅ CAISSE MAD & FACTURATION
+    canAccessDme: false, // ⛔ SECRET MÉDICAL (DME MÉDICAL CONFIDENTIEL INTERDIT)
+    canPrescribe: false, // ⛔ INTERDIT DE PRESCRIRE DES ORDONNANCES
+    canManageStock: true, // ✅ GESTION DES STOCKS & DÉPENSES
+  },
+  docteur: {
+    key: 'docteur',
+    name: 'Dr. Alimi Jan',
+    title: 'Docteur (Médecin) — Cardiologue',
+    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120',
+    defaultTab: 'overview',
+    allowedTabs: ['overview', 'patients', 'labs', 'reports'],
+    canManageSaas: false, // ⛔ INTERDIT D'ACCÉDER À L'ESPACE OWNER
+    canManageFinance: false, // ⛔ CAISSE & FACTURATION RÉSERVÉES À L'ADMIN
+    canAccessDme: true, // ✅ DOSSIER MÉDICAL ÉLECTRONIQUE COMPLET
+    canPrescribe: true, // ✅ RÉDACTION D'ORDONNANCES QR CODE
+    canManageStock: false, // ⛔ DÉPENSES ADMINISTRATIVES RÉSERVÉES À L'ADMIN
+  }
+};
+
+function showRoleAccessDenied(opts) {
+  const modal = document.getElementById('role-denied-modal');
+  if (!modal) {
+    showToast(opts.reason || 'Accès refusé pour votre rôle.', 'error');
+    if (opts.redirectTab) switchTab(opts.redirectTab);
+    return;
+  }
+  
+  const titleEl = document.getElementById('denied-title');
+  const msgEl = document.getElementById('denied-message');
+  const curEl = document.getElementById('denied-current-role');
+  const reqEl = document.getElementById('denied-required-role');
+  const legEl = document.getElementById('denied-legal-ref');
+  const btnEl = document.getElementById('denied-action-btn');
+
+  if (titleEl) titleEl.textContent = opts.attemptedSpace || 'Espace Verrouillé';
+  if (msgEl) msgEl.textContent = opts.reason || 'Votre rôle actuel n\'a pas accès à cette section.';
+  if (curEl) curEl.textContent = opts.currentRoleLabel || 'Profil Actif';
+  if (reqEl) reqEl.textContent = opts.requiredRoleLabel || 'Rôle Exclusif Requis';
+  if (legEl) legEl.textContent = opts.legalRef || 'Séparation Stricte des Rôles (RBAC)';
+  if (btnEl) btnEl.textContent = opts.redirectTab ? `Retourner à (${opts.redirectTab})` : 'Fermer';
+
+  window._deniedRedirectTab = opts.redirectTab || 'overview';
+  modal.classList.remove('hidden');
+}
+
+function closeRoleDeniedModal() {
+  const modal = document.getElementById('role-denied-modal');
+  if (modal) modal.classList.add('hidden');
+  const target = window._deniedRedirectTab || 'overview';
+  if (target && target !== saas.activeTab) {
+    switchTab(target);
+  }
+}
+window.closeRoleDeniedModal = closeRoleDeniedModal;
+window.showRoleAccessDenied = showRoleAccessDenied;
+
 function can(perm) {
-  const role = saas.auth?.role;
-  if (role === 'owner' || role === 'admin_clinique' || role === 'saas_owner') return true;
-  if (role === 'admin') {
-    if (perm === 'cabinet.ownership') return false;
+  const role = saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
+  
+  if (role === 'owner' || role === 'saas_owner' || role === 'admin_clinique') {
     return true;
   }
+  
+  if (role === 'admin') {
+    // Admin gère l'accueil, planning, caisse MAD, facturation, dépenses et stock
+    // MAIS EST STRICTEMENT INTERDIT de l'Espace Owner et du Secret Médical (DME / Prescriptions)
+    const adminForbidden = [
+      'cabinet.ownership', 'saas.admin', 'subscriptions.manage', 'saas.manage',
+      'patients.dme', 'prescriptions.write', 'medical.diagnose'
+    ];
+    if (adminForbidden.includes(perm)) return false;
+    return true;
+  }
+  
   if (role === 'docteur' || role === 'medecin') {
+    // Docteur gère l'agenda clinique, DME, biologie et prescriptions
+    // MAIS EST STRICTEMENT INTERDIT de l'Espace Owner, de la Caisse MAD et des Dépenses
     const clinicalPerms = [
       'dashboard.view', 'appointments.read', 'appointments.write',
-      'patients.read', 'patients.write', 'patients.dme',
-      'labs.read', 'labs.write', 'documents.read', 'documents.write',
-      'reports.read'
+      'patients.read', 'patients.dme', 'prescriptions.write',
+      'labs.read', 'labs.write', 'labs.validate',
+      'documents.read', 'documents.write', 'reports.read'
     ];
     return clinicalPerms.includes(perm);
   }
+  
   return Array.isArray(saas.auth?.permissions) && saas.auth.permissions.includes(perm);
 }
 
@@ -143,7 +240,20 @@ async function apiCall(path, method = 'GET', body = null) {
   if (body !== null && method !== 'GET') {
     opts.body = JSON.stringify(body);
   }
-  const res = await fetch(`${API_BASE}${path}`, opts);
+
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${path}`, opts);
+  } catch (netErr) {
+    const altBase = API_BASE.includes(':8001') ? API_BASE.replace(':8001', ':8000') : API_BASE.replace(':8000', ':8001');
+    try {
+      res = await fetch(`${altBase}${path}`, opts);
+      API_BASE = altBase;
+    } catch (_) {
+      throw netErr;
+    }
+  }
+
   const ms = Math.max(1, Math.round(performance.now() - t0));
   const badge = document.getElementById('api-latency-badge');
   if (badge) badge.textContent = `SQLite • ${ms}ms`;
@@ -172,7 +282,7 @@ function applyBackendState(st) {
     return;
   }
 
-  saas.saasConsole = null;
+  saas.saasConsole = st.saas_console || null;
   if (st.tenant) {
     saas.tenant = st.tenant;
     saas.tenantId = st.tenant.id;
@@ -210,11 +320,13 @@ function applyBackendState(st) {
 
 function getTargetTabFromUrl() {
   const hash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
-  const validTabs = ['overview', 'patients', 'labs', 'finance', 'reports', 'stock', 'expenses'];
+  const validTabs = ['overview', 'patients', 'labs', 'finance', 'reports', 'stock', 'expenses', 'saas-owner'];
+  if (['saas-owner', 'abonnements', 'subscription'].includes(hash)) return 'saas-owner';
   if (validTabs.includes(hash)) return (hash === 'expenses' ? 'stock' : hash);
 
   const params = new URLSearchParams(window.location.search);
   const qTab = (params.get('tab') || '').trim().toLowerCase();
+  if (['saas-owner', 'abonnements', 'subscription'].includes(qTab)) return 'saas-owner';
   if (validTabs.includes(qTab)) return (qTab === 'expenses' ? 'stock' : qTab);
 
   return null;
@@ -227,7 +339,12 @@ async function initWorkspace() {
   }
 
   try {
-    const profRes = await fetch(`${API_BASE}/auth/profiles`, { headers: { Accept: 'application/json' } }).then(r => r.json()).catch(() => ({}));
+    let profRes = await fetch(`${API_BASE}/auth/profiles`, { headers: { Accept: 'application/json' } }).then(r => r.json()).catch(() => null);
+    if (!profRes) {
+      const altBase = API_BASE.includes(':8001') ? API_BASE.replace(':8001', ':8000') : API_BASE.replace(':8000', ':8001');
+      profRes = await fetch(`${altBase}/auth/profiles`, { headers: { Accept: 'application/json' } }).then(r => r.json()).catch(() => ({}));
+      if (profRes?.profiles) API_BASE = altBase;
+    }
     saas.authProfiles = profRes.profiles || [];
   } catch (_) {}
 
@@ -245,9 +362,19 @@ async function initWorkspace() {
     }
   }
 
+  const curRole = localStorage.getItem('cliniqo_user_role') || saas.auth?.role || 'owner';
+  applyRoleUiGuards(curRole);
+
   const finalTab = getTargetTabFromUrl() || saas.activeTab || 'overview';
   switchTab(finalTab);
 }
+
+window.addEventListener('hashchange', () => {
+  const t = getTargetTabFromUrl();
+  if (t && t !== saas.activeTab) {
+    switchTab(t);
+  }
+});
 
 // ============================================================================
 // NAVIGATION, HEADER, GRAND CENTRAL CENTRE & BRANCH SWITCHER, NOTIFICATIONS
@@ -415,6 +542,35 @@ function toggleRoleSelector(ev) {
   document.getElementById('quick-role-menu')?.classList.toggle('hidden');
 }
 
+function applyRoleUiGuards(roleKey) {
+  const role = roleKey || saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
+  const cfg = ROLE_SPACES_CONFIG[role] || ROLE_SPACES_CONFIG.owner;
+
+  // 1. Mise à jour de l'en-tête (Nom, Rôle, Avatar)
+  const dutyLabelEl = document.getElementById('duty-label');
+  const userNameEl = document.getElementById('header-user-name');
+  const avatarEl = document.getElementById('header-user-avatar');
+  if (dutyLabelEl) dutyLabelEl.textContent = cfg.title;
+  if (userNameEl) userNameEl.textContent = cfg.name;
+  if (avatarEl && cfg.avatar) avatarEl.src = cfg.avatar;
+
+  // 2. Masquage/Affichage des boutons de l'Espace Owner (Abonnements & Forfaits)
+  // Seul l'Owner a le droit de voir et de cliquer sur les Abonnements & Packs
+  const isOwner = (role === 'owner' || role === 'saas_owner' || role === 'admin_clinique');
+  document.querySelectorAll('button[onclick*="saas-owner"]').forEach(btn => {
+    btn.style.display = isOwner ? 'flex' : 'none';
+  });
+
+  // 3. Adaptations spécifiques par rôle
+  if (role === 'docteur') {
+    if (saas.activeTab === 'finance' || saas.activeTab === 'stock') {
+      const ctaLabel = document.getElementById('primary-cta-label');
+      if (ctaLabel) ctaLabel.textContent = 'Mode Consultation';
+    }
+  }
+}
+window.applyRoleUiGuards = applyRoleUiGuards;
+
 async function switchRoleFast(roleKey) {
   document.getElementById('quick-role-menu')?.classList.add('hidden');
   const roleMap = { owner: 1, admin: 2, docteur: 3 };
@@ -424,10 +580,22 @@ async function switchRoleFast(roleKey) {
     if (found) targetId = Number(found.id);
   }
   await switchAuthProfile(targetId);
+  localStorage.setItem('cliniqo_user_role', roleKey);
+  
+  applyRoleUiGuards(roleKey);
+
+  const roleCfg = ROLE_SPACES_CONFIG[roleKey] || ROLE_SPACES_CONFIG.owner;
+  // Redirection automatique si l'onglet en cours est interdit au nouveau rôle
+  if (!roleCfg.allowedTabs.includes(saas.activeTab)) {
+    switchTab(roleCfg.defaultTab);
+  } else if (saas.activeTab === 'patients') {
+    renderPatientsView();
+  }
+
   const roleLabels = {
-    owner: 'Propriétaire (Owner) — Accès Intégral au Cabinet',
-    admin: 'Administrateur (Admin) — Gestion, Accueil & Caisse',
-    docteur: 'Docteur (Médecin) — Dossier Médical & Consultations'
+    owner: 'Propriétaire (Owner) — Espace Abonnements, Packs & Supervision',
+    admin: 'Administrateur (Admin) — Gestion Complète du Cabinet & Caisse',
+    docteur: 'Docteur (Médecin) — Dossier Médical Électronique & Consultations'
   };
   showToast(`Rôle activé : ${roleLabels[roleKey] || roleKey}`);
 }
@@ -497,13 +665,39 @@ function switchTab(tab) {
     renderSaasOwnerConsole();
     return;
   }
-  const validTabs = ['overview', 'patients', 'labs', 'finance', 'stock', 'reports'];
-  if (!validTabs.includes(tab)) tab = 'overview';
+
+  const role = saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
+  const roleCfg = ROLE_SPACES_CONFIG[role] || ROLE_SPACES_CONFIG.owner;
+
+  // Strict RBAC Separation Check : Espace Owner réservé au Propriétaire (Dr. Jackson)
+  if (tab === 'saas-owner') {
+    if (!roleCfg.canManageSaas) {
+      showRoleAccessDenied({
+        attemptedSpace: "Espace Owner — Abonnements & Packs SaaS",
+        currentRoleLabel: roleCfg.title,
+        requiredRoleLabel: "Propriétaire (Dr. Jackson)",
+        reason: "La gestion contractuelle des forfaits, abonnements SaaS, renouvellements et licences structurelles du cabinet est strictement réservée au Propriétaire du cabinet (Dr. Jackson).",
+        legalRef: "Séparation Contractuelle & Propriété SaaS",
+        redirectTab: roleCfg.defaultTab
+      });
+      return;
+    }
+  }
+
+  // Avertissement de sécurité Caisse pour le Docteur
+  if (tab === 'finance' && role === 'docteur') {
+    showToast('Mode consultation : la caisse et la facturation sont gérées par Sarah Benali (Admin).', 'info');
+  }
+
+  const validTabs = ['overview', 'patients', 'labs', 'finance', 'stock', 'reports', 'saas-owner'];
+  if (!validTabs.includes(tab)) tab = roleCfg.defaultTab || 'overview';
 
   saas.activeTab = tab;
   document.querySelectorAll('.saas-view').forEach(s => s.classList.add('hidden'));
   if (tab === 'stock') {
     document.getElementById('view-finance')?.classList.remove('hidden');
+  } else if (tab === 'saas-owner') {
+    document.getElementById('view-saas-owner')?.classList.remove('hidden');
   } else {
     document.getElementById(`view-${tab}`)?.classList.remove('hidden');
   }
@@ -522,7 +716,8 @@ function switchTab(tab) {
     labs: saas.tenant?.enable_laboratory ? 'Laboratoire & Biologie Médicale' : 'Laboratoire (Module Désactivé)',
     finance: 'Facturation & Télétransmission CNSS',
     stock: 'Dépenses, Charges & Stock Pharmacie',
-    reports: 'Rapports Analytiques, Financiers & Audit CNDP'
+    reports: 'Rapports Analytiques, Financiers & Audit CNDP',
+    'saas-owner': 'Gestion des Abonnements, Forfaits & Console Propriétaire'
   };
   const ctas = {
     overview: 'Nouveau Rendez-vous',
@@ -530,7 +725,8 @@ function switchTab(tab) {
     labs: 'Prescrire Bilan',
     finance: 'Nouvelle Facture',
     stock: 'Ajouter Produit',
-    reports: 'Imprimer Rapport PDF'
+    reports: 'Imprimer Rapport PDF',
+    'saas-owner': 'Provisionner Clinique'
   };
   const hEl = document.getElementById('page-heading');
   if (hEl) hEl.textContent = headings[tab] || 'Cliniqo Cloud';
@@ -555,6 +751,10 @@ function switchTab(tab) {
     if (typeof switchFinanceSubTab === 'function') switchFinanceSubTab('stock');
   } else if (tab === 'reports' && typeof loadReportsSummary === 'function') {
     loadReportsSummary();
+  } else if (tab === 'saas-owner') {
+    document.querySelectorAll('.saas-view').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-saas-owner')?.classList.remove('hidden');
+    if (typeof renderSaasOwnerConsole === 'function') renderSaasOwnerConsole();
   }
 }
 
@@ -575,10 +775,39 @@ function handlePrimaryCta() {
     populatePatientSelects();
     openModal('lab-modal');
   } else if (saas.activeTab === 'finance' || saas.activeTab === 'stock') {
-    if (saas.financeSubTab === 'expenses') openModal('expense-modal');
-    else if (saas.financeSubTab === 'stock') openModal('stock-modal');
-    else if (saas.financeSubTab === 'documents') { populatePatientSelects(); openModal('document-modal'); }
-    else { populatePatientSelects(); openModal('invoice-modal'); }
+    if (saas.financeSubTab === 'expenses') {
+      if (!can('expenses.write')) {
+        showRoleAccessDenied({
+          attemptedSpace: 'Dépenses & Trésorerie du Cabinet',
+          currentRoleLabel: 'Docteur (Dr. Alimi Jan)',
+          requiredRoleLabel: 'Administrateur (Sarah Benali)',
+          reason: 'L\'enregistrement des dépenses et charges du cabinet est confié à la gestion administrative (Sarah Benali).',
+          legalRef: 'Délégation Administrative & Caisse',
+          redirectTab: 'overview'
+        });
+        return;
+      }
+      openModal('expense-modal');
+    } else if (saas.financeSubTab === 'stock') {
+      openModal('stock-modal');
+    } else if (saas.financeSubTab === 'documents') {
+      populatePatientSelects();
+      openModal('document-modal');
+    } else {
+      if (!can('finance.write')) {
+        showRoleAccessDenied({
+          attemptedSpace: 'Facturation & Caisse MAD',
+          currentRoleLabel: 'Docteur (Dr. Alimi Jan)',
+          requiredRoleLabel: 'Administrateur (Sarah Benali)',
+          reason: 'L\'encaissement et l\'émission de factures sont réservés à l\'Administration et à la caisse (Sarah Benali).',
+          legalRef: 'Séparation Médicale & Financière',
+          redirectTab: 'overview'
+        });
+        return;
+      }
+      populatePatientSelects();
+      openModal('invoice-modal');
+    }
   } else if (saas.activeTab === 'reports') {
     if (typeof printCurrentReportPdf === 'function') printCurrentReportPdf();
   }
@@ -1075,9 +1304,22 @@ function renderPatientsView() {
       <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded-full bg-secondary-container/70 text-primary text-[10.5px] font-bold">${escHtml(p.department)}</span></td>
       <td class="py-2.5 px-2 text-on-surface-variant">${escHtml(p.coverage)}</td>
       <td class="py-2.5 pl-2 text-right space-x-1">
-        ${p.dme_authorized
-          ? `<button onclick="openDmeDrawer(${p.id})" class="px-3 py-1 rounded-full bg-primary text-white text-[10.5px] font-bold hover:bg-primary-hover">Ouvrir DME</button>`
-          : `<span class="px-2.5 py-1 rounded-full bg-surface-container text-outline text-[10px] font-semibold" title="Réservé aux médecins (RBAC)">DME Protégé</span>`
+        ${(can('patients.dme') && p.dme_authorized)
+          ? `<button onclick="openDmeDrawer(${p.id})" class="px-3 py-1 rounded-full bg-primary text-white text-[10.5px] font-bold hover:bg-primary-hover flex items-center gap-1 shadow-2xs">
+               <span class="material-symbols-outlined text-[13px]">clinical_notes</span>
+               <span>Ouvrir DME</span>
+             </button>`
+          : `<button onclick="showRoleAccessDenied({
+                attemptedSpace: 'Dossier Médical Électronique (DME)',
+                currentRoleLabel: 'Administrateur (Sarah Benali)',
+                requiredRoleLabel: 'Docteur (Dr. Alimi Jan)',
+                reason: 'En vertu de la Loi 131-13 (Secret Médical & Exercice de la Médecine) et de la CNDP, l\\'accès aux antécédents médicaux, observations cliniques et ordonnances est strictement réservé au corps médical.',
+                legalRef: 'Secret Médical • Loi 131-13 & Code de Déontologie',
+                redirectTab: 'patients'
+              })" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-bold hover:bg-amber-100 flex items-center gap-1" title="Cliquez pour voir les restrictions de secret médical">
+               <span class="material-symbols-outlined text-[12px] text-amber-600">lock</span>
+               <span>Secret Médical</span>
+             </button>`
         }
       </td>
     </tr>

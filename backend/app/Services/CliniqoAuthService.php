@@ -15,30 +15,35 @@ use PDO;
 class CliniqoAuthService
 {
     public const ROLE_PERMISSIONS = [
-        // 3 Rôles Officiels Cabinet Médical Cliniqo (Solo / Privé)
+        // 3 Rôles Officiels Cabinet Médical Cliniqo (Solo / Privé) - Isolation Stricte
         'owner' => [
             'dashboard.view', 'appointments.read', 'appointments.write', 'doctors.write',
             'patients.read', 'patients.write', 'patients.dme',
             'labs.read', 'labs.write', 'labs.validate',
             'finance.read', 'finance.write', 'expenses.read', 'expenses.write',
             'stock.read', 'stock.write', 'documents.read', 'documents.write',
+            'prescriptions.write',
             'reports.read', 'reports.export', 'settings.manage', 'users.manage',
             'branches.manage', 'backups.manage', 'audit.read', 'cabinet.ownership',
+            'saas.admin', 'subscriptions.manage',
         ],
         'admin' => [
             'dashboard.view', 'appointments.read', 'appointments.write', 'doctors.write',
             'patients.read', 'patients.write',
-            'labs.read', 'labs.write',
+            'labs.read',
             'finance.read', 'finance.write', 'expenses.read', 'expenses.write',
-            'stock.read', 'stock.write', 'documents.read', 'documents.write',
+            'stock.read', 'stock.write', 'documents.read',
             'reports.read', 'reports.export', 'settings.manage', 'users.manage',
             'backups.manage',
+            // NOTE: 'patients.dme', 'prescriptions.write', 'cabinet.ownership', 'saas.admin' SONT STRICTEMENT INTERDITS À L'ADMIN (SECRET MÉDICAL & PROPRIÉTÉ)
         ],
         'docteur' => [
             'dashboard.view', 'appointments.read', 'appointments.write',
-            'patients.read', 'patients.write', 'patients.dme',
-            'labs.read', 'labs.write', 'documents.read', 'documents.write',
+            'patients.read', 'patients.dme',
+            'labs.read', 'labs.write', 'labs.validate',
+            'documents.read', 'documents.write', 'prescriptions.write',
             'reports.read',
+            // NOTE: 'finance.write', 'expenses.write', 'stock.write', 'cabinet.ownership', 'saas.admin' SONT STRICTEMENT INTERDITS AU DOCTEUR (GESTION ADMIN & PROPRIÉTÉ)
         ],
 
         // Compatibilité avec les profils existants
@@ -296,6 +301,30 @@ class CliniqoAuthService
                 $request->ip() ?? '127.0.0.1'
             );
             self::abortJson(403, 'INSUFFICIENT_ROLE_PERMISSIONS', "Accès refusé : votre rôle ({$ctx['role']}) ne dispose pas de la permission requise ({$permission}).");
+        }
+
+        return $ctx;
+    }
+
+    public static function requireRole(Request $request, array $allowedRoles, string $actionLabel = 'cette action'): array
+    {
+        $ctx = $request->attributes->get('cliniqo_ctx') ?? self::resolveStaffContext($request);
+        $role = (string) ($ctx['role'] ?? '');
+
+        if (!in_array($role, $allowedRoles, true)) {
+            self::audit(
+                $ctx['tenant_id'],
+                $ctx['branch_id'],
+                (int) ($ctx['user']['id'] ?? 0),
+                (string) ($ctx['user']['name'] ?? 'Utilisateur'),
+                $role,
+                'ROLE_GUARD_VIOLATION',
+                'security',
+                implode(',', $allowedRoles),
+                "Tentative d'accès non autorisé à {$actionLabel} par le rôle [{$role}]",
+                $request->ip() ?? '127.0.0.1'
+            );
+            self::abortJson(403, 'ROLE_ACCESS_DENIED', "Accès refusé : {$actionLabel} est strictement réservé aux rôles (" . implode(', ', $allowedRoles) . "). Votre rôle est : {$role}.");
         }
 
         return $ctx;

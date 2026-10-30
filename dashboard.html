@@ -1,0 +1,2089 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr" class="scroll-smooth">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Cliniqo Cloud | Tableau de Bord Médical &amp; Pilotage Clinique</title>
+  <meta name="description" content="Espace SaaS Cliniqo Medical : tableau de bord clinique, dossiers médicaux électroniques (DME), laboratoire, facturation MAD et télétransmission CNSS/AMO."/>
+
+  <!-- Official Green Cliniqo Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='36' y='8' width='28' height='84' rx='14' fill='%23005131'/%3E%3Crect x='8' y='36' width='36' height='28' rx='14' fill='%23005131'/%3E%3Crect x='44' y='36' width='48' height='28' rx='14' fill='%2310B981'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%23003820' fill-opacity='0.25'/%3E%3Cpath d='M 60 41.5 C 57.5 39 53.5 38 49 38 C 42 38 37 43 37 50 C 37 57 42 62 49 62 C 53.8 62 57.6 61 60 58.5' stroke='%23FFFFFF' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"/>
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#005131",
+            "primary-container": "#176b45",
+            "primary-hover": "#0e5534",
+            "primary-light": "#88d7a8",
+            "primary-fixed": "#a4f4c3",
+            "primary-fixed-dim": "#88d7a8",
+            "on-primary": "#ffffff",
+            "on-primary-fixed": "#002111",
+            "secondary": "#57615c",
+            "secondary-container": "#dbe5df",
+            "secondary-fixed-dim": "#bfc9c3",
+            "tertiary": "#364b40",
+            "tertiary-container": "#4e6357",
+            "brand-dark-green": "#005131",
+            "brand-soft-green": "#10b981",
+            "brand-soft-mint": "#34d399",
+            "surface": "#f8faf8",
+            "surface-canvas": "#eef2ef",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f2",
+            "surface-container": "#eceeec",
+            "surface-container-high": "#e6e9e7",
+            "surface-container-highest": "#e1e3e1",
+            "on-surface": "#191c1b",
+            "on-surface-variant": "#3f4942",
+            "outline": "#6f7a71",
+            "outline-variant": "#bfc9c0",
+            "error": "#ba1a1a",
+            "error-container": "#ffdad6"
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif']
+          },
+          boxShadow: {
+            "bento": "0 4px 18px -4px rgba(0, 56, 32, 0.045), 0 1px 3px rgba(0, 56, 32, 0.025)",
+            "pill": "0 3px 12px -2px rgba(0, 56, 32, 0.05)",
+            "floatCard": "0 14px 32px -8px rgba(0, 56, 32, 0.12), 0 2px 6px rgba(0, 56, 32, 0.04)",
+            "emeraldGlow": "0 6px 18px -4px rgba(0, 81, 49, 0.34)"
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #eef2ef;
+        color: #191c1b;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      }
+    }
+
+    .saas-bg {
+      background-color: #eef2ef;
+      background-image:
+        radial-gradient(at 10% 0%, rgba(164, 244, 195, 0.24) 0px, transparent 44%),
+        radial-gradient(at 90% 8%, rgba(219, 229, 223, 0.55) 0px, transparent 46%),
+        radial-gradient(at 50% 100%, rgba(136, 215, 168, 0.14) 0px, transparent 50%);
+    }
+
+    .bento-card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid rgba(191, 201, 192, 0.36);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .bento-card:hover {
+      border-color: rgba(0, 81, 49, 0.22);
+      box-shadow: 0 10px 24px -6px rgba(0, 56, 32, 0.075);
+    }
+
+    .slim-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+    .slim-scroll::-webkit-scrollbar-track { background: transparent; }
+    .slim-scroll::-webkit-scrollbar-thumb { background: #bfc9c0; border-radius: 9999px; }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+    .bubble-float { animation: floatSlow 5.5s ease-in-out infinite; }
+    .bubble-float-d1 { animation: floatSlow 6.2s ease-in-out 0.9s infinite; }
+    .bubble-float-d2 { animation: floatSlow 5.8s ease-in-out 1.7s infinite; }
+
+    @keyframes slideLeft {
+      from { transform: translateX(100%); opacity: 0.7; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .drawer-enter { animation: slideLeft 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    @keyframes popIn {
+      from { transform: scale(0.97) translateY(5px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .modal-pop { animation: popIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    @keyframes ecgMove { to { stroke-dashoffset: -120; } }
+    .ecg-trace { stroke-dasharray: 60 12; animation: ecgMove 2.5s linear infinite; }
+  </style>
+</head>
+
+<body class="saas-bg font-sans antialiased min-h-screen selection:bg-primary selection:text-white">
+
+  <div id="hover-tip" class="fixed z-[90] pointer-events-none hidden bg-on-primary-fixed text-white text-[10.5px] font-semibold px-2.5 py-1 rounded-lg shadow-lg whitespace-nowrap"></div>
+
+  <div class="max-w-[1160px] mx-auto px-3.5 sm:px-5 pt-3 pb-7">
+
+    <!-- ========================================================================= -->
+    <!-- EN-TÊTE CAPSULE FLOTTANTE CLINIQO (100% FRANÇAIS) -->
+    <!-- ========================================================================= -->
+    <header class="flex flex-wrap items-center justify-between gap-2.5 mb-3.5">
+
+      <!-- Gauche : Logo Vert Cliniqo + Sélecteur Multi-Cliniques -->
+      <div class="flex items-center gap-2 relative">
+        <a href="index.html" class="flex items-center gap-2 group focus:outline-none" title="Retour à la page d'accueil">
+          <div class="w-8 h-8 rounded-xl bg-surface-container-lowest border border-outline-variant/40 shadow-pill flex items-center justify-center group-hover:scale-105 transition-transform">
+            <svg class="w-5 h-5" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="36" y="8" width="28" height="84" rx="14" fill="#005131"/>
+              <rect x="8" y="36" width="36" height="28" rx="14" fill="#005131"/>
+              <rect x="44" y="36" width="48" height="28" rx="14" fill="#10B981"/>
+              <circle cx="50" cy="50" r="14" fill="#003820" fill-opacity="0.22"/>
+              <path d="M 60 41.5 C 57.5 39 53.5 38 49 38 C 42 38 37 43 37 50 C 37 57 42 62 49 62 C 53.8 62 57.6 61 60 58.5" stroke="#FFFFFF" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="leading-none">
+            <span class="text-[17px] font-extrabold tracking-tight text-on-surface group-hover:text-primary transition-colors">Cliniqo</span>
+            <span class="hidden xl:inline-block ml-1 text-[8.5px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">SaaS</span>
+          </div>
+        </a>
+
+        <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest border border-outline-variant/35 hover:border-primary/40 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-pill transition-all" title="Détails du Cabinet Médical">
+          <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-pulse"></span>
+          <span id="active-branch-name" class="font-bold text-on-surface">Cabinet Médical Cliniqo</span>
+          <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Solo</span>
+          <span class="material-symbols-outlined text-[13px] text-outline">info</span>
+        </button>
+
+        <div id="branch-menu" onclick="event.stopPropagation()" class="hidden absolute left-0 top-10 w-72 bg-surface-container-lowest rounded-2xl shadow-floatCard border border-outline-variant/40 p-2 z-50 modal-pop">
+          <div class="p-3 bg-secondary-container/35 rounded-xl border border-primary/20 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-primary">Cabinet Médical Privé</span>
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary text-white">Mono-Cabinet</span>
+            </div>
+            <h4 class="text-xs font-extrabold text-on-surface">Cabinet Médical Cliniqo</h4>
+            <p class="text-[10.5px] text-outline leading-tight">142 Boulevard Zerktouni, Quartier Maarif, 20100 Casablanca</p>
+            <div class="flex items-center gap-1.5 pt-1 text-[10px] font-semibold text-primary">
+              <span class="material-symbols-outlined text-[13px] text-brand-soft-green">verified</span>
+              <span>Agréé Loi 131-13 • Conformité CNDP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Centre : Navigation Principale (Tableau de bord -> Rendez-vous -> Patients & DME -> Laboratoire -> Facturation & CNSS -> Dépenses & Stock -> Rapports -> Paramétrage) -->
+      <nav aria-label="Navigation Principale" class="order-3 md:order-2 w-full md:w-auto overflow-x-auto slim-scroll">
+        <div class="inline-flex items-center bg-surface-container-lowest border border-outline-variant/35 rounded-full p-1 shadow-pill gap-0.5 min-w-max">
+          <button id="tab-overview" onclick="switchTab('overview')" class="saas-tab px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow transition-all">
+            Tableau de bord
+          </button>
+          <!-- Page dédiée aux Rendez-vous juste après le Tableau de bord ! -->
+          <a href="rendez-vous.html" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
+            <span>Rendez-vous</span>
+            <span id="badge-rdv-nav" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/75 text-primary">17</span>
+          </a>
+          <button id="tab-patients" onclick="switchTab('patients')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
+            Patients &amp; DME
+            <span id="badge-patients" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary">5</span>
+          </button>
+          <button id="tab-labs" onclick="switchTab('labs')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
+            Laboratoire
+            <span id="badge-labs" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-error-container text-error">1 URGENT</span>
+          </button>
+          <button id="tab-finance" onclick="switchTab('finance')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Facturation &amp; CNSS
+          </button>
+
+          <!-- Dépenses & Stock avec badge dynamique et menu rapide UX -->
+          <div class="relative group">
+            <button id="tab-stock" onclick="switchTab('stock')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Dépenses & Pharmacie / Stock">
+              <span>Dépenses &amp; Stock</span>
+              <span id="badge-stock" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary group-hover:scale-105 transition-transform">12</span>
+              <span class="material-symbols-outlined text-[13px] text-outline transition-transform duration-200 group-hover:rotate-180">expand_more</span>
+            </button>
+            <div class="absolute top-full left-1/2 -translate-x-1/2 pt-1.5 w-52 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+              <div class="bg-surface-container-lowest/98 backdrop-blur-xl border border-outline-variant/35 rounded-2xl shadow-xl p-1.5 space-y-0.5 text-left">
+                <button onclick="switchTab('stock'); if(typeof switchFinanceSubTab==='function') switchFinanceSubTab('stock');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">inventory_2</span>
+                  <div class="flex-1 flex items-center justify-between">
+                    <span>Stock Médical</span>
+                    <span id="dropdown-stock-alert" class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">12 art.</span>
+                  </div>
+                </button>
+                <button onclick="switchTab('stock'); if(typeof switchFinanceSubTab==='function') switchFinanceSubTab('expenses');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">receipt_long</span>
+                  <span>Dépenses &amp; Charges</span>
+                </button>
+                <button onclick="switchTab('stock'); if(typeof switchFinanceSubTab==='function') switchFinanceSubTab('documents');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">description</span>
+                  <span>Pièces &amp; Documents</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button id="tab-reports" onclick="switchTab('reports')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Rapports
+          </button>
+
+          <!-- Paramétrage avec icône rotative et sous-onglets directs -->
+          <div class="relative group">
+            <button id="tab-settings" onclick="openSettingsWithTab('general')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1 group/btn" title="Paramétrage & Administration">
+              <span class="material-symbols-outlined text-[13.5px] text-outline group-hover/btn:text-primary group-hover/btn:rotate-45 transition-transform duration-300">settings</span>
+              <span>Paramétrage</span>
+              <span class="material-symbols-outlined text-[13px] text-outline transition-transform duration-200 group-hover:rotate-180">expand_more</span>
+            </button>
+            <div class="absolute top-full right-0 pt-1.5 w-56 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+              <div class="bg-surface-container-lowest/98 backdrop-blur-xl border border-outline-variant/35 rounded-2xl shadow-xl p-1.5 space-y-0.5 text-left">
+                <button onclick="openSettingsWithTab('general')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">apartment</span>
+                  <span>Établissement &amp; Infos</span>
+                </button>
+                <button onclick="openSettingsWithTab('branches')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">location_city</span>
+                  <span>Branches &amp; Sites</span>
+                </button>
+                <button onclick="openSettingsWithTab('users')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">badge</span>
+                  <span>Utilisateurs &amp; RBAC</span>
+                </button>
+                <button onclick="openSettingsWithTab('rates')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">payments</span>
+                  <span>Tarifs des Actes</span>
+                </button>
+                <button onclick="openSettingsWithTab('pdf')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                  <span class="material-symbols-outlined text-[15px] text-primary">picture_as_pdf</span>
+                  <span>Modèles PDF &amp; Entêtes</span>
+                </button>
+                <button onclick="openSettingsWithTab('security')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors border-t border-surface-container pt-1.5">
+                  <span class="material-symbols-outlined text-[15px] text-primary">security</span>
+                  <span>Sécurité &amp; Backups</span>
+                </button>
+                <button onclick="switchTab('saas-owner')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-primary/5 hover:bg-secondary-container text-[11px] font-bold text-primary transition-colors border-t border-surface-container pt-1.5">
+                  <span class="material-symbols-outlined text-[15px] text-primary">card_membership</span>
+                  <span>Abonnements &amp; Forfaits</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Droite : Recherche + Profil Médecin -->
+      <div class="order-2 md:order-3 flex items-center gap-2 relative">
+        <button onclick="openModal('search-modal')" title="Recherche globale (Ctrl+K)" class="h-8 px-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/35 shadow-pill flex items-center gap-1.5 text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all text-[11px] font-semibold">
+          <span class="material-symbols-outlined text-[15px]">search</span>
+          <span class="hidden sm:inline text-outline">Rechercher</span>
+          <kbd class="hidden sm:inline text-[9.5px] px-1 rounded bg-surface-container-low text-outline">Ctrl+K</kbd>
+        </button>
+
+        <div class="relative bg-surface-container-lowest border border-outline-variant/35 rounded-full pl-1 pr-1.5 py-1 shadow-pill flex items-center gap-2">
+          <!-- Sélecteur Rapide de Rôle (Owner / Admin / Docteur) -->
+          <button onclick="toggleRoleSelector(event)" title="Changer de rôle (Owner / Admin / Docteur)" class="flex items-center gap-2 text-left pr-0.5 group">
+            <div class="relative">
+              <img id="header-user-avatar" class="w-7 h-7 rounded-full object-cover ring-1 ring-primary/25" src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120" alt="Dr. Jackson"/>
+              <span id="duty-dot" class="w-2 h-2 rounded-full bg-brand-soft-green ring-1 ring-white absolute bottom-0 right-0"></span>
+            </div>
+            <div class="leading-none">
+              <span id="duty-label" class="block text-[9.5px] text-outline font-medium">Propriétaire (Owner)</span>
+              <span id="header-user-name" class="block text-[11.5px] font-bold text-on-surface group-hover:text-primary transition-colors mt-0.5">Dr. Jackson</span>
+            </div>
+            <span class="material-symbols-outlined text-[14px] text-outline group-hover:text-primary transition-colors">unfold_more</span>
+          </button>
+
+          <div class="flex items-center gap-1">
+            <a href="espace-patient.html" target="_blank" title="Ouvrir le Portail Patient Sécurisé" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
+              <span class="material-symbols-outlined text-[15px]">health_and_safety</span>
+            </a>
+            <button onclick="toggleNotifications(event)" title="Alertes et notifications cliniques" class="relative w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
+              <span class="material-symbols-outlined text-[15px]">notifications</span>
+              <span id="notif-dot" class="w-1.5 h-1.5 rounded-full bg-error absolute top-1.5 right-1.5 hidden"></span>
+            </button>
+            <button onclick="openModal('settings-modal')" title="Paramètres du Cabinet" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
+              <span class="material-symbols-outlined text-[15px]">settings</span>
+            </button>
+          </div>
+
+          <!-- Menu Déroulant Instantané des 3 Rôles Officiels -->
+          <div id="quick-role-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 top-11 w-64 bg-surface-container-lowest rounded-2xl shadow-floatCard border border-outline-variant/40 p-2 z-50 modal-pop space-y-1">
+            <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-outline flex items-center justify-between">
+              <span>Rôles du Cabinet</span>
+              <span class="text-[9px] font-semibold text-primary">1-Clic Rapide</span>
+            </div>
+            <button onclick="switchRoleFast('owner')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
+              <div class="w-8 h-8 rounded-full bg-amber-500/15 text-amber-700 flex items-center justify-center font-bold text-sm">👑</div>
+              <div class="flex-1 leading-tight">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Owner</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">Propriétaire</span>
+                </div>
+                <span class="text-[10px] text-outline">Dr. Jackson • Plein Pouvoir</span>
+              </div>
+            </button>
+            <button onclick="switchRoleFast('admin')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
+              <div class="w-8 h-8 rounded-full bg-emerald-500/15 text-primary flex items-center justify-center font-bold text-sm">💼</div>
+              <div class="flex-1 leading-tight">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Admin</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Gestionnaire</span>
+                </div>
+                <span class="text-[10px] text-outline">Sarah Benali • Accueil &amp; Caisse</span>
+              </div>
+            </button>
+            <button onclick="switchRoleFast('docteur')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
+              <div class="w-8 h-8 rounded-full bg-blue-500/15 text-blue-700 flex items-center justify-center font-bold text-sm">🩺</div>
+              <div class="flex-1 leading-tight">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Docteur</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800">Médecin</span>
+                </div>
+                <span class="text-[10px] text-outline">Dr. Alimi Jan • Consultations &amp; DME</span>
+              </div>
+            </button>
+            <div class="pt-1.5 border-t border-surface-container mt-1">
+              <button onclick="document.getElementById('quick-role-menu').classList.add('hidden'); switchTab('saas-owner');" class="w-full text-left px-2 py-1.5 rounded-xl bg-primary/5 hover:bg-secondary-container text-primary flex items-center justify-between transition-colors">
+                <span class="text-[10.5px] font-bold flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[14px]">card_membership</span>
+                  <span>Abonnements &amp; Forfaits</span>
+                </span>
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary text-white">Owner</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="notif-popover" onclick="event.stopPropagation()" class="hidden absolute right-0 top-11 w-80 bg-surface-container-lowest rounded-2xl shadow-floatCard border border-outline-variant/40 p-3 z-50 space-y-2.5 modal-pop">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11.5px] font-bold text-on-surface">Notifications</span>
+              <span id="api-latency-badge" class="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">SQLite Connecté</span>
+            </div>
+            <button onclick="markAllNotifsRead()" class="text-[10px] font-bold text-primary hover:underline">Tout marquer lu</button>
+          </div>
+          <div id="notif-items-list" class="space-y-1.5 max-h-72 overflow-y-auto slim-scroll"></div>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- SOUS-EN-TÊTE COMPACT -->
+    <!-- ========================================================================= -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3.5">
+      <div class="flex items-baseline gap-2.5">
+        <h1 id="page-heading" class="text-[19px] sm:text-[21px] font-extrabold tracking-tight text-on-surface leading-none">
+          Surveillance Diagnostique
+        </h1>
+        <span id="tenant-subtitle-pill" class="hidden md:inline-flex items-center gap-1 text-[10.5px] font-semibold text-outline">
+          • Casablanca • Médecine Générale &amp; Cardiologie
+        </span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="rendez-vous.html" title="Ouvrir la page dédiée aux Rendez-vous" class="bg-primary hover:bg-primary-hover text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold flex items-center gap-1.5 shadow-xs transition-colors">
+          <span class="material-symbols-outlined text-[14px] text-primary-light">calendar_month</span>
+          <span>29-10-2026</span>
+          <span id="today-rdv-pill" class="px-1.5 py-0.2 rounded-full bg-white/15 text-[10px] font-bold">6 RDV</span>
+        </a>
+
+        <button onclick="exportActiveCsv()" class="bg-surface-container-lowest hover:bg-secondary-container/60 border border-outline-variant/40 text-on-surface rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold flex items-center gap-1.5 shadow-pill transition-all">
+          <span class="material-symbols-outlined text-[15px] text-primary">download</span>
+          <span>Exporter CSV</span>
+        </button>
+
+        <button id="primary-cta-btn" onclick="handlePrimaryCta()" class="bg-secondary-container hover:bg-primary text-primary hover:text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-bold flex items-center gap-1 shadow-pill transition-all">
+          <span class="material-symbols-outlined text-[15px]">add</span>
+          <span id="primary-cta-label">Nouveau Rendez-vous</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- VUE 1 : TABLEAU DE BORD (BENTO MÉDICAL COMPACT EN FRANÇAIS) -->
+    <!-- ========================================================================= -->
+    <section id="view-overview" class="saas-view space-y-3">
+
+      <!-- LIGNE 1 : 4 CARTES KPI COMPACTES -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+
+        <!-- CARTE 1 : Patients Aujourd'hui (Section 4A) -->
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[185px]">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[12.5px] font-semibold text-on-surface-variant">Patients Aujourdhui</span>
+              <button onclick="switchTab('patients')" title="Voir les dossiers patients" class="text-outline hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[17px]">more_horiz</span>
+              </button>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span id="kpi-patients-val" class="text-[24px] font-extrabold tracking-tight text-on-surface leading-none">0</span>
+              <span id="kpi-patients-day-hint" class="text-[10px] font-bold text-primary bg-secondary-container/70 px-1.5 py-0.5 rounded-md">29 Octobre</span>
+            </div>
+            <div id="kpi-patients-breakdown" class="flex flex-wrap gap-1 mt-1 text-[9.5px]"></div>
+          </div>
+          <div class="pt-2">
+            <div id="patients-bars-grid" class="grid grid-cols-7 gap-1.5 items-end h-[74px]"></div>
+          </div>
+        </div>
+
+        <!-- CARTE 2 : Analyses Réalisées (Section 4B) -->
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[185px]">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span id="card-labs-title" class="text-[12.5px] font-semibold text-on-surface-variant">Analyses Réalisées</span>
+              <button onclick="switchTab('labs')" title="Ouvrir le Laboratoire" class="text-outline hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[17px]">more_horiz</span>
+              </button>
+            </div>
+            <div class="flex items-baseline justify-between">
+              <span id="kpi-tests-val" class="text-[24px] font-extrabold tracking-tight text-on-surface leading-none">0</span>
+              <span id="heatmap-hover-label" class="text-[10px] font-semibold text-primary truncate max-w-[125px]">Analyses</span>
+            </div>
+          </div>
+          <div class="relative pt-2">
+            <div id="tests-heatmap-grid" class="grid grid-cols-4 gap-1"></div>
+          </div>
+        </div>
+
+        <!-- CARTE 3 : Recettes du Jour (Section 4C) -->
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[185px]">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[12.5px] font-semibold text-on-surface-variant">Recettes du Jour</span>
+              <button onclick="switchTab('finance')" title="Ouvrir la Facturation" class="text-outline hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-[17px]">more_horiz</span>
+              </button>
+            </div>
+            <div class="flex items-baseline gap-1.5">
+              <span id="kpi-revenue-val" class="text-[24px] font-extrabold tracking-tight text-on-surface leading-none">0</span>
+              <span id="kpi-currency-code" class="text-[10.5px] font-bold text-primary uppercase">MAD</span>
+            </div>
+            <div id="kpi-revenue-submetrics" class="flex flex-wrap gap-1.5 mt-1 text-[9.5px] text-outline font-medium"></div>
+          </div>
+          <div class="relative pt-2">
+            <div id="revenue-equalizer" class="flex items-end justify-between h-[72px] px-1 relative"></div>
+          </div>
+        </div>
+
+        <!-- CARTE 4 : Nos Spécialistes (Section 4D) -->
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[185px]">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[12.5px] font-semibold text-on-surface-variant">Nos Spécialistes</span>
+              <button onclick="openDoctorModal()" class="px-2 py-0.5 rounded-full bg-secondary-container hover:bg-primary text-primary hover:text-white text-[10px] font-bold flex items-center gap-0.5 transition-colors">
+                <span class="material-symbols-outlined text-[12px]">add</span>
+                Médecin
+              </button>
+            </div>
+            <div class="flex items-baseline justify-between mb-1.5">
+              <span id="kpi-specialists-val" class="text-[20px] font-extrabold tracking-tight text-on-surface leading-none">0 médecins</span>
+              <button onclick="filterSpecialists('all')" id="kpi-specialties-count-label" class="text-[10px] font-bold text-primary hover:underline">Toutes</button>
+            </div>
+
+            <div id="specialists-chips-grid" class="grid grid-cols-3 gap-1 mb-1.5"></div>
+          </div>
+
+          <div id="specialist-doctors-list" class="slim-scroll max-h-[64px] overflow-y-auto pr-1 space-y-1"></div>
+        </div>
+
+      </div>
+
+      <!-- LIGNE 2 : OCCUPATION CRÉNEAUX & SALLES (7 COLS) + MOYENNE DIAGNOSTICS (5 COLS) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+
+        <!-- COL 1-7 : Occupation des Créneaux & Salles de Consultation (Section 4E) -->
+        <div class="lg:col-span-7 bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <h2 id="utilization-card-title" class="text-[13.5px] font-bold text-on-surface">Occupation des Créneaux &amp; Salles de Consultation</h2>
+            <button onclick="cycleBedTrendPeriod()" class="px-2.5 py-0.5 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-[10.5px] font-semibold text-on-surface-variant flex items-center gap-0.5 transition-colors">
+              <span id="bed-period-label">6 derniers jours</span>
+              <span class="material-symbols-outlined text-[13px]">expand_more</span>
+            </button>
+          </div>
+
+          <div class="flex gap-3 items-end">
+            <div class="flex flex-col justify-between h-[184px] pb-5 text-[10px] font-semibold text-outline select-none">
+              <span>100%</span><span>75%</span><span>50%</span><span>25%</span><span>0%</span>
+            </div>
+
+            <div class="flex-1 relative">
+              <div id="utilization-axis-subtitle" class="text-[10px] font-semibold text-outline mb-1">Taux dutilisation du planning médical &amp; présence effective (%)</div>
+
+              <div class="absolute inset-x-0 top-5 bottom-5 flex flex-col justify-between pointer-events-none">
+                <div class="border-b border-surface-container"></div>
+                <div class="border-b border-surface-container/70"></div>
+                <div class="border-b border-surface-container/70"></div>
+                <div class="border-b border-surface-container/70"></div>
+                <div></div>
+              </div>
+
+              <!-- Carte flottante de répartition réelle -->
+              <div id="bed-floating-card" class="sm:absolute z-20 sm:left-[18%] sm:top-[14px] mb-2 sm:mb-0 bg-surface-container-lowest/95 backdrop-blur-md rounded-xl p-3 shadow-floatCard border border-outline-variant/45 w-full sm:w-[195px] transition-all">
+                <div class="flex items-baseline justify-between mb-1.5">
+                  <span id="bed-card-total" class="text-[15.5px] font-extrabold tracking-tight text-on-surface">88%</span>
+                  <span id="bed-card-curr" class="text-[9.5px] font-bold text-primary">CRÉNEAUX</span>
+                </div>
+                <div class="space-y-1 text-[10px]">
+                  <div class="flex items-center justify-between">
+                    <span id="util-row1-label" class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green"></span>Créneaux</span>
+                    <strong id="bed-card-rev" class="font-bold text-on-surface">12 / 14</strong>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span id="util-row2-label" class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-primary-light"></span>Occupation</span>
+                    <strong id="bed-card-icu" class="font-bold text-on-surface">86%</strong>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span id="util-row3-label" class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>Présence</span>
+                    <strong id="bed-card-er" class="font-bold text-on-surface">92%</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div id="bed-columns-grid" class="grid grid-cols-6 gap-2 sm:gap-3 items-end h-[168px] relative z-10 pt-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COL 8-12 : Moyenne des Diagnostics par Pôle (Section 4F) -->
+        <div class="lg:col-span-5 bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between relative overflow-hidden">
+          <div class="flex items-center justify-between mb-1.5">
+            <h2 class="text-[13.5px] font-bold text-on-surface">Moyenne des Diagnostics Patients</h2>
+            <button onclick="cycleDiagnosePeriod()" class="px-2.5 py-0.5 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-[10.5px] font-semibold text-on-surface-variant flex items-center gap-0.5 transition-colors">
+              <span id="diag-period-label">Hebdomadaire</span>
+              <span class="material-symbols-outlined text-[13px]">expand_more</span>
+            </button>
+          </div>
+
+          <div class="relative h-[194px] flex flex-col justify-end">
+            <div id="diag-empty-notice" class="hidden absolute inset-0 z-30 bg-surface-container-lowest/90 flex items-center justify-center text-xs text-outline p-4 text-center rounded-xl">
+              Aucune consultation clinique enregistrée sur cette période.
+            </div>
+
+            <div class="absolute inset-x-0 top-2 bottom-6 pointer-events-none">
+              <div class="absolute left-[15%] top-[28px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
+              <div class="absolute left-[34%] top-[86px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
+              <div class="absolute left-[63%] top-[124px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
+              <div class="absolute left-[79%] top-[36px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
+            </div>
+
+            <!-- Bulle Neurologie -->
+            <button onclick="jumpToDepartment('Neurologie')" class="bubble-float absolute left-[4%] top-[8px] w-[80px] h-[80px] rounded-full bg-gradient-to-br from-primary-light/85 to-secondary-container/90 border border-white shadow-sm flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
+              <span class="text-[10.5px] font-bold text-on-primary-fixed leading-tight">Neurologie</span>
+              <span id="diag-neuro-count" class="text-[9px] font-semibold text-primary mt-0.5">0 patients</span>
+            </button>
+
+            <!-- Bulle Oncologie -->
+            <button onclick="jumpToDepartment('Oncologie')" class="bubble-float-d1 absolute right-[8%] top-[14px] w-[76px] h-[76px] rounded-full bg-gradient-to-br from-primary-fixed/85 to-primary-light/55 border border-white shadow-sm flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
+              <span class="text-[10.5px] font-bold text-on-primary-fixed leading-tight">Oncologie</span>
+              <span id="diag-onco-count" class="text-[9px] font-semibold text-primary mt-0.5">0 patients</span>
+            </button>
+
+            <!-- Bulle Urologie -->
+            <button onclick="jumpToDepartment('Urologie')" class="bubble-float-d2 absolute left-[24%] top-[68px] w-[66px] h-[66px] rounded-full bg-secondary-container/95 border border-white shadow-xs flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
+              <span class="text-[10px] font-bold text-on-surface leading-tight">Urologie</span>
+              <span id="diag-uro-count" class="text-[8.5px] font-semibold text-on-surface-variant mt-0.5">0 patients</span>
+            </button>
+
+            <!-- Bulle Cardiologie -->
+            <button onclick="jumpToDepartment('Cardiologie')" class="bubble-float absolute left-[54%] top-[102px] w-[62px] h-[62px] rounded-full bg-surface-container-high/95 border border-white shadow-xs flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
+              <span class="text-[9.5px] font-bold text-on-surface leading-tight">Cardiologie</span>
+              <span id="diag-cardio-count" class="text-[8px] font-semibold text-outline mt-0.5">0 patients</span>
+            </button>
+
+            <div class="pt-3 relative z-10">
+              <div id="stem-ruler-ticks" class="flex items-end justify-between h-2.5 px-1"></div>
+              <div class="flex justify-between text-[9px] font-semibold text-outline mt-1 px-0.5">
+                <span>1</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- LIGNE 3 : APERÇU DES RENDEZ-VOUS DU JOUR + LIEN VERS LA PAGE DÉDIÉE RENDEZ-VOUS -->
+      <div class="bento-card rounded-2xl p-4 shadow-bento">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-ping"></span>
+            <h2 class="text-[13px] font-bold text-on-surface">Prochains Rendez-vous dAujourdhui (29 Octobre 2026)</h2>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-secondary-container/70 text-primary">Synchronisé avec lAgenda</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <a href="rendez-vous.html?add=1" class="text-[11px] font-bold px-3 py-1 rounded-full bg-surface-container-low hover:bg-secondary-container text-primary transition-colors">
+              + Ajouter un RDV
+            </a>
+            <a href="rendez-vous.html" class="text-[11px] font-bold text-primary hover:underline flex items-center gap-0.5">
+              Ouvrir la page Rendez-vous <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+
+        <div id="overview-live-queue" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VUE 2 : PATIENTS & DOSSIERS MÉDICAUX ÉLECTRONIQUES (DME) -->
+    <!-- ========================================================================= -->
+    <section id="view-patients" class="saas-view hidden space-y-3">
+      <div class="bento-card rounded-2xl p-3.5 shadow-bento flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button onclick="setDeptFilter('all', this)" class="dept-pill px-3 py-1.5 rounded-full text-[11px] font-bold bg-primary text-white">Tous les services</button>
+          <button onclick="setDeptFilter('Cardiologie', this)" class="dept-pill px-3 py-1.5 rounded-full text-[11px] font-semibold bg-surface-container-low text-on-surface-variant hover:text-primary">Cardiologie</button>
+          <button onclick="setDeptFilter('Neurologie', this)" class="dept-pill px-3 py-1.5 rounded-full text-[11px] font-semibold bg-surface-container-low text-on-surface-variant hover:text-primary">Neurologie</button>
+          <button onclick="setDeptFilter('Oncologie', this)" class="dept-pill px-3 py-1.5 rounded-full text-[11px] font-semibold bg-surface-container-low text-on-surface-variant hover:text-primary">Oncologie</button>
+          <button onclick="setDeptFilter('Urologie', this)" class="dept-pill px-3 py-1.5 rounded-full text-[11px] font-semibold bg-surface-container-low text-on-surface-variant hover:text-primary">Urologie</button>
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <div class="relative flex-1 sm:w-60">
+            <span class="material-symbols-outlined text-[15px] text-outline absolute left-3 top-1/2 -translate-y-1/2">search</span>
+            <input id="patients-search" oninput="renderPatientsView()" type="text" placeholder="Filtrer par nom, CIN ou code #PT..."
+                   class="w-full pl-8 pr-3 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/40 text-xs focus:outline-none focus:border-primary"/>
+          </div>
+          <button onclick="openModal('patient-modal')" class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-[11px] font-bold whitespace-nowrap shadow-xs">
+            + Nouveau Patient
+          </button>
+        </div>
+      </div>
+
+      <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-on-surface">Répertoire Patients &amp; Accès Direct DME</h3>
+          <span id="patients-count-pill" class="text-[10.5px] font-semibold text-outline">5 dossiers actifs</span>
+        </div>
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
+              <th class="py-2 pr-2">Patient</th>
+              <th class="py-2 px-2">NÂ° CIN</th>
+              <th class="py-2 px-2">Téléphone</th>
+              <th class="py-2 px-2">Service</th>
+              <th class="py-2 px-2">Couverture Sociale</th>
+              <th class="py-2 pl-2 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="patients-tbody" class="divide-y divide-surface-container/60 text-xs"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VUE 3 : LABORATOIRE & BIOLOGIE MÉDICALE -->
+    <!-- ========================================================================= -->
+    <section id="view-labs" class="saas-view hidden space-y-3">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-semibold text-outline">Analyses du Jour</span>
+            <div id="lab-stat-total" class="text-xl font-extrabold text-on-surface mt-0.5">1 024</div>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-secondary-container text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[19px]">biotech</span>
+          </div>
+        </div>
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-semibold text-error">Alertes Critiques (STAT)</span>
+            <div id="lab-stat-flagged" class="text-xl font-extrabold text-error mt-0.5">1</div>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-error-container text-error flex items-center justify-center">
+            <span class="material-symbols-outlined text-[19px]">warning</span>
+          </div>
+        </div>
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-semibold text-outline">En Cours dAnalyse</span>
+            <div id="lab-stat-pending" class="text-xl font-extrabold text-primary mt-0.5">1</div>
+          </div>
+          <button onclick="openModal('lab-modal')" class="px-3 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-[11px] font-bold shadow-xs">
+            + Prescrire Bilan
+          </button>
+        </div>
+      </div>
+
+      <div class="bento-card rounded-2xl p-4 shadow-bento">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-on-surface">Validation Biologique &amp; Résultats</h3>
+          <span class="text-[10.5px] font-semibold text-outline">Saisissez la valeur mesurée puis validez</span>
+        </div>
+        <div id="labs-cards-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VUE 4 : FACTURATION, CNSS, DÉPENSES & STOCK (Section 3H) -->
+    <!-- ========================================================================= -->
+    <section id="view-finance" class="saas-view hidden space-y-3">
+      <!-- Sous-Navigation Intérieure (Sans ajouter d'onglets à la navbar !) -->
+      <div class="bento-card rounded-2xl p-2.5 shadow-bento flex flex-wrap items-center justify-between gap-2">
+        <div class="inline-flex items-center gap-1 bg-surface-container-low p-1 rounded-full">
+          <button id="fin-pill-invoices" onclick="switchFinanceSubTab('invoices')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary text-white shadow-2xs transition-all">
+            Facturation &amp; Paiements
+          </button>
+          <button id="fin-pill-expenses" onclick="switchFinanceSubTab('expenses')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Dépenses &amp; Charges
+          </button>
+          <button id="fin-pill-stock" onclick="switchFinanceSubTab('stock')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Stock &amp; Fournitures
+          </button>
+          <button id="fin-pill-documents" onclick="switchFinanceSubTab('documents')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Documents &amp; Modèles PDF
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-semibold text-outline">Gestion Financière &amp; Traçabilité MAD</span>
+        </div>
+      </div>
+
+      <!-- SOUS-PANEL 1 : FACTURATION & PAIEMENTS -->
+      <div id="fin-sub-invoices" class="space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Encaissements Validés</span>
+            <div class="flex items-baseline gap-1.5 mt-1">
+              <span id="fin-collected" class="text-xl font-extrabold text-primary">0,00</span>
+              <span class="text-[10.5px] font-bold text-primary">MAD</span>
+            </div>
+            <span class="text-[10px] text-outline">Espèces + TPE CMI + Virement</span>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Reste à Payer (Soldes Impayés)</span>
+            <div class="flex items-baseline gap-1.5 mt-1">
+              <span id="fin-remaining" class="text-xl font-extrabold text-error">0,00</span>
+              <span class="text-[10.5px] font-bold text-outline">MAD</span>
+            </div>
+            <span class="text-[10px] text-outline">Paiements partiels supportés</span>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-semibold text-outline">Télétransmission CNSS / AMO</span>
+              <div class="flex items-baseline gap-1.5 mt-1">
+                <span id="fin-cnss-est" class="text-xl font-extrabold text-primary">0,00</span>
+                <span class="text-[10.5px] font-bold text-primary">MAD</span>
+              </div>
+            </div>
+            <button onclick="openModal('invoice-modal')" class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-[11px] font-bold shadow-xs">
+              + Nouvelle Facture
+            </button>
+          </div>
+        </div>
+
+        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-on-surface">Journal de Facturation &amp; Télétransmission CNSS / CNOPS</h3>
+            <span class="text-[10.5px] font-semibold text-outline">Cliquez sur le badge CNSS pour faire avancer létape</span>
+          </div>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
+                <th class="py-2 pr-2">NÂ° Facture</th>
+                <th class="py-2 px-2">Patient &amp; Acte Médical</th>
+                <th class="py-2 px-2">Total (MAD)</th>
+                <th class="py-2 px-2">Payé</th>
+                <th class="py-2 px-2">Reste</th>
+                <th class="py-2 px-2">Statut CNSS / AMO</th>
+                <th class="py-2 pl-2 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="finance-invoices-tbody" class="divide-y divide-surface-container/60 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SOUS-PANEL 2 : DÉPENSES & CHARGES (Section 3H) -->
+      <div id="fin-sub-expenses" class="hidden space-y-3">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span class="text-[11px] font-semibold text-outline">Total des Dépenses Enregistrées</span>
+            <div id="exp-stat-total" class="text-xl font-extrabold text-error mt-0.5">0,00 MAD</div>
+            <span class="text-[10px] text-outline">Charges de fonctionnement, matériel médical et consommables</span>
+          </div>
+          <button onclick="openModal('expense-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
+            + Enregistrer une Dépense
+          </button>
+        </div>
+
+        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-on-surface">Journal des Charges &amp; Dépenses d'Exploitation</h3>
+            <span class="text-[10.5px] text-outline">Associées aux sessions de caisse MAD</span>
+          </div>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
+                <th class="py-2 pr-2">Réf.</th>
+                <th class="py-2 px-2">Description &amp; Fournisseur</th>
+                <th class="py-2 px-2">Catégorie</th>
+                <th class="py-2 px-2">Montant</th>
+                <th class="py-2 px-2">Mode &amp; Date</th>
+                <th class="py-2 pl-2 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="expenses-tbody" class="divide-y divide-surface-container/60 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SOUS-PANEL 3 : STOCK & FOURNITURES (Section 3H - Optionnel) -->
+      <div id="fin-sub-stock" class="hidden space-y-3">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-extrabold text-on-surface">Inventaire Médical &amp; Fournitures</h3>
+              <span id="stock-low-badge" class="px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">0 alerte</span>
+            </div>
+            <p class="text-[10.5px] text-outline mt-0.5">Gestion des seuils d'alerte, réapprovisionnements et sorties de bloc</p>
+          </div>
+          <button onclick="openModal('stock-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
+            + Ajouter Produit
+          </button>
+        </div>
+
+        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
+                <th class="py-2 pr-2">Code SKU</th>
+                <th class="py-2 px-2">Désignation</th>
+                <th class="py-2 px-2">Catégorie</th>
+                <th class="py-2 px-2">En Stock</th>
+                <th class="py-2 px-2">Seuil Alerte</th>
+                <th class="py-2 px-2">Coût Unitaire</th>
+                <th class="py-2 pl-2 text-right">Mouvements</th>
+              </tr>
+            </thead>
+            <tbody id="stock-tbody" class="divide-y divide-surface-container/60 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SOUS-PANEL 4 : DOCUMENTS & MODÈLES PDF (Section 3G) -->
+      <div id="fin-sub-documents" class="hidden space-y-3">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-on-surface">Documents Médicaux, Devis &amp; Certificats</h3>
+            <p class="text-[10.5px] text-outline">Générez et imprimez avec l'en-tête, le logo et les mentions légales officielles du centre</p>
+          </div>
+          <button onclick="populatePatientSelects(); openModal('document-modal');" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
+            + Nouveau Document
+          </button>
+        </div>
+
+        <div id="documents-list-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VUE 5 : RAPPORTS ANALYTIQUES COMPLETS (Section 2) -->
+    <!-- ========================================================================= -->
+    <section id="view-reports" class="saas-view hidden space-y-3">
+      <!-- Barre de Filtres Complète (Section 2) -->
+      <div class="bento-card rounded-2xl p-3.5 shadow-bento space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px] text-primary">analytics</span>
+            <h3 class="text-sm font-extrabold text-on-surface">Rapports d'Activité &amp; Performance Clinique</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="exportReportsCsvFile()" class="px-3 py-1.5 rounded-full bg-surface-container-low hover:bg-secondary-container text-on-surface text-xs font-bold flex items-center gap-1 shadow-pill transition-all">
+              <span class="material-symbols-outlined text-[15px] text-primary">download</span> Exporter CSV
+            </button>
+            <button onclick="printCurrentReportPdf()" class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold flex items-center gap-1 shadow-emeraldGlow transition-all">
+              <span class="material-symbols-outlined text-[15px]">print</span> Imprimer Rapport PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
+          <div>
+            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Période</label>
+            <select id="rpt-period-select" onchange="loadReportsSummary()" class="w-full px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary">
+              <option value="month" selected>Ce Mois (Octobre 2026)</option>
+              <option value="week">7 Derniers Jours</option>
+              <option value="day">Aujourdhui (29 Oct.)</option>
+              <option value="custom">Plage Personnalisée...</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Branche / Site</label>
+            <select id="rpt-branch-select" onchange="loadReportsSummary()" class="w-full px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary"></select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Médecin</label>
+            <select id="rpt-doctor-select" onchange="loadReportsSummary()" class="w-full px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary"></select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Spécialité</label>
+            <select id="rpt-specialty-select" onchange="loadReportsSummary()" class="w-full px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary"></select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Date Début</label>
+            <input id="rpt-date-from" type="date" value="2026-10-01" onchange="loadReportsSummary()" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px] font-semibold focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Date Fin</label>
+            <input id="rpt-date-to" type="date" value="2026-10-29" onchange="loadReportsSummary()" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px] font-semibold focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8 Cartes KPI Rapports Réels -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">Volume RDV</span>
+          <span id="rpt-kpi-apts" class="text-sm font-extrabold text-on-surface block mt-0.5 truncate">0</span>
+        </div>
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">Annulations</span>
+          <span id="rpt-kpi-cancel-rate" class="text-sm font-extrabold text-error block mt-0.5">0%</span>
+        </div>
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">No-Show</span>
+          <span id="rpt-kpi-noshow-rate" class="text-sm font-extrabold text-error block mt-0.5">0%</span>
+        </div>
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">Présence</span>
+          <span id="rpt-kpi-attendance-rate" class="text-sm font-extrabold text-primary block mt-0.5">100%</span>
+        </div>
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">Total Facturé</span>
+          <span id="rpt-kpi-invoiced" class="text-sm font-extrabold text-on-surface block mt-0.5 truncate">0 MAD</span>
+        </div>
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">Encaissé Net</span>
+          <span id="rpt-kpi-collected" class="text-sm font-extrabold text-primary block mt-0.5 truncate">0 MAD</span>
+        </div>
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">Soldes Impayés</span>
+          <span id="rpt-kpi-outstanding" class="text-sm font-extrabold text-error block mt-0.5 truncate">0 MAD</span>
+        </div>
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">Trésorerie</span>
+          <span id="rpt-kpi-net" class="text-sm font-extrabold text-primary block mt-0.5 truncate">0 MAD</span>
+        </div>
+      </div>
+
+      <!-- État Vide lorsque aucun résultat ne correspond aux filtres -->
+      <div id="rpt-empty-state" class="hidden bento-card rounded-2xl p-8 text-center space-y-2">
+        <span class="material-symbols-outlined text-[36px] text-outline">search_off</span>
+        <h4 class="text-sm font-bold text-on-surface">Aucune donnée disponible pour les filtres sélectionnés</h4>
+        <p class="text-xs text-outline max-w-md mx-auto">Modifiez la plage de dates ou élargissez le filtre par médecin pour afficher les statistiques réelles.</p>
+      </div>
+
+      <div id="rpt-content-panels" class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        <!-- Gauche (7 colonnes) : Timeline & Activité Médecins & Comparatif Branches -->
+        <div class="lg:col-span-7 space-y-3">
+          <div class="bento-card rounded-2xl p-4 shadow-bento">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Volume de Fréquentation par Jour</h3>
+              <span class="text-[10px] text-outline">RDV terminés et honorés</span>
+            </div>
+            <div id="rpt-timeline-bars" class="flex items-end justify-between h-[120px] gap-1 px-1"></div>
+          </div>
+
+          <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+            <div class="flex items-center justify-between mb-2.5">
+              <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Activité &amp; Consultations par Médecin</h3>
+              <span class="text-[10px] text-outline">Honoraires réalisés sur la période</span>
+            </div>
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                  <th class="py-2 pr-2">Médecin</th>
+                  <th class="py-2 px-2">Spécialité</th>
+                  <th class="py-2 px-2">RDV</th>
+                  <th class="py-2 px-2">Consultés</th>
+                  <th class="py-2 px-2">Annul./Abs.</th>
+                  <th class="py-2 pl-2 text-right">Honoraires</th>
+                </tr>
+              </thead>
+              <tbody id="rpt-doctors-tbody" class="divide-y divide-surface-container/60"></tbody>
+            </table>
+          </div>
+
+          <div id="rpt-branch-comparison-card" class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto hidden">
+            <div class="flex items-center justify-between mb-2.5">
+              <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Comparatif Multi-Branches (Sites)</h3>
+              <span class="text-[10px] text-outline">Chiffre daffaires et marges nettes</span>
+            </div>
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                  <th class="py-2 pr-2">Site / Branche</th>
+                  <th class="py-2 px-2">Volume RDV</th>
+                  <th class="py-2 px-2">Présence</th>
+                  <th class="py-2 px-2">Recettes</th>
+                  <th class="py-2 px-2">Dépenses</th>
+                  <th class="py-2 pl-2 text-right">Marge Nette</th>
+                </tr>
+              </thead>
+              <tbody id="rpt-branches-tbody" class="divide-y divide-surface-container/60"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Droite (5 colonnes) : Spécialités, Règlements & Journal CNDP -->
+        <div class="lg:col-span-5 space-y-3">
+          <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
+            <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Spécialités les plus demandées</h3>
+            <div id="rpt-top-specs-bars" class="space-y-2 text-xs"></div>
+          </div>
+
+          <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
+            <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Modes de Règlement Encaissés</h3>
+            <div id="rpt-payment-methods-list" class="space-y-1.5 text-xs"></div>
+          </div>
+
+          <div class="bento-card rounded-2xl p-4 shadow-bento">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Traçabilité CNDP Loi 09-08</h3>
+                <span class="text-[10px] text-outline">Accès DME, exports et encaissements</span>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[9.5px] font-bold">Immuable</span>
+            </div>
+            <div id="audit-logs-list" class="space-y-1.5 max-h-56 overflow-y-auto slim-scroll"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VUE 6 : CONSOLE PROPRIÉTAIRE SAAS (Section 3C - Zéro Dossier Médical Exposé) -->
+    <!-- ========================================================================= -->
+    <section id="view-saas-owner" class="saas-view hidden space-y-3">
+      <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+            <h2 class="text-base font-extrabold text-on-surface">Console d'Administration Plateforme SaaS</h2>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">Isolation Médicale HDS Active</span>
+          </div>
+          <p class="text-xs text-outline mt-0.5">Supervision des cliniques clientes, gestion des abonnements, forfaits et suivi des essais 30 jours.</p>
+        </div>
+        <button onclick="openModal('saas-clinic-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
+          + Provisionner une Clinique
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+          <span class="text-[11px] font-semibold text-outline">Cliniques Inscrites</span>
+          <div id="saas-stat-clinics" class="text-xl font-extrabold text-on-surface mt-0.5">0</div>
+        </div>
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+          <span class="text-[11px] font-semibold text-outline">Abonnements Actifs</span>
+          <div id="saas-stat-active-subs" class="text-xl font-extrabold text-primary mt-0.5">0</div>
+        </div>
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+          <span class="text-[11px] font-semibold text-outline">Essais 30j en Cours</span>
+          <div id="saas-stat-trials" class="text-xl font-extrabold text-on-surface mt-0.5">0</div>
+        </div>
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+          <span class="text-[11px] font-semibold text-outline">MRR Global (MAD/mois)</span>
+          <div id="saas-stat-mrr" class="text-xl font-extrabold text-primary mt-0.5">0 MAD</div>
+        </div>
+      </div>
+
+      <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+        <h3 class="text-sm font-bold text-on-surface mb-3">Cliniques Abonnées &amp; Statut des Contrats</h3>
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+              <th class="py-2 pr-2">Établissement</th>
+              <th class="py-2 px-2">Forfait Souscrit</th>
+              <th class="py-2 px-2">Statut Abonnement</th>
+              <th class="py-2 px-2">Comptes &amp; Branches</th>
+              <th class="py-2 px-2">Échéance</th>
+              <th class="py-2 pl-2 text-right">Actions Propriétaire</th>
+            </tr>
+          </thead>
+          <tbody id="saas-clinics-tbody" class="divide-y divide-surface-container/60"></tbody>
+        </table>
+      </div>
+
+      <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
+        <h3 class="text-sm font-bold text-on-surface">Forfaits SaaS &amp; Grille Tarifaire</h3>
+        <div id="saas-plans-list" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TIROIR DOSSIER MÉDICAL ÉLECTRONIQUE (DME PATIENT) -->
+  <!-- ========================================================================= -->
+  <div id="dme-drawer-backdrop" onclick="closeDmeDrawer()" class="fixed inset-0 z-[55] hidden bg-on-primary-fixed/35 backdrop-blur-xs flex justify-end">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest h-full shadow-2xl p-4 sm:p-5 flex flex-col justify-between overflow-y-auto drawer-enter">
+      <div class="space-y-3.5">
+        <div class="flex items-start justify-between pb-3 border-b border-surface-container">
+          <div class="flex items-center gap-3">
+            <img id="dme-avatar" class="w-11 h-11 rounded-xl object-cover ring-2 ring-primary/20" src="" alt="Patient"/>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h3 id="dme-name" class="text-base font-extrabold text-on-surface">Salma Bennani</h3>
+                <span id="dme-code" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">#PT-4429</span>
+              </div>
+              <p id="dme-meta" class="text-[11px] text-outline mt-0.5">58 ans • CIN BE-882910 • Groupe A+</p>
+            </div>
+          </div>
+          <button onclick="closeDmeDrawer()" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container flex items-center justify-center text-on-surface-variant">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-3 bg-surface-container-low p-1 rounded-xl text-[11px] font-bold">
+          <button id="dme-tab-vitals" onclick="switchDmeTab('vitals')" class="py-1.5 rounded-lg bg-white text-primary shadow-2xs">Constantes &amp; Note</button>
+          <button id="dme-tab-history" onclick="switchDmeTab('history')" class="py-1.5 rounded-lg text-outline hover:text-on-surface">Historique CIM-11</button>
+          <button id="dme-tab-billing" onclick="switchDmeTab('billing')" class="py-1.5 rounded-lg text-outline hover:text-on-surface">Bilans &amp; Factures</button>
+        </div>
+
+        <div id="dme-panel-vitals" class="space-y-3">
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <div class="p-2.5 rounded-xl bg-error-container/40 border border-error/15">
+              <span class="text-[9.5px] font-bold uppercase text-error block">Allergies</span>
+              <input id="dme-allergy-input" type="text" class="w-full bg-transparent font-bold text-on-surface text-xs focus:outline-none" value="Pénicilline"/>
+            </div>
+            <div class="p-2.5 rounded-xl bg-secondary-container/50 border border-primary/15">
+              <span class="text-[9.5px] font-bold uppercase text-primary block">Couverture Active</span>
+              <strong id="dme-coverage" class="text-on-surface text-xs">CNSS AMO (80%)</strong>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-surface-container-low space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-on-surface">Télémétrie Patient (Modifiable)</span>
+              <span class="text-[9.5px] font-bold text-primary flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green animate-ping"></span> Dérivation II</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-white p-2 rounded-xl">
+                <span class="text-[9.5px] text-outline block">TA (mmHg)</span>
+                <input id="dme-bp-input" type="text" class="w-full text-center text-xs font-extrabold text-on-surface focus:outline-none" value="126/80"/>
+              </div>
+              <div class="bg-white p-2 rounded-xl">
+                <span class="text-[9.5px] text-outline block">SpO2</span>
+                <input id="dme-spo2-input" type="text" class="w-full text-center text-xs font-extrabold text-primary focus:outline-none" value="98.6%"/>
+              </div>
+              <div class="bg-white p-2 rounded-xl">
+                <span class="text-[9.5px] text-outline block">Fréq. Card.</span>
+                <input id="dme-hr-input" type="text" class="w-full text-center text-xs font-extrabold text-on-surface focus:outline-none" value="74 bpm"/>
+              </div>
+            </div>
+            <svg class="w-full h-9 text-brand-soft-green" viewBox="0 0 320 40" fill="none" preserveAspectRatio="none">
+              <path class="ecg-trace" d="M0,22 L42,22 L50,14 L57,28 L64,22 L102,22 L110,4 L117,36 L124,22 L178,22 L186,14 L193,28 L200,22 L242,22 L250,5 L257,35 L264,22 L320,22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-[10.5px] font-bold text-outline uppercase">Nouvelle Observation CIM-11</label>
+              <select id="dme-icd-select" class="text-[10px] font-bold bg-surface-container-low text-primary rounded-md px-2 py-0.5 focus:outline-none">
+                <option value="BA00 • Hypertension essentielle">BA00 • Hypertension</option>
+                <option value="8A80 • Migraine avec aura">8A80 • Migraine</option>
+                <option value="BC41 • Suivi d'arythmie">BC41 • Arythmie</option>
+                <option value="QA00 • Bilan général">QA00 • Bilan général</option>
+              </select>
+            </div>
+            <textarea id="dme-note" rows="3" class="w-full p-2.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs text-on-surface focus:outline-none focus:border-primary" placeholder="Saisissez lexamen clinique et le protocole thérapeutique..."></textarea>
+          </div>
+        </div>
+
+        <div id="dme-panel-history" class="hidden space-y-2"></div>
+        <div id="dme-panel-billing" class="hidden space-y-2"></div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-3 border-t border-surface-container">
+        <button onclick="printQrPrescription()" class="py-2 rounded-full bg-secondary-container text-primary text-xs font-bold hover:bg-primary hover:text-white transition-colors">
+          Ordonnance QR
+        </button>
+        <button onclick="sealClinicalEncounter()" class="py-2 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-hover shadow-emeraldGlow transition-colors">
+          Signer &amp; Chiffrer DME
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODALES EN FRANÇAIS : PATIENT, LABORATOIRE, FACTURE, ENCAISSEMENT, REÇU -->
+  <!-- ========================================================================= -->
+  <!-- Modale Nouveau Patient -->
+  <div id="patient-modal" onclick="closeModal('patient-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <h3 class="text-base font-extrabold text-on-surface">Enregistrer un Nouveau Patient</h3>
+        <button onclick="closeModal('patient-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitNewPatient(event)" class="space-y-2.5 text-xs">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Prénom *</label>
+            <input id="pat-first" required type="text" placeholder="Ex : Salma" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Nom *</label>
+            <input id="pat-last" required type="text" placeholder="Ex : Bennani" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">NÂ° CIN (Unique) *</label>
+            <input id="pat-cin" required type="text" placeholder="BE-904122" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-mono uppercase focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Téléphone</label>
+            <input id="pat-phone" type="text" value="+212 661-405060" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Pôle Médical</label>
+            <select id="pat-dept" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold">
+              <option value="Cardiologie">Cardiologie</option>
+              <option value="Neurologie">Neurologie</option>
+              <option value="Oncologie">Oncologie</option>
+              <option value="Urologie">Urologie</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Couverture AMO / Mutuelle</label>
+            <select id="pat-cov" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold">
+              <option value="CNSS AMO (80%)">CNSS AMO (80%)</option>
+              <option value="CNOPS (90%)">CNOPS (90%)</option>
+              <option value="AXA Assurance (85%)">AXA Assurance (85%)</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow mt-1">
+          Créer le Dossier Patient
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale Ajouter un Médecin / Spécialiste -->
+  <div id="doctor-modal" onclick="closeModal('doctor-modal')" class="fixed inset-0 z-[65] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-secondary-container text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[18px]">stethoscope</span>
+          </span>
+          <div>
+            <h3 class="text-base font-extrabold text-on-surface leading-tight">Ajouter un Médecin</h3>
+            <span class="text-[10.5px] text-outline">Synchronisé avec lAgenda &amp; Rendez-vous</span>
+          </div>
+        </div>
+        <button onclick="closeModal('doctor-modal')" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="submitNewDoctor(event)" class="space-y-2.5 text-xs">
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Nom complet du Praticien *</label>
+          <input id="doc-name" required type="text" placeholder="Ex : Dr. Yassine Alami"
+                 class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary"/>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Spécialité *</label>
+            <select id="doc-specialty" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary">
+              <option value="Cardiologue">Cardiologue</option>
+              <option value="Neurologue">Neurologue</option>
+              <option value="Psychologue">Psychologue</option>
+              <option value="Médecin Généraliste">Médecin Généraliste</option>
+              <option value="Pédiatre">Pédiatre</option>
+              <option value="Dermatologue">Dermatologue</option>
+              <option value="Gynécologue">Gynécologue</option>
+              <option value="Urologue">Urologue</option>
+              <option value="Oncologue">Oncologue</option>
+              <option value="Radiologue">Radiologue</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Salle / Cabinet *</label>
+            <input id="doc-room" required type="text" placeholder="Ex : Salle 108" value="Salle 108"
+                   class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold text-on-surface focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Tarif (MAD) *</label>
+            <input id="doc-fee" required type="number" min="50" step="50" value="600"
+                   class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-extrabold text-primary focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Code INPE</label>
+            <input id="doc-inpe" type="text" placeholder="INPE-0642100"
+                   class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-mono uppercase text-[11px] focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Téléphone</label>
+            <input id="doc-phone" type="text" value="+212 661-506070"
+                   class="w-full px-2.5 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px] focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow mt-1 transition-all">
+          Ajouter à l'équipe Médicale
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale Prescription Bilan Laboratoire -->
+  <div id="lab-modal" onclick="closeModal('lab-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <h3 class="text-base font-extrabold text-on-surface">Prescrire une Analyse Biologique</h3>
+        <button onclick="closeModal('lab-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitNewLabOrder(event)" class="space-y-2.5 text-xs">
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Patient *</label>
+          <select id="lab-patient-select" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold"></select>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Intitulé du Bilan *</label>
+          <input id="lab-test-name" required type="text" placeholder="Ex : Troponine Ic &amp; Ionogramme Complet" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Catégorie</label>
+            <select id="lab-category" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold">
+              <option value="Biochimie">Biochimie</option>
+              <option value="Hématologie">Hématologie</option>
+              <option value="Oncologie">Marqueurs Oncologie</option>
+              <option value="Neurologie">Panel Neurologique</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Priorité</label>
+            <select id="lab-priority" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-bold text-primary">
+              <option value="Routine">Routine</option>
+              <option value="Prioritaire">Prioritaire</option>
+              <option value="URGENT">URGENT (Critique)</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow">
+          Envoyer au Laboratoire
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale Émission de Facture -->
+  <div id="invoice-modal" onclick="closeModal('invoice-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <h3 class="text-base font-extrabold text-on-surface">Émettre une Facture Médicale (MAD)</h3>
+        <button onclick="closeModal('invoice-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitNewInvoice(event)" class="space-y-2.5 text-xs">
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Patient *</label>
+          <select id="inv-patient-select" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold"></select>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Acte Médical *</label>
+          <input id="inv-service" required type="text" placeholder="Ex : Écho-Doppler Cardiaque + Consultation" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Montant Total (MAD) *</label>
+            <input id="inv-total" required type="number" min="50" step="50" value="850" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-bold text-on-surface"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Acompte Versé (MAD)</label>
+            <input id="inv-paid" type="number" min="0" step="50" value="400" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-bold text-primary"/>
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow">
+          Générer la Facture &amp; Dossier CNSS
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale Encaissement Caisse -->
+  <div id="payment-modal" onclick="closeModal('payment-modal')" class="fixed inset-0 z-[65] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-sm bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-base font-extrabold text-on-surface">Encaisser un Règlement</h3>
+        <button onclick="closeModal('payment-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitInvoicePayment(event)" class="space-y-3 text-xs">
+        <div class="p-3 rounded-xl bg-surface-container-low space-y-1">
+          <div class="flex justify-between"><span class="text-outline">Facture :</span><strong id="pay-modal-num" class="font-mono text-primary">FAC-2026-3012</strong></div>
+          <div class="flex justify-between"><span class="text-outline">Patient :</span><strong id="pay-modal-pat">Youssef El Mansouri</strong></div>
+          <div class="flex justify-between"><span class="text-outline">Reste dû :</span><strong id="pay-modal-rem" class="text-error">800,00 MAD</strong></div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Montant Encaissé (MAD) *</label>
+          <input id="pay-modal-amount" required type="number" min="1" step="0.01" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-extrabold text-primary text-sm focus:outline-none"/>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Mode de Règlement</label>
+          <select id="pay-modal-method" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold">
+            <option value="TPE CMI">Carte Bancaire (TPE CMI)</option>
+            <option value="Espèces">Espèces (Caisse MAD)</option>
+            <option value="Virement">Virement Bancaire</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow">
+          Valider lEncaissement &amp; Reçu
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale Impression Reçu / Ordonnance QR -->
+  <div id="print-modal" onclick="closeModal('print-modal')" class="fixed inset-0 z-[70] hidden bg-on-primary-fixed/45 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-white rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop space-y-3 text-xs">
+      <div class="flex items-center justify-between pb-2.5 border-b border-surface-container">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <svg class="w-4 h-4" viewBox="0 0 100 100" fill="none"><rect x="36" y="8" width="28" height="84" rx="14" fill="#005131"/><rect x="8" y="36" width="36" height="28" rx="14" fill="#005131"/><rect x="44" y="36" width="48" height="28" rx="14" fill="#10B981"/></svg>
+          </div>
+          <div>
+            <strong class="text-sm text-on-surface block">Cliniqo Cloud Médical</strong>
+            <span id="print-clinic-sub" class="text-[10px] text-outline">Cabinet Médical Cliniqo • Maarif</span>
+          </div>
+        </div>
+        <span id="print-doc-badge" class="px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">REÇU OFFICIEL</span>
+      </div>
+      <div id="print-sheet-body" class="space-y-2 text-on-surface"></div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-surface-container">
+        <button onclick="closeModal('print-modal')" class="px-3.5 py-1.5 rounded-full bg-surface-container-low font-semibold">Fermer</button>
+        <button onclick="window.print()" class="px-4 py-1.5 rounded-full bg-primary text-white font-bold flex items-center gap-1">
+          <span class="material-symbols-outlined text-[14px]">print</span> Imprimer PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Recherche Globale (Ctrl+K) -->
+  <div id="search-modal" onclick="closeModal('search-modal')" class="fixed inset-0 z-[70] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-start justify-center pt-16 p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-3.5 shadow-2xl border border-outline-variant/40 modal-pop space-y-2.5">
+      <div class="flex items-center gap-2 border-b border-surface-container pb-2">
+        <span class="material-symbols-outlined text-[18px] text-primary">search</span>
+        <input id="global-search-input" oninput="renderGlobalSearch(this.value)" type="text" placeholder="Aller vers un patient, CIN, facture ou Rendez-vous..." class="w-full text-xs font-medium text-on-surface focus:outline-none"/>
+        <kbd class="text-[9.5px] px-1.5 py-0.5 rounded bg-surface-container-low text-outline">ESC</kbd>
+      </div>
+      <div id="global-search-results" class="max-h-60 overflow-y-auto slim-scroll space-y-1 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- Modale Paramètres Complète du Centre & Rôles RBAC (Section 3A, 3B, 3E) -->
+  <div id="settings-modal" onclick="closeModal('settings-modal')" class="fixed inset-0 z-[70] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-2xl bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop space-y-3.5 text-xs max-h-[92vh] overflow-y-auto slim-scroll">
+      <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+        <div>
+          <h3 class="text-base font-extrabold text-on-surface">Configuration &amp; Administration de lÉtablissement</h3>
+          <span class="text-[10.5px] text-outline">Identité, branches, tarifs, modèles officiels, utilisateurs RBAC et sauvegardes</span>
+        </div>
+        <button onclick="closeModal('settings-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-primary">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+
+      <!-- Onglets Paramètres -->
+      <div class="flex flex-wrap gap-1 bg-surface-container-low p-1 rounded-xl font-bold">
+        <button id="settings-tab-btn-centre" onclick="switchSettingsTab('centre')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-primary shadow-2xs">Centre &amp; Logo</button>
+        <button id="settings-tab-btn-branches" onclick="switchSettingsTab('branches')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-outline hover:text-on-surface">Branches / Sites</button>
+        <button id="settings-tab-btn-catalog" onclick="switchSettingsTab('catalog')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-outline hover:text-on-surface">Actes &amp; Congés</button>
+        <button id="settings-tab-btn-templates" onclick="switchSettingsTab('templates')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-outline hover:text-on-surface">Modèles PDF</button>
+        <button id="settings-tab-btn-users" onclick="switchSettingsTab('users')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-outline hover:text-on-surface">Utilisateurs &amp; RBAC</button>
+        <button id="settings-tab-btn-backups" onclick="switchSettingsTab('backups')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-outline hover:text-on-surface">Sauvegardes SQLite</button>
+      </div>
+
+      <!-- PANEL 1 : CENTRE & LOGO -->
+      <form id="settings-panel-centre" onsubmit="saveCentreSettings(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Raison Sociale du Centre *</label>
+            <input id="cfg-name" required type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Nom Court (Navbar)</label>
+            <input id="cfg-short" type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Ville</label>
+            <input id="cfg-city" type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Téléphone Principal</label>
+            <input id="cfg-phone" type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Email Contact</label>
+            <input id="cfg-email" type="email" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40"/>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Adresse Complète</label>
+          <input id="cfg-address" type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40"/>
+        </div>
+        <div class="grid grid-cols-4 gap-2">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-0.5">NÂ° ICE</label>
+            <input id="cfg-ice" type="text" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-mono text-[11px]"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-0.5">Identifiant Fiscal (IF)</label>
+            <input id="cfg-if" type="text" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-mono text-[11px]"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-0.5">Code INPE</label>
+            <input id="cfg-inpe" type="text" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-mono text-[11px]"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-0.5">NÂ° CNSS Affiliation</label>
+            <input id="cfg-cnss" type="text" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-mono text-[11px]"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">URL Logo du Centre (Apparaît sur les PDF)</label>
+            <input id="cfg-logo-url" type="text" placeholder="https://... ou assets/logo.svg" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs"/>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <div>
+              <label class="block font-bold text-on-surface-variant mb-1">Devise</label>
+              <select id="cfg-currency" class="w-full px-2 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-bold text-primary">
+                <option value="MAD">MAD</option>
+                <option value="EUR">EUR (€)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-on-surface-variant mb-1">Langue</label>
+              <select id="cfg-primary-lang" class="w-full px-2 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold">
+                <option value="fr">Français</option>
+                <option value="ar">Arabe</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-on-surface-variant mb-1">Fuseau</label>
+              <input id="cfg-timezone" type="text" value="Africa/Casablanca" class="w-full px-2 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[10px]"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modules Optionnels Toggle -->
+        <div class="p-3 rounded-2xl bg-surface-container-low space-y-2">
+          <span class="text-[11px] font-extrabold text-on-surface block">Activation des Modules Spécialisés</span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-white border border-outline-variant/30 cursor-pointer">
+              <input id="cfg-enable-lab" type="checkbox" class="w-4 h-4 accent-primary"/>
+              <div><strong class="block text-[11px]">Laboratoire</strong><span class="text-[9.5px] text-outline">Biologie médicale</span></div>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-white border border-outline-variant/30 cursor-pointer">
+              <input id="cfg-enable-inv" type="checkbox" class="w-4 h-4 accent-primary"/>
+              <div><strong class="block text-[11px]">Stock Fournitures</strong><span class="text-[9.5px] text-outline">Inventaire médical</span></div>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-white border border-outline-variant/30 cursor-pointer">
+              <input id="cfg-enable-beds" type="checkbox" class="w-4 h-4 accent-primary"/>
+              <div><strong class="block text-[11px]">Lits Hospitaliers</strong><span class="text-[9.5px] text-outline">Si hospitalisation active</span></div>
+            </label>
+          </div>
+          <div class="flex items-center gap-2 pt-1">
+            <label class="text-[10.5px] text-outline">Nombre total de lits déclarés :</label>
+            <input id="cfg-total-beds" type="number" min="0" value="0" class="w-20 px-2 py-1 rounded-lg bg-white border border-outline-variant/40 font-bold"/>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow">
+          Enregistrer les Paramètres du Centre
+        </button>
+      </form>
+
+      <!-- PANEL 2 : BRANCHES / SITES -->
+      <div id="settings-panel-branches" class="hidden space-y-3">
+        <div id="cfg-branches-list" class="space-y-2"></div>
+        <form onsubmit="submitNewBranch(event)" class="p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30 space-y-2.5">
+          <strong class="text-xs font-bold text-on-surface block">+ Créer une Nouvelle Branche / Site</strong>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="new-br-name" required type="text" placeholder="Nom : Siège Californie..." class="px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40"/>
+            <input id="new-br-code" required type="text" placeholder="Code : CALIF..." class="px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-mono uppercase"/>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <input id="new-br-city" required type="text" placeholder="Ville..." value="Casablanca" class="px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40"/>
+            <input id="new-br-phone" type="text" placeholder="Tél..." value="+212 522-000000" class="px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40"/>
+            <input id="new-br-address" type="text" placeholder="Adresse..." class="px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40"/>
+          </div>
+          <button type="submit" class="w-full py-2 rounded-full bg-primary text-white font-bold hover:bg-primary-hover">Ajouter cette branche</button>
+        </form>
+      </div>
+
+      <!-- PANEL 3 : ACTES, HORAIRES & CONGÉS -->
+      <div id="settings-panel-catalog" class="hidden space-y-3">
+        <div class="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-surface-container-low">
+          <div>
+            <label class="block font-bold text-[10px] text-outline uppercase mb-0.5">Durée Créneau (min)</label>
+            <input id="cfg-slot-min" type="number" min="10" step="5" value="30" class="w-full px-2 py-1 rounded-lg bg-white border border-outline-variant/40 font-bold text-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-[10px] text-outline uppercase mb-0.5">Ouverture</label>
+            <input id="cfg-work-start" type="time" value="08:30" class="w-full px-2 py-1 rounded-lg bg-white border border-outline-variant/40 font-semibold"/>
+          </div>
+          <div>
+            <label class="block font-bold text-[10px] text-outline uppercase mb-0.5">Fermeture</label>
+            <input id="cfg-work-end" type="time" value="18:00" class="w-full px-2 py-1 rounded-lg bg-white border border-outline-variant/40 font-semibold"/>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <span class="text-[11px] font-extrabold text-on-surface block">Catalogue des Actes Médicaux &amp; Tarifs</span>
+          <div id="cfg-services-list" class="space-y-1.5 max-h-36 overflow-y-auto slim-scroll"></div>
+          <form onsubmit="submitNewService(event)" class="grid grid-cols-5 gap-1.5 pt-1">
+            <input id="new-srv-name" required type="text" placeholder="Acte médical..." class="col-span-2 px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs"/>
+            <select id="new-srv-spec" class="px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs">
+              <option value="Cardiologue">Cardiologue</option>
+              <option value="Médecin Généraliste">Généraliste</option>
+              <option value="Neurologue">Neurologue</option>
+              <option value="Pédiatre">Pédiatre</option>
+            </select>
+            <input id="new-srv-price" required type="number" min="50" step="50" value="600" placeholder="MAD" class="px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs font-bold text-primary"/>
+            <input id="new-srv-dur" type="number" min="10" step="5" value="30" placeholder="min" class="px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs"/>
+            <button type="submit" class="col-span-5 py-1.5 rounded-full bg-secondary-container text-primary font-bold hover:bg-primary hover:text-white transition-colors">+ Ajouter l'acte</button>
+          </form>
+        </div>
+
+        <div class="space-y-1.5 pt-2 border-t border-surface-container">
+          <span class="text-[11px] font-extrabold text-on-surface block">Jours Fériés &amp; Congés Exceptionnels</span>
+          <div id="cfg-holidays-list" class="space-y-1 max-h-28 overflow-y-auto slim-scroll"></div>
+          <form onsubmit="submitNewHoliday(event)" class="grid grid-cols-4 gap-1.5 pt-1">
+            <input id="new-hol-label" required type="text" placeholder="Motif congé..." class="col-span-2 px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs"/>
+            <input id="new-hol-start" required type="date" value="2026-11-06" class="px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px]"/>
+            <input id="new-hol-end" type="date" value="2026-11-06" class="px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px]"/>
+            <button type="submit" class="col-span-4 py-1.5 rounded-full bg-secondary-container text-primary font-bold hover:bg-primary hover:text-white transition-colors">+ Enregistrer fermeture</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- PANEL 4 : MODÈLES PDF & NUMÉROTATION -->
+      <form id="settings-panel-templates" onsubmit="saveCentreSettings(event)" class="hidden space-y-3">
+        <div class="grid grid-cols-5 gap-2">
+          <div><label class="block font-bold text-[10px] text-outline mb-0.5">Factures</label><input id="cfg-pfx-fac" type="text" value="FAC" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low font-mono font-bold uppercase"/></div>
+          <div><label class="block font-bold text-[10px] text-outline mb-0.5">Reçus</label><input id="cfg-pfx-rec" type="text" value="REC" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low font-mono font-bold uppercase"/></div>
+          <div><label class="block font-bold text-[10px] text-outline mb-0.5">Devis</label><input id="cfg-pfx-dev" type="text" value="DEV" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low font-mono font-bold uppercase"/></div>
+          <div><label class="block font-bold text-[10px] text-outline mb-0.5">Ordonnances</label><input id="cfg-pfx-ord" type="text" value="ORD" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low font-mono font-bold uppercase"/></div>
+          <div><label class="block font-bold text-[10px] text-outline mb-0.5">Certificats</label><input id="cfg-pfx-cert" type="text" value="CERT" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low font-mono font-bold uppercase"/></div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Mention d'En-tête Officielle</label>
+          <input id="cfg-doc-hdr" type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40"/>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Mention de Bas de Page / Mentions Légales CNDP</label>
+          <textarea id="cfg-doc-ftr" rows="2" class="w-full p-2.5 rounded-xl bg-surface-container-low border border-outline-variant/40"></textarea>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow">
+          Enregistrer les Modèles PDF
+        </button>
+      </form>
+
+      <!-- PANEL 5 : UTILISATEURS & RBAC TESTEUR -->
+      <div id="settings-panel-users" class="hidden space-y-3">
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[11px] font-extrabold text-on-surface">Changement Rapide de Profil Staff (Test RBAC)</span>
+            <span class="text-[10px] text-outline">Génère un token cryptographique réel côté serveur</span>
+          </div>
+          <div id="rbac-quick-switcher" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+        </div>
+
+        <form onsubmit="submitNewClinicUser(event)" class="p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30 space-y-2 pt-2 border-t">
+          <strong class="text-xs font-bold text-on-surface block">+ Créer un Compte Staff pour le Cabinet</strong>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="new-usr-name" required type="text" placeholder="Nom complet..." class="px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40"/>
+            <input id="new-usr-email" required type="email" placeholder="Email professionnel..." class="px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40"/>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <select id="new-usr-role" class="px-2 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-semibold">
+              <option value="owner">Owner (Médecin Fondateur &amp; Propriétaire)</option>
+              <option value="admin">Admin (Gestionnaire &amp; Caisse)</option>
+              <option value="docteur">Docteur (Médecin Praticien)</option>
+            </select>
+            <input id="new-usr-pwd" type="password" value="Cliniqo2026!" placeholder="Mot de passe..." class="px-2.5 py-1.5 rounded-xl bg-white border border-outline-variant/40 font-mono"/>
+          </div>
+          <button type="submit" class="w-full py-2 rounded-full bg-primary text-white font-bold hover:bg-primary-hover">Créer le compte staff</button>
+        </form>
+      </div>
+
+      <!-- PANEL 6 : SAUVEGARDES SQLITE & RESTAURATION -->
+      <div id="settings-panel-backups" class="hidden space-y-3">
+        <div class="p-3 rounded-2xl bg-secondary-container/45 border border-primary/20 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <strong class="text-xs font-bold text-primary block">Sauvegardes SQLite Hot Backup (VACUUM INTO)</strong>
+            <span class="text-[10px] text-outline">Intégrité transactionnelle avec empreinte SHA-256 et métadonnées</span>
+          </div>
+          <button onclick="createBackupArchive()" class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
+            + Créer une Sauvegarde Maintenant
+          </button>
+        </div>
+        <div id="cfg-backups-list" class="space-y-2 max-h-56 overflow-y-auto slim-scroll"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 z-[85] pointer-events-none opacity-0 translate-y-2 transition-all duration-300 bg-on-primary-fixed text-white px-3.5 py-2.5 rounded-xl shadow-floatCard flex items-center gap-2 text-xs font-semibold">
+    <span id="toast-icon" class="material-symbols-outlined text-[16px] text-brand-soft-mint">check_circle</span>
+    <span id="toast-msg">Synchronisé</span>
+  </div>
+
+  <!-- MODAL : AVOIR & REMBOURSEMENT -->
+  <div id="refund-modal" class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-md shadow-floatCard border border-outline-variant/30 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+        <div>
+          <h3 class="text-sm font-extrabold text-on-surface">Émettre un Avoir / Remboursement</h3>
+          <span class="text-[11px] text-outline">Facture <strong id="ref-modal-num" class="font-mono text-primary"></strong> • <span id="ref-modal-pat"></span></span>
+        </div>
+        <button onclick="closeModal('refund-modal')" class="p-1 rounded-full hover:bg-surface-container-low text-outline">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitInvoiceRefund(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Montant à rembourser (Max : <span id="ref-modal-max" class="font-bold text-primary"></span>)</label>
+          <input id="ref-modal-amount" type="number" step="0.01" min="1" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-mono font-bold text-error">
+        </div>
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Motif de l'avoir</label>
+          <input id="ref-modal-reason" type="text" required placeholder="Ex: Annulation d'acte, geste commercial, ajustement AMO..." class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+        </div>
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Mode de décaissement</label>
+          <select id="ref-modal-method" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+            <option value="Espèces">Espèces (Sortie caisse)</option>
+            <option value="Virement bancaire">Virement bancaire</option>
+            <option value="Carte Bancaire (Crédit)">Carte Bancaire (Crédit)</option>
+            <option value="Chèque">Chèque</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('refund-modal')" class="px-4 py-2 rounded-full text-xs font-semibold hover:bg-surface-container-low text-outline">Annuler</button>
+          <button type="submit" class="px-5 py-2 rounded-full bg-error hover:bg-error-hover text-white text-xs font-bold shadow-2xs">Valider l'Avoir</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL : NOUVELLE DÉPENSE & CHARGE -->
+  <div id="expense-modal" class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-md shadow-floatCard border border-outline-variant/30 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+        <div>
+          <h3 class="text-sm font-extrabold text-on-surface">Enregistrer une Dépense / Charge</h3>
+          <span class="text-[11px] text-outline">Imputation directe au journal des flux financiers</span>
+        </div>
+        <button onclick="closeModal('expense-modal')" class="p-1 rounded-full hover:bg-surface-container-low text-outline">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitNewExpense(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Catégorie</label>
+            <select id="exp-category" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-semibold">
+              <option value="Fournitures Médicales">Fournitures Médicales</option>
+              <option value="Réactifs Laboratoire">Réactifs Laboratoire</option>
+              <option value="Loyer & Charges">Loyer & Charges</option>
+              <option value="Salaires & Primes">Salaires & Primes</option>
+              <option value="Maintenance Équipement">Maintenance Équipement</option>
+              <option value="Logiciels & IT">Logiciels & IT</option>
+              <option value="Autre">Autre dépense</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Montant (MAD)</label>
+            <input id="exp-amount" type="number" step="0.01" min="1" required placeholder="0.00" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-mono font-bold text-error">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Description / Intitulé</label>
+          <input id="exp-desc" type="text" required placeholder="Ex: Réactifs automates Roche, Gants stériles..." class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Fournisseur</label>
+            <input id="exp-supplier" type="text" placeholder="Ex: Maroc Médical SARL" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Réf. Pièce Justificative</label>
+            <input id="exp-doc-ref" type="text" placeholder="Ex: Facture FAC-2026-88" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Mode de règlement</label>
+            <select id="exp-method" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+              <option value="Virement bancaire">Virement bancaire</option>
+              <option value="Espèces">Espèces (Caisse)</option>
+              <option value="Chèque">Chèque</option>
+              <option value="Carte Bancaire">Carte Bancaire</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Date d'opération</label>
+            <input id="exp-date" type="date" value="2026-10-29" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('expense-modal')" class="px-4 py-2 rounded-full text-xs font-semibold hover:bg-surface-container-low text-outline">Annuler</button>
+          <button type="submit" class="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-2xs">Enregistrer la Dépense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL : AJOUTER PRODUIT STOCK -->
+  <div id="stock-modal" class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-md shadow-floatCard border border-outline-variant/30 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+        <div>
+          <h3 class="text-sm font-extrabold text-on-surface">Ajouter un Produit Médical</h3>
+          <span class="text-[11px] text-outline">Gestion des fournitures, réactifs et consommables</span>
+        </div>
+        <button onclick="closeModal('stock-modal')" class="p-1 rounded-full hover:bg-surface-container-low text-outline">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitNewStockItem(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Désignation du produit</label>
+          <input id="stk-name" type="text" required placeholder="Ex: Gants d'examen nitrile poudrés L (Boîte 100)" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Catégorie</label>
+            <select id="stk-cat" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-semibold">
+              <option value="Consommables">Consommables</option>
+              <option value="Réactifs Bio">Réactifs Bio</option>
+              <option value="Imagerie">Imagerie</option>
+              <option value="Stérilisation">Stérilisation</option>
+              <option value="Médicaments">Médicaments</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Unité</label>
+            <input id="stk-unit" type="text" required placeholder="boîtes, flacons, unités..." value="boîtes" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Qté Initiale</label>
+            <input id="stk-qty" type="number" min="0" value="10" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-mono font-bold">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Seuil Alerte</label>
+            <input id="stk-min" type="number" min="1" value="5" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-mono text-error font-bold">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Coût unitaire (MAD)</label>
+            <input id="stk-cost" type="number" step="0.01" min="0" value="45.00" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-mono">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Fournisseur attitré</label>
+          <input id="stk-supplier" type="text" placeholder="Ex: Promamec Casablanca" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('stock-modal')" class="px-4 py-2 rounded-full text-xs font-semibold hover:bg-surface-container-low text-outline">Annuler</button>
+          <button type="submit" class="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-2xs">Ajouter au Stock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL : NOUVEAU DOCUMENT MÉDICAL -->
+  <div id="document-modal" class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-lg shadow-floatCard border border-outline-variant/30 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+        <div>
+          <h3 class="text-sm font-extrabold text-on-surface">Émettre un Document Médical Officiel</h3>
+          <span class="text-[11px] text-outline">Génération avec entête du centre, cachet et identifiants légaux</span>
+        </div>
+        <button onclick="closeModal('document-modal')" class="p-1 rounded-full hover:bg-surface-container-low text-outline">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitNewDocument(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Patient concerné</label>
+            <select id="docgen-patient-select" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-semibold"></select>
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Type de Document</label>
+            <select id="docgen-type" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-semibold">
+              <option value="prescription">Ordonnance Médicale</option>
+              <option value="certificate">Certificat Médical</option>
+              <option value="quote">Devis Médical / Estimation</option>
+              <option value="report">Compte-rendu Clinique</option>
+              <option value="appointment_confirmation">Confirmation de Rendez-vous</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Titre du document</label>
+          <input id="docgen-title" type="text" required placeholder="Ex: Ordonnance traitement hypertension ou Certificat d'aptitude..." class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+        </div>
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Contenu / Prescription / Corps du texte</label>
+          <textarea id="docgen-body" rows="4" required placeholder="Rédigez la posologie, le constat médical ou le détail des actes..." class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary resize-none"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3 items-center">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Montant Devis (Optionnel, MAD)</label>
+            <input id="docgen-amount" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-mono">
+          </div>
+          <div class="pt-4">
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+              <input id="docgen-share" type="checkbox" checked class="w-4 h-4 rounded text-primary focus:ring-primary border-outline-variant">
+              <span class="text-xs font-semibold text-on-surface">Rendre visible sur le Portail Patient</span>
+            </label>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('document-modal')" class="px-4 py-2 rounded-full text-xs font-semibold hover:bg-surface-container-low text-outline">Annuler</button>
+          <button type="submit" class="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-2xs">Générer le Document</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL : CRÉER / PROVISIONNER UNE CLINIQUE (Propriétaire SaaS) -->
+  <div id="saas-clinic-modal" class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-md shadow-floatCard border border-outline-variant/30 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+        <div>
+          <h3 class="text-sm font-extrabold text-on-surface">Provisionner un Nouveau Compte Clinique</h3>
+          <span class="text-[11px] text-outline">Création du tenant isolé et compte administrateur</span>
+        </div>
+        <button onclick="closeModal('saas-clinic-modal')" class="p-1 rounded-full hover:bg-surface-container-low text-outline">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitNewSaasClinic(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Raison Sociale / Nom du Centre</label>
+          <input id="saas-new-clinic-name" type="text" required placeholder="Ex: Clinique Noor Marrakech" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Ville</label>
+            <input id="saas-new-clinic-city" type="text" required placeholder="Ex: Marrakech" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Téléphone</label>
+            <input id="saas-new-clinic-phone" type="text" required placeholder="+212 524 00 00 00" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Nom Administrateur</label>
+            <input id="saas-new-admin-name" type="text" required placeholder="Ex: Dr. Alami" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Email Administrateur</label>
+            <input id="saas-new-admin-email" type="email" required placeholder="alami@clinique-noor.ma" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 items-center">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Forfait Cliniqo</label>
+            <select id="saas-new-plan-select" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-semibold">
+              <option value="1">Starter (790 MAD/m)</option>
+              <option value="2" selected>Pro Clinique (1 490 MAD/m)</option>
+              <option value="3">Enterprise Multi-Sites (2 990 MAD/m)</option>
+            </select>
+          </div>
+          <div class="pt-4">
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+              <input id="saas-new-trial-check" type="checkbox" checked class="w-4 h-4 rounded text-primary focus:ring-primary border-outline-variant">
+              <span class="text-xs font-semibold text-on-surface">Activer Essai Gratuit (30 Jours)</span>
+            </label>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('saas-clinic-modal')" class="px-4 py-2 rounded-full text-xs font-semibold hover:bg-surface-container-low text-outline">Annuler</button>
+          <button type="submit" class="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-2xs">Créer le Compte SaaS</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL SÉCURITÉ RBAC & ISOLATION DES ESPACES : ACCÈS REFUSÉ -->
+  <div id="role-denied-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-3xl border border-error/30 shadow-2xl p-6 modal-pop space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-error/10 text-error flex items-center justify-center mx-auto">
+        <span class="material-symbols-outlined text-3xl">shield_lock</span>
+      </div>
+      <div class="text-center space-y-1">
+        <span id="denied-badge" class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-error-container text-error tracking-wider">Accès Verrouillé • RBAC</span>
+        <h3 id="denied-title" class="text-base font-extrabold text-on-surface">Espace Restreint</h3>
+        <p id="denied-message" class="text-xs text-on-surface-variant leading-relaxed">
+          Votre rôle actuel ne dispose pas des autorisations nécessaires pour accéder à cet espace.
+        </p>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/30 space-y-2 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-outline">Votre profil connecté :</span>
+          <span id="denied-current-role" class="font-extrabold text-primary flex items-center gap-1">💼 Admin (Sarah Benali)</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-outline">Rôle exclusif requis :</span>
+          <span id="denied-required-role" class="font-extrabold text-amber-700 flex items-center gap-1">👑 Propriétaire (Dr. Jackson)</span>
+        </div>
+        <div class="flex items-center justify-between border-t border-outline-variant/30 pt-1.5">
+          <span class="text-outline">Périmètre légal &amp; conformité :</span>
+          <span id="denied-legal-ref" class="font-bold text-on-surface">Gestion Licences &amp; Abonnements</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="closeRoleDeniedModal()" class="flex-1 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span id="denied-action-btn">Retourner à mon Espace</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS APPLICATION CLINIQO CLOUD -->
+  <script src="js/cliniqo-pdf.js"></script>
+  <script src="js/cliniqo-saas.js"></script>
+  <script src="js/cliniqo-modules.js"></script>
+</body>
+</html>

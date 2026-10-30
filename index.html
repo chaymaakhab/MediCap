@@ -418,11 +418,108 @@
           <button id="lang-en" class="px-2 py-1 rounded text-outline hover:text-on-surface" onclick="switchLanguage('en')">EN</button>
         </div>
 
-        <!-- Sign In Link -->
-        <a href="dashboard.html" class="hidden sm:inline-flex font-semibold text-xs text-on-surface hover:text-primary transition-colors px-2.5 py-1.5 rounded-lg border border-surface-container hover:border-primary/40 hover:bg-surface-container-low flex items-center gap-1.5 shadow-xs">
-          <span class="material-symbols-outlined text-[16px] text-primary">stethoscope</span>
-          <span>Espace Praticien</span>
-        </a>
+        <!-- Login Button with Fast-Access Dropdown -->
+        <div class="relative" id="nav-login-wrapper">
+          <button id="nav-login-btn" onclick="toggleNavLoginDropdown(event)" 
+                  class="hidden sm:inline-flex items-center gap-1.5 font-bold text-xs bg-surface-container-lowest hover:bg-secondary-container text-primary border border-primary/25 hover:border-primary px-3 py-2 rounded-xl shadow-xs transition-all duration-200 group focus:outline-none">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-soft-mint opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            <span class="material-symbols-outlined text-[17px] text-primary group-hover:scale-110 transition-transform">lock_open</span>
+            <span>Connexion</span>
+            <span class="material-symbols-outlined text-[15px] text-outline transition-transform duration-200" id="login-chevron">expand_more</span>
+          </button>
+
+          <!-- Dropdown Accès Rapide aux Espaces -->
+          <div id="nav-login-dropdown" onclick="event.stopPropagation()" 
+               class="hidden absolute right-0 mt-2 w-[340px] sm:w-[380px] bg-white/95 backdrop-blur-xl rounded-2xl p-3 shadow-2xl border border-outline-variant/40 z-[80] space-y-2 text-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+              <div>
+                <strong class="text-xs text-on-surface block font-extrabold">Accès Rapide aux Espaces</strong>
+                <span class="text-[10px] text-outline">Sélectionnez votre rôle médical en 1 clic</span>
+              </div>
+              <button onclick="openLoginModal('credentials')" class="text-[10.5px] font-bold text-primary hover:underline flex items-center gap-0.5">
+                <span class="material-symbols-outlined text-[13px]">key</span>
+                <span>Manuel</span>
+              </button>
+            </div>
+
+            <div class="space-y-1.5">
+              <!-- Item 1: Owner -->
+              <button onclick="quickLoginRole('owner')" 
+                      class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
+                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
+                  👑
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-1">
+                    <strong class="text-xs font-bold text-on-surface">Espace Owner</strong>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-primary text-white">PROPRIÉTAIRE</span>
+                  </div>
+                  <p class="text-[10.5px] text-outline mt-0.5 leading-snug">Gestion des abonnements, packs &amp; forfaits SaaS, supervision globale.</p>
+                  <span class="text-[9.5px] font-mono text-primary font-bold mt-1 inline-block">Dr. Jackson • owner@cabinet-cliniqo.ma</span>
+                </div>
+              </button>
+
+              <!-- Item 2: Admin -->
+              <button onclick="quickLoginRole('admin')" 
+                      class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
+                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
+                  💼
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-1">
+                    <strong class="text-xs font-bold text-on-surface">Espace Admin</strong>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-secondary-container text-primary">CABINET COMPLET</span>
+                  </div>
+                  <p class="text-[10.5px] text-outline mt-0.5 leading-snug">Gestion complète du cabinet : agenda, caisse &amp; facturation CNSS, dépenses &amp; stock.</p>
+                  <span class="text-[9.5px] font-mono text-primary font-bold mt-1 inline-block">Sarah Benali • admin@cabinet-cliniqo.ma</span>
+                </div>
+              </button>
+
+              <!-- Item 3: Docteur -->
+              <button onclick="quickLoginRole('docteur')" 
+                      class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
+                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
+                  🩺
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-1">
+                    <strong class="text-xs font-bold text-on-surface">Espace Docteur</strong>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">CONSULTATIONS &amp; DME</span>
+                  </div>
+                  <p class="text-[10.5px] text-outline mt-0.5 leading-snug">Planning rendez-vous, fiche patient DME, ordonnances sécurisées QR &amp; labo.</p>
+                  <span class="text-[9.5px] font-mono text-primary font-bold mt-1 inline-block">Dr. Alimi Jan • docteur@cabinet-cliniqo.ma</span>
+                </div>
+              </button>
+
+              <!-- Item 4: Patient Portal -->
+              <a href="espace-patient.html" 
+                 class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
+                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
+                  👤
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-1">
+                    <strong class="text-xs font-bold text-on-surface">Espace Patient</strong>
+                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-surface-container text-outline">PORTAIL SÉCURISÉ</span>
+                  </div>
+                  <p class="text-[10.5px] text-outline mt-0.5 leading-snug">Ordonnances, reçus officiels, bilans de santé et prise de rendez-vous en ligne.</p>
+                  <span class="text-[9.5px] font-mono text-outline font-semibold mt-1 inline-block">Accès CIN + PIN démo (1234)</span>
+                </div>
+              </a>
+            </div>
+
+            <div class="pt-2 border-t border-surface-container flex items-center justify-between">
+              <button onclick="openLoginModal('roles')" class="text-[10.5px] font-bold text-primary hover:underline flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">open_in_full</span>
+                <span>Ouvrir en plein écran</span>
+              </button>
+              <span class="text-[10px] text-outline font-mono">Conformité CNDP</span>
+            </div>
+          </div>
+        </div>
 
         <!-- Schedule Demo CTA -->
         <button onclick="openDemoModal('Demande de Démonstration Live')" class="btn-shimmer inline-flex items-center justify-center gap-1.5 font-bold text-xs bg-gradient-to-r from-primary to-primary-container text-white hover:opacity-95 transition-all px-3.5 py-2 rounded-xl shadow-[0_2px_12px_rgba(0,81,49,0.22)] hover:shadow-[0_4px_18px_rgba(0,81,49,0.35)] hover:scale-102 active:scale-98">
@@ -456,6 +553,55 @@
       <a href="#telemetry" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Interface Directe</a>
       <a href="#privacy" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Conformité CNDP & Sécurité</a>
       <a href="#pricing" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Tarifs & Forfaits</a>
+
+      <!-- Connexion Mobile par Rôle -->
+      <div class="pt-3 border-t border-surface-container space-y-1.5">
+        <div class="flex items-center justify-between px-3 mb-1">
+          <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-primary">Connexion &amp; Espaces</span>
+          <button onclick="toggleMobileMenu(); openLoginModal('credentials')" class="text-[10.5px] font-bold text-outline hover:text-primary">Manuel &rarr;</button>
+        </div>
+        <button onclick="toggleMobileMenu(); quickLoginRole('owner')" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">👑</span>
+            <div>
+              <strong class="text-xs font-bold text-on-surface block">Espace Owner</strong>
+              <span class="text-[10px] text-outline">Abonnements, Packs &amp; Super-Admin</span>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-[16px] text-primary">chevron_right</span>
+        </button>
+        <button onclick="toggleMobileMenu(); quickLoginRole('admin')" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">💼</span>
+            <div>
+              <strong class="text-xs font-bold text-on-surface block">Espace Admin</strong>
+              <span class="text-[10px] text-outline">Gestion Cabinet, Caisse &amp; Stock</span>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-[16px] text-primary">chevron_right</span>
+        </button>
+        <button onclick="toggleMobileMenu(); quickLoginRole('docteur')" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">🩺</span>
+            <div>
+              <strong class="text-xs font-bold text-on-surface block">Espace Docteur</strong>
+              <span class="text-[10px] text-outline">Rendez-vous, Fiche Patient DME &amp; Ordonnances</span>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-[16px] text-primary">chevron_right</span>
+        </button>
+        <a href="espace-patient.html" onclick="toggleMobileMenu()" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">👤</span>
+            <div>
+              <strong class="text-xs font-bold text-on-surface block">Espace Patient</strong>
+              <span class="text-[10px] text-outline">Portail Citoyen &amp; Ordonnances QR</span>
+            </div>
+          </div>
+          <span class="material-symbols-outlined text-[16px] text-primary">open_in_new</span>
+        </a>
+      </div>
+
       <div class="pt-3 border-t border-surface-container flex items-center justify-between">
         <span class="text-xs font-semibold text-outline">Langue :</span>
         <div class="inline-flex items-center bg-surface-container-low rounded-lg p-0.5 text-xs font-semibold">
@@ -1670,6 +1816,206 @@
   </div>
 
   <!-- ========================================================================= -->
+  <!-- MODALE PRINCIPALE DE CONNEXION & ACCÈS RAPIDE PAR RÔLE -->
+  <!-- ========================================================================= -->
+  <div id="login-modal" onclick="closeLoginModal()" class="fixed inset-0 z-[85] hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div onclick="event.stopPropagation()" class="bg-surface-container-lowest rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-outline-variant/40 relative my-8" role="dialog" aria-modal="true">
+      
+      <!-- Close button -->
+      <button onclick="closeLoginModal()" class="absolute top-5 right-5 text-outline hover:text-on-surface p-1 rounded-xl hover:bg-surface-container-low transition-colors" aria-label="Fermer la modal">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="mb-5">
+        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-primary bg-secondary-container px-3 py-1 rounded-full mb-2">
+          <span class="material-symbols-outlined text-[15px]">verified_user</span>
+          <span>Portail d'Authentification Sécurisé • Conforme CNDP</span>
+        </div>
+        <h3 class="text-xl font-extrabold text-on-surface">Connexion &amp; Accès aux Espaces Cliniqo</h3>
+        <p class="text-xs text-on-surface-variant mt-1">Sélectionnez votre espace professionnel ou connectez-vous avec vos identifiants.</p>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="flex items-center gap-2 p-1 bg-surface-container-low rounded-xl mb-5 text-xs font-bold">
+        <button id="login-tab-roles" onclick="switchLoginTab('roles')" class="flex-1 py-2 rounded-lg bg-surface-container-lowest text-primary shadow-xs transition-all flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">bolt</span>
+          <span>Accès Rapide par Rôle (Démo 1 Clic)</span>
+        </button>
+        <button id="login-tab-credentials" onclick="switchLoginTab('credentials')" class="flex-1 py-2 rounded-lg text-outline hover:text-on-surface transition-all flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">key</span>
+          <span>Connexion Manuelle (Email / Mot de passe)</span>
+        </button>
+      </div>
+
+      <!-- Tab Content 1: Roles Fast Access -->
+      <div id="login-view-roles" class="space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          
+          <!-- Carte 1: Espace Owner -->
+          <div class="p-3.5 rounded-2xl bg-surface-container-low border border-primary/25 hover:border-primary shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl group-hover:scale-110 transition-transform inline-block">👑</span>
+                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-primary text-white">OWNER</span>
+              </div>
+              <div>
+                <strong class="text-xs font-extrabold text-on-surface block">Espace Owner</strong>
+                <span class="text-[10px] text-outline">Dr. Jackson • Fondateur</span>
+              </div>
+              <ul class="text-[10.5px] text-on-surface-variant space-y-1.5 pt-1 border-t border-outline-variant/30">
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0 mt-0.5">card_membership</span>
+                  <span><strong>Gestion des Abonnements</strong> (suivi échéances, renouvellement)</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0 mt-0.5">inventory</span>
+                  <span><strong>Gestion des Packs</strong> (Solo, Pro, Groupe &amp; quotas)</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0 mt-0.5">security</span>
+                  <span>Supervision globale &amp; sauvegardes SQLite</span>
+                </li>
+              </ul>
+            </div>
+            <button onclick="quickLoginRole('owner')" class="mt-3.5 w-full py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1">
+              <span>Entrer en Owner</span>
+              <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </button>
+          </div>
+
+          <!-- Carte 2: Espace Admin -->
+          <div class="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/40 hover:border-primary shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl group-hover:scale-110 transition-transform inline-block">💼</span>
+                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-secondary-container text-primary">ADMIN</span>
+              </div>
+              <div>
+                <strong class="text-xs font-extrabold text-on-surface block">Espace Admin</strong>
+                <span class="text-[10px] text-outline">Sarah Benali • Gestionnaire</span>
+              </div>
+              <ul class="text-[10.5px] text-on-surface-variant space-y-1.5 pt-1 border-t border-outline-variant/30">
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0 mt-0.5">domain</span>
+                  <span><strong>Gestion Complète du Cabinet</strong> (salle d'attente, accueil)</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0 mt-0.5">point_of_sale</span>
+                  <span><strong>Facturation &amp; Caisse MAD</strong> (Espèces, TPE, CNSS)</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0 mt-0.5">inventory_2</span>
+                  <span><strong>Dépenses &amp; Stock</strong> de consommables</span>
+                </li>
+              </ul>
+            </div>
+            <button onclick="quickLoginRole('admin')" class="mt-3.5 w-full py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1">
+              <span>Entrer en Admin</span>
+              <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </button>
+          </div>
+
+          <!-- Carte 3: Espace Docteur -->
+          <div class="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/40 hover:border-primary shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-2xl group-hover:scale-110 transition-transform inline-block">🩺</span>
+                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-primary/15 text-primary">DOCTEUR</span>
+              </div>
+              <div>
+                <strong class="text-xs font-extrabold text-on-surface block">Espace Docteur</strong>
+                <span class="text-[10px] text-outline">Dr. Alimi Jan • Cardiologue</span>
+              </div>
+              <ul class="text-[10.5px] text-on-surface-variant space-y-1.5 pt-1 border-t border-outline-variant/30">
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0 mt-0.5">event_available</span>
+                  <span><strong>Planning Rendez-vous</strong> &amp; consultations du jour</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0 mt-0.5">medical_information</span>
+                  <span><strong>Fiche Patient &amp; DME</strong> (constantes, antécédents)</span>
+                </li>
+                <li class="flex items-start gap-1.5">
+                  <span class="material-symbols-outlined text-[14px] text-primary flex-shrink-0 mt-0.5">qr_code_2</span>
+                  <span><strong>Ordonnances Sécurisées</strong> avec QR Code &amp; Labo</span>
+                </li>
+              </ul>
+            </div>
+            <button onclick="quickLoginRole('docteur')" class="mt-3.5 w-full py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1">
+              <span>Entrer en Docteur</span>
+              <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Carte Bonus Patient Portal -->
+        <div class="p-3 rounded-2xl bg-secondary-container/35 border border-primary/20 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">👤</span>
+            <div>
+              <strong class="text-xs font-extrabold text-on-surface">Portail Patient Sécurisé</strong>
+              <p class="text-[10.5px] text-outline">Accès en ligne aux ordonnances, bilans de santé et prise de rendez-vous (CIN BE-882911 • PIN 1234).</p>
+            </div>
+          </div>
+          <a href="espace-patient.html" class="px-3.5 py-1.5 rounded-full bg-surface-container-lowest hover:bg-secondary-container text-primary font-bold text-xs border border-primary/30 transition-all flex items-center gap-1">
+            <span>Ouvrir l'Espace Patient</span>
+            <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Tab Content 2: Manual Credentials Form -->
+      <div id="login-view-credentials" class="hidden space-y-4 text-xs">
+        <form onsubmit="handleManualLogin(event)" class="space-y-3">
+          <div>
+            <label class="block font-bold text-on-surface mb-1">Adresse e-mail professionnelle *</label>
+            <input type="email" id="manual-login-email" required placeholder="owner@cabinet-cliniqo.ma" value="owner@cabinet-cliniqo.ma" 
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+          </div>
+
+          <div>
+            <label class="block font-bold text-on-surface mb-1">Mot de passe *</label>
+            <input type="password" id="manual-login-pass" required placeholder="••••••••" value="demo2026" 
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-xs font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"/>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] text-outline">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary"/>
+              <span>Mémoriser ma session sur ce poste</span>
+            </label>
+            <a href="#" onclick="alert('En mode démo, le mot de passe est demo2026 ou utilisez l\'accès rapide par rôle.')" class="text-primary hover:underline font-semibold">Mot de passe oublié ?</a>
+          </div>
+
+          <!-- Quick Fill Pills -->
+          <div class="p-2.5 rounded-xl bg-surface-container-low border border-surface-container space-y-1">
+            <span class="text-[10px] font-bold text-outline uppercase block">Remplissage rapide des comptes démo :</span>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" onclick="fillDemoCredentials('owner')" class="px-2 py-0.5 rounded-lg bg-surface-container-lowest text-primary text-[10px] font-bold border border-primary/20 hover:bg-secondary-container">👑 Owner</button>
+              <button type="button" onclick="fillDemoCredentials('admin')" class="px-2 py-0.5 rounded-lg bg-surface-container-lowest text-primary text-[10px] font-bold border border-primary/20 hover:bg-secondary-container">💼 Admin</button>
+              <button type="button" onclick="fillDemoCredentials('docteur')" class="px-2 py-0.5 rounded-lg bg-surface-container-lowest text-primary text-[10px] font-bold border border-primary/20 hover:bg-secondary-container">🩺 Docteur</button>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-[17px]">login</span>
+            <span>Se Connecter au Tableau de Bord</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification de Connexion -->
+  <div id="login-toast" class="fixed bottom-5 right-5 z-[100] pointer-events-none opacity-0 translate-y-3 transition-all duration-300 bg-on-primary-fixed text-white px-4 py-3 rounded-2xl shadow-floatCard flex items-center gap-2.5 text-xs font-semibold">
+    <span id="login-toast-icon" class="material-symbols-outlined text-[18px] text-brand-soft-mint animate-spin">sync</span>
+    <span id="login-toast-msg">Connexion en cours...</span>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- JAVASCRIPT: LOGIC, 3D SIMULATION, INTERACTION & LOCALIZATION -->
   <!-- ========================================================================= -->
   <script>
@@ -2038,6 +2384,200 @@
     }
 
     // -------------------------------------------------------------
+    // AUTHENTICATION & ROLE-BASED QUICK LOGIN (OWNER / ADMIN / DOCTEUR)
+    // -------------------------------------------------------------
+    const ROLE_CONFIG = {
+      owner: {
+        id: 1,
+        name: 'Dr. Jackson',
+        roleLabel: 'Propriétaire & Fondateur',
+        email: 'owner@cabinet-cliniqo.ma',
+        targetUrl: 'dashboard.html#saas-owner',
+        desc: 'Gestion des abonnements, forfaits & super-admin'
+      },
+      admin: {
+        id: 2,
+        name: 'Sarah Benali',
+        roleLabel: 'Gestionnaire Administrative',
+        email: 'admin@cabinet-cliniqo.ma',
+        targetUrl: 'dashboard.html#overview',
+        desc: 'Gestion complète du cabinet médical, caisse & stock'
+      },
+      docteur: {
+        id: 3,
+        name: 'Dr. Alimi Jan',
+        roleLabel: 'Médecin Cardiologue Praticien',
+        email: 'docteur@cabinet-cliniqo.ma',
+        targetUrl: 'rendez-vous.html',
+        desc: 'Consultations, fiche patient DME & ordonnances'
+      },
+      patient: {
+        id: 'patient',
+        name: 'Portail Patient',
+        roleLabel: 'Patient Sécurisé',
+        email: 'patient@cliniqo.ma',
+        targetUrl: 'espace-patient.html',
+        desc: 'Portail Patient & documents officiels'
+      }
+    };
+
+    function toggleNavLoginDropdown(ev) {
+      if (ev) ev.stopPropagation();
+      const dd = document.getElementById('nav-login-dropdown');
+      const chev = document.getElementById('login-chevron');
+      if (!dd) return;
+      const willOpen = dd.classList.contains('hidden');
+      dd.classList.toggle('hidden');
+      if (chev) {
+        chev.style.transform = willOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+    }
+
+    function openLoginModal(tab = 'roles') {
+      const dd = document.getElementById('nav-login-dropdown');
+      if (dd) dd.classList.add('hidden');
+      const chev = document.getElementById('login-chevron');
+      if (chev) chev.style.transform = 'rotate(0deg)';
+
+      switchLoginTab(tab);
+      const modal = document.getElementById('login-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('login-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    function switchLoginTab(tab) {
+      const isRoles = tab === 'roles';
+      document.getElementById('login-view-roles')?.classList.toggle('hidden', !isRoles);
+      document.getElementById('login-view-credentials')?.classList.toggle('hidden', isRoles);
+
+      const btnRoles = document.getElementById('login-tab-roles');
+      const btnCreds = document.getElementById('login-tab-credentials');
+
+      if (btnRoles && btnCreds) {
+        if (isRoles) {
+          btnRoles.className = 'flex-1 py-2 rounded-lg bg-surface-container-lowest text-primary shadow-xs transition-all flex items-center justify-center gap-1.5 font-bold';
+          btnCreds.className = 'flex-1 py-2 rounded-lg text-outline hover:text-on-surface transition-all flex items-center justify-center gap-1.5 font-bold';
+        } else {
+          btnCreds.className = 'flex-1 py-2 rounded-lg bg-surface-container-lowest text-primary shadow-xs transition-all flex items-center justify-center gap-1.5 font-bold';
+          btnRoles.className = 'flex-1 py-2 rounded-lg text-outline hover:text-on-surface transition-all flex items-center justify-center gap-1.5 font-bold';
+        }
+      }
+    }
+
+    let loginToastTimer = null;
+    function showLoginToast(msg, type = 'info') {
+      const el = document.getElementById('login-toast');
+      const msgEl = document.getElementById('login-toast-msg');
+      const iconEl = document.getElementById('login-toast-icon');
+      if (!el || !msgEl || !iconEl) return;
+
+      msgEl.textContent = msg;
+      if (type === 'success') {
+        iconEl.textContent = 'check_circle';
+        iconEl.className = 'material-symbols-outlined text-[18px] text-brand-soft-mint';
+      } else if (type === 'error') {
+        iconEl.textContent = 'error';
+        iconEl.className = 'material-symbols-outlined text-[18px] text-red-300';
+      } else {
+        iconEl.textContent = 'sync';
+        iconEl.className = 'material-symbols-outlined text-[18px] text-brand-soft-mint animate-spin';
+      }
+
+      el.classList.remove('opacity-0', 'translate-y-3');
+      if (loginToastTimer) clearTimeout(loginToastTimer);
+      loginToastTimer = setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-3');
+      }, 3500);
+    }
+
+    async function quickLoginRole(roleKey) {
+      const cfg = ROLE_CONFIG[roleKey];
+      if (!cfg) return;
+
+      if (roleKey === 'patient') {
+        showLoginToast('Redirection vers le Portail Patient Sécurisé...', 'info');
+        setTimeout(() => { window.location.href = cfg.targetUrl; }, 350);
+        return;
+      }
+
+      showLoginToast(`Connexion à l'Espace ${cfg.roleLabel} (${cfg.name})...`, 'info');
+
+      let token = 'cliniqo-token-demo-' + roleKey;
+      const apiCandidates = [
+        'http://127.0.0.1:8000/api/v1',
+        'http://127.0.0.1:8001/api/v1'
+      ];
+
+      for (const base of apiCandidates) {
+        try {
+          const res = await fetch(`${base}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ user_id: cfg.id })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.token) {
+              token = data.token;
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+
+      // Configure local session
+      localStorage.setItem('cliniqo_staff_token', token);
+      localStorage.setItem('cliniqo_tenant_id', '1');
+      localStorage.setItem('cliniqo_branch_id', 'all');
+      localStorage.setItem('cliniqo_user_role', roleKey);
+      localStorage.setItem('cliniqo_user_name', cfg.name);
+
+      showLoginToast(`Session initialisée ! Bienvenue ${cfg.name}`, 'success');
+      setTimeout(() => {
+        window.location.href = cfg.targetUrl;
+      }, 400);
+    }
+
+    function fillDemoCredentials(roleKey) {
+      const cfg = ROLE_CONFIG[roleKey];
+      if (!cfg) return;
+      const emailInput = document.getElementById('manual-login-email');
+      const passInput = document.getElementById('manual-login-pass');
+      if (emailInput) emailInput.value = cfg.email || '';
+      if (passInput) passInput.value = 'demo2026';
+    }
+
+    function handleManualLogin(e) {
+      e.preventDefault();
+      const email = (document.getElementById('manual-login-email')?.value || '').trim().toLowerCase();
+      let role = 'owner';
+      if (email.includes('admin') || email.includes('sarah')) role = 'admin';
+      else if (email.includes('docteur') || email.includes('alimi') || email.includes('doctor')) role = 'docteur';
+      else if (email.includes('patient')) role = 'patient';
+
+      quickLoginRole(role);
+    }
+
+    // Expose functions globally for HTML onclick handlers
+    window.toggleNavLoginDropdown = toggleNavLoginDropdown;
+    window.openLoginModal = openLoginModal;
+    window.closeLoginModal = closeLoginModal;
+    window.switchLoginTab = switchLoginTab;
+    window.quickLoginRole = quickLoginRole;
+    window.fillDemoCredentials = fillDemoCredentials;
+    window.handleManualLogin = handleManualLogin;
+
+    // -------------------------------------------------------------
     // MODAL CONTROL & FORM SUBMISSION
     // -------------------------------------------------------------
     function openDemoModal(customTitle) {
@@ -2298,7 +2838,25 @@
 
     // Close modal on escape key
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeDemoModal();
+      if (e.key === 'Escape') {
+        closeDemoModal();
+        closeLoginModal();
+        const dd = document.getElementById('nav-login-dropdown');
+        if (dd) dd.classList.add('hidden');
+        const chev = document.getElementById('login-chevron');
+        if (chev) chev.style.transform = 'rotate(0deg)';
+      }
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener('click', (e) => {
+      const wrapper = document.getElementById('nav-login-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        const dd = document.getElementById('nav-login-dropdown');
+        if (dd) dd.classList.add('hidden');
+        const chev = document.getElementById('login-chevron');
+        if (chev) chev.style.transform = 'rotate(0deg)';
+      }
     });
   </script>
 

@@ -137,7 +137,7 @@
 
       <!-- Gauche : Logo Vert Cliniqo + Sélecteur Multi-Cliniques -->
       <div class="flex items-center gap-2 relative">
-        <a href="../index.html" class="flex items-center gap-2 group focus:outline-none" title="Retour à la page d'accueil">
+        <a href="index.html" class="flex items-center gap-2 group focus:outline-none" title="Retour à la page d'accueil">
           <div class="w-8 h-8 rounded-xl bg-surface-container-lowest border border-outline-variant/40 shadow-pill flex items-center justify-center group-hover:scale-105 transition-transform">
             <svg class="w-5 h-5" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="36" y="8" width="28" height="84" rx="14" fill="#005131"/>
@@ -264,6 +264,10 @@
                   <span class="material-symbols-outlined text-[15px] text-primary">security</span>
                   <span>Sécurité &amp; Backups</span>
                 </button>
+                <button onclick="switchTab('saas-owner')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-primary/5 hover:bg-secondary-container text-[11px] font-bold text-primary transition-colors border-t border-surface-container pt-1.5">
+                  <span class="material-symbols-outlined text-[15px] text-primary">card_membership</span>
+                  <span>Abonnements &amp; Forfaits</span>
+                </button>
               </div>
             </div>
           </div>
@@ -341,6 +345,15 @@
                 <span class="text-[10px] text-outline">Dr. Alimi Jan • Consultations &amp; DME</span>
               </div>
             </button>
+            <div class="pt-1.5 border-t border-surface-container mt-1">
+              <button onclick="document.getElementById('quick-role-menu').classList.add('hidden'); switchTab('saas-owner');" class="w-full text-left px-2 py-1.5 rounded-xl bg-primary/5 hover:bg-secondary-container text-primary flex items-center justify-between transition-colors">
+                <span class="text-[10.5px] font-bold flex items-center gap-1.5">
+                  <span class="material-symbols-outlined text-[14px]">card_membership</span>
+                  <span>Abonnements &amp; Forfaits</span>
+                </span>
+                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary text-white">Owner</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -2027,6 +2040,44 @@
           <button type="submit" class="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-2xs">Créer le Compte SaaS</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL SÉCURITÉ RBAC & ISOLATION DES ESPACES : ACCÈS REFUSÉ -->
+  <div id="role-denied-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-3xl border border-error/30 shadow-2xl p-6 modal-pop space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-error/10 text-error flex items-center justify-center mx-auto">
+        <span class="material-symbols-outlined text-3xl">shield_lock</span>
+      </div>
+      <div class="text-center space-y-1">
+        <span id="denied-badge" class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-error-container text-error tracking-wider">Accès Verrouillé • RBAC</span>
+        <h3 id="denied-title" class="text-base font-extrabold text-on-surface">Espace Restreint</h3>
+        <p id="denied-message" class="text-xs text-on-surface-variant leading-relaxed">
+          Votre rôle actuel ne dispose pas des autorisations nécessaires pour accéder à cet espace.
+        </p>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/30 space-y-2 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-outline">Votre profil connecté :</span>
+          <span id="denied-current-role" class="font-extrabold text-primary flex items-center gap-1">💼 Admin (Sarah Benali)</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-outline">Rôle exclusif requis :</span>
+          <span id="denied-required-role" class="font-extrabold text-amber-700 flex items-center gap-1">👑 Propriétaire (Dr. Jackson)</span>
+        </div>
+        <div class="flex items-center justify-between border-t border-outline-variant/30 pt-1.5">
+          <span class="text-outline">Périmètre légal &amp; conformité :</span>
+          <span id="denied-legal-ref" class="font-bold text-on-surface">Gestion Licences &amp; Abonnements</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="closeRoleDeniedModal()" class="flex-1 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span id="denied-action-btn">Retourner à mon Espace</span>
+        </button>
+      </div>
     </div>
   </div>
 

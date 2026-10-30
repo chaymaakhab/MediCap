@@ -129,7 +129,7 @@
 
       <!-- Gauche : Logo Vert Cliniqo + Sélecteur Multi-Cliniques -->
       <div class="flex items-center gap-2 relative">
-        <a href="../index.html" class="flex items-center gap-2 group focus:outline-none" title="Retour à l'accueil Cliniqo">
+        <a href="index.html" class="flex items-center gap-2 group focus:outline-none" title="Retour à l'accueil Cliniqo">
           <div class="w-8 h-8 rounded-xl bg-surface-container-lowest border border-outline-variant/40 shadow-pill flex items-center justify-center group-hover:scale-105 transition-transform">
             <svg class="w-5 h-5" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="36" y="8" width="28" height="84" rx="14" fill="#005131"/>
@@ -746,47 +746,67 @@
           </div>
         </div>
 
-        <div class="p-3 rounded-2xl bg-surface-container-low space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-on-surface">Constantes Vitales (Modifiables)</span>
-            <span class="text-[9.5px] font-bold text-primary flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green animate-ping"></span> Dérivation II</span>
+        <!-- Volet Médical Clinique (Affiché pour Docteur & Owner) -->
+        <div id="dme-clinical-section" class="space-y-3.5">
+          <div class="p-3 rounded-2xl bg-surface-container-low space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-on-surface">Constantes Vitales (Modifiables)</span>
+              <span class="text-[9.5px] font-bold text-primary flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green animate-ping"></span> Dérivation II</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-white p-2 rounded-xl">
+                <span class="text-[9.5px] text-outline block">TA (mmHg)</span>
+                <input id="dme-bp-input" type="text" class="w-full text-center text-xs font-extrabold text-on-surface focus:outline-none" value="126/80"/>
+              </div>
+              <div class="bg-white p-2 rounded-xl">
+                <span class="text-[9.5px] text-outline block">SpO2</span>
+                <input id="dme-spo2-input" type="text" class="w-full text-center text-xs font-extrabold text-primary focus:outline-none" value="98.6%"/>
+              </div>
+              <div class="bg-white p-2 rounded-xl">
+                <span class="text-[9.5px] text-outline block">Fréq. Card.</span>
+                <input id="dme-hr-input" type="text" class="w-full text-center text-xs font-extrabold text-on-surface focus:outline-none" value="74 bpm"/>
+              </div>
+            </div>
+            <svg class="w-full h-9 text-brand-soft-green" viewBox="0 0 320 40" fill="none" preserveAspectRatio="none">
+              <path class="ecg-trace" d="M0,22 L42,22 L50,14 L57,28 L64,22 L102,22 L110,4 L117,36 L124,22 L178,22 L186,14 L193,28 L200,22 L242,22 L250,5 L257,35 L264,22 L320,22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
           </div>
-          <div class="grid grid-cols-3 gap-2 text-center">
-            <div class="bg-white p-2 rounded-xl">
-              <span class="text-[9.5px] text-outline block">TA (mmHg)</span>
-              <input id="dme-bp-input" type="text" class="w-full text-center text-xs font-extrabold text-on-surface focus:outline-none" value="126/80"/>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-[10.5px] font-bold text-outline uppercase">Observation Clinique CIM-11</label>
+              <select id="dme-icd-select" class="text-[10px] font-bold bg-surface-container-low text-primary rounded-md px-2 py-0.5 focus:outline-none">
+                <option value="BA00 • Hypertension essentielle">BA00 • Hypertension</option>
+                <option value="8A80 • Migraine avec aura">8A80 • Migraine</option>
+                <option value="BC41 • Suivi d'arythmie">BC41 • Arythmie</option>
+                <option value="QA00 • Bilan général">QA00 • Bilan général</option>
+              </select>
             </div>
-            <div class="bg-white p-2 rounded-xl">
-              <span class="text-[9.5px] text-outline block">SpO2</span>
-              <input id="dme-spo2-input" type="text" class="w-full text-center text-xs font-extrabold text-primary focus:outline-none" value="98.6%"/>
-            </div>
-            <div class="bg-white p-2 rounded-xl">
-              <span class="text-[9.5px] text-outline block">Fréq. Card.</span>
-              <input id="dme-hr-input" type="text" class="w-full text-center text-xs font-extrabold text-on-surface focus:outline-none" value="74 bpm"/>
-            </div>
+            <textarea id="dme-note" rows="3" class="w-full p-2.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs text-on-surface focus:outline-none focus:border-primary" placeholder="Saisissez les observations médicales et la conduite à tenir..."></textarea>
           </div>
-          <svg class="w-full h-9 text-brand-soft-green" viewBox="0 0 320 40" fill="none" preserveAspectRatio="none">
-            <path class="ecg-trace" d="M0,22 L42,22 L50,14 L57,28 L64,22 L102,22 L110,4 L117,36 L124,22 L178,22 L186,14 L193,28 L200,22 L242,22 L250,5 L257,35 L264,22 L320,22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+
+          <div id="dme-notes-history" class="space-y-1.5 max-h-[140px] overflow-y-auto slim-scroll"></div>
         </div>
 
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <label class="text-[10.5px] font-bold text-outline uppercase">Observation Clinique CIM-11</label>
-            <select id="dme-icd-select" class="text-[10px] font-bold bg-surface-container-low text-primary rounded-md px-2 py-0.5 focus:outline-none">
-              <option value="BA00 • Hypertension essentielle">BA00 • Hypertension</option>
-              <option value="8A80 • Migraine avec aura">8A80 • Migraine</option>
-              <option value="BC41 • Suivi d'arythmie">BC41 • Arythmie</option>
-              <option value="QA00 • Bilan général">QA00 • Bilan général</option>
-            </select>
+        <!-- Volet Secret Médical pour l'Admin (Affiché uniquement pour l'Admin) -->
+        <div id="dme-admin-secrecy-notice" class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200/80 space-y-3">
+          <div class="flex items-start gap-2.5 text-amber-900">
+            <span class="material-symbols-outlined text-amber-600 text-2xl flex-shrink-0">lock</span>
+            <div>
+              <strong class="text-xs font-extrabold block">Secret Médical Protégé (Loi 131-13)</strong>
+              <p class="text-[11px] text-amber-800 leading-relaxed mt-1">
+                Les constantes vitales, antécédents médicaux détaillés, observations cliniques et ordonnances sont réservés au Médecin traitant (Dr. Alimi Jan).
+              </p>
+            </div>
           </div>
-          <textarea id="dme-note" rows="3" class="w-full p-2.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-xs text-on-surface focus:outline-none focus:border-primary" placeholder="Saisissez les observations médicales et la conduite à tenir..."></textarea>
+          <div class="p-3 rounded-xl bg-white/80 border border-amber-200 text-xs space-y-1 text-on-surface">
+            <span class="text-[10px] font-bold uppercase text-outline block">Rôle Administratif (Sarah Benali)</span>
+            <p class="text-[11px] text-on-surface-variant">L'accueil et le secrétariat assurent la vérification d'identité, la gestion du planning et la conformité de prise en charge CNSS/AMO.</p>
+          </div>
         </div>
-
-        <div id="dme-notes-history" class="space-y-1.5 max-h-[140px] overflow-y-auto slim-scroll"></div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 pt-3 border-t border-surface-container">
+      <div id="dme-bottom-actions" class="grid grid-cols-2 gap-2 pt-3 border-t border-surface-container">
         <button onclick="printQrPrescription()" class="py-2 rounded-full bg-secondary-container text-primary text-xs font-bold hover:bg-primary hover:text-white transition-colors">
           Ordonnance QR
         </button>
@@ -1025,6 +1045,44 @@
     </div>
   </div>
 
+  <!-- MODAL SÉCURITÉ RBAC & ISOLATION DES ESPACES : ACCÈS REFUSÉ -->
+  <div id="role-denied-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-3xl border border-error/30 shadow-2xl p-6 modal-pop space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-error/10 text-error flex items-center justify-center mx-auto">
+        <span class="material-symbols-outlined text-3xl">shield_lock</span>
+      </div>
+      <div class="text-center space-y-1">
+        <span id="denied-badge" class="inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-error-container text-error tracking-wider">Accès Verrouillé • RBAC</span>
+        <h3 id="denied-title" class="text-base font-extrabold text-on-surface">Espace Restreint</h3>
+        <p id="denied-message" class="text-xs text-on-surface-variant leading-relaxed">
+          Votre rôle actuel ne dispose pas des autorisations nécessaires pour accéder à cet espace.
+        </p>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/30 space-y-2 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-outline">Votre profil connecté :</span>
+          <span id="denied-current-role" class="font-extrabold text-primary flex items-center gap-1">💼 Admin (Sarah Benali)</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-outline">Rôle exclusif requis :</span>
+          <span id="denied-required-role" class="font-extrabold text-amber-700 flex items-center gap-1">👑 Propriétaire (Dr. Jackson)</span>
+        </div>
+        <div class="flex items-center justify-between border-t border-outline-variant/30 pt-1.5">
+          <span class="text-outline">Périmètre légal &amp; conformité :</span>
+          <span id="denied-legal-ref" class="font-bold text-on-surface">Gestion Licences &amp; Abonnements</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="closeRoleDeniedModal()" class="flex-1 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span id="denied-action-btn">Fermer</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-4 right-4 z-[85] pointer-events-none opacity-0 translate-y-2 transition-all duration-300 bg-on-primary-fixed text-white px-3.5 py-2.5 rounded-xl shadow-floatCard flex items-center gap-2 text-xs font-semibold">
     <span id="toast-icon" class="material-symbols-outlined text-[16px] text-brand-soft-mint">check_circle</span>
@@ -1036,7 +1094,8 @@
   <!-- ========================================================================= -->
   <script src="js/cliniqo-pdf.js"></script>
   <script>
-    const API_BASE = 'http://127.0.0.1:8001/api/v1';
+    let API_BASE = (window.CLINIQO_API_URL) 
+      || (typeof location !== 'undefined' && location.port === '8000' ? 'http://127.0.0.1:8000/api/v1' : 'http://127.0.0.1:8001/api/v1');
     const TODAY_ISO = '2026-10-29';
 
     function makeInitialsAvatar(name) {
@@ -1999,6 +2058,10 @@
       rdvApp.activePatientId = Number(patientId);
       const p = rdvApp.patients.find(x => Number(x.id) === Number(patientId)) || rdvApp.patients[0];
       if (!p) return;
+
+      const currentRole = localStorage.getItem('cliniqo_user_role') || 'docteur';
+      const isDocOrOwner = (currentRole === 'docteur' || currentRole === 'owner');
+
       const avEl = document.getElementById('dme-avatar');
       avEl.onerror = () => { avEl.onerror = null; avEl.src = makeInitialsAvatar(`${p.first} ${p.last}`); };
       avEl.src = p.avatar || makeInitialsAvatar(`${p.first} ${p.last}`);
@@ -2011,14 +2074,28 @@
       document.getElementById('dme-spo2-input').value = p.spo2 || '98.8%';
       document.getElementById('dme-hr-input').value = p.hr || '72 bpm';
 
+      // Basculer entre volet clinique médical et notice secret médical pour l'admin
+      const clinicalSec = document.getElementById('dme-clinical-section');
+      const adminNotice = document.getElementById('dme-admin-secrecy-notice');
+      const actionsSec = document.getElementById('dme-bottom-actions');
+      if (clinicalSec) clinicalSec.classList.toggle('hidden', !isDocOrOwner);
+      if (adminNotice) adminNotice.classList.toggle('hidden', isDocOrOwner);
+      if (actionsSec) actionsSec.classList.toggle('hidden', !isDocOrOwner);
+
       const hist = document.getElementById('dme-notes-history');
-      const notes = p.notes || [];
-      hist.innerHTML = notes.map(n => `
-        <div class="p-2.5 rounded-xl bg-surface-container-low text-xs space-y-0.5">
-          <div class="flex justify-between text-[10px] font-bold text-primary"><span>${n.icd}</span><span>${n.date}</span></div>
-          <p class="text-on-surface">${n.text}</p>
-        </div>
-      `).join('');
+      const notes = isDocOrOwner ? (p.notes || []) : [];
+      if (hist) {
+        if (!isDocOrOwner) {
+          hist.innerHTML = '';
+        } else {
+          hist.innerHTML = notes.map(n => `
+            <div class="p-2.5 rounded-xl bg-surface-container-low text-xs space-y-0.5">
+              <div class="flex justify-between text-[10px] font-bold text-primary"><span>${n.icd}</span><span>${n.date}</span></div>
+              <p class="text-on-surface">${n.text}</p>
+            </div>
+          `).join('');
+        }
+      }
 
       document.getElementById('dme-drawer-backdrop').classList.remove('hidden');
     }
@@ -2299,6 +2376,9 @@
       if (nameEl) nameEl.textContent = info.name;
       if (labelEl) labelEl.textContent = info.label;
 
+      localStorage.setItem('cliniqo_user_role', roleKey);
+      localStorage.setItem('cliniqo_user_name', info.name);
+
       try {
         const res = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
@@ -2316,6 +2396,34 @@
 
       notify(`Rôle actif : ${info.label}`);
     }
+
+    function showRoleAccessDenied(opts) {
+      const modal = document.getElementById('role-denied-modal');
+      if (!modal) {
+        notify(opts.reason || 'Accès refusé pour votre rôle.', 'error');
+        return;
+      }
+      const titleEl = document.getElementById('denied-title');
+      const msgEl = document.getElementById('denied-message');
+      const curEl = document.getElementById('denied-current-role');
+      const reqEl = document.getElementById('denied-required-role');
+      const legEl = document.getElementById('denied-legal-ref');
+
+      if (titleEl) titleEl.textContent = opts.attemptedSpace || 'Espace Verrouillé';
+      if (msgEl) msgEl.textContent = opts.reason || 'Votre rôle actuel n\'a pas accès à cette section.';
+      if (curEl) curEl.textContent = opts.currentRoleLabel || 'Profil Actif';
+      if (reqEl) reqEl.textContent = opts.requiredRoleLabel || 'Rôle Exclusif Requis';
+      if (legEl) legEl.textContent = opts.legalRef || 'Séparation Stricte des Rôles (RBAC)';
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeRoleDeniedModal() {
+      const modal = document.getElementById('role-denied-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+    window.closeRoleDeniedModal = closeRoleDeniedModal;
+    window.showRoleAccessDenied = showRoleAccessDenied;
 
     document.addEventListener('click', () => {
       document.getElementById('branch-menu')?.classList.add('hidden');

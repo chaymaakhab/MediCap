@@ -377,7 +377,8 @@
   <!-- Scripts -->
   <script src="js/cliniqo-pdf.js"></script>
   <script>
-    const API_BASE = 'http://127.0.0.1:8001/api/v1';
+    let API_BASE = (window.CLINIQO_API_URL) 
+      || (typeof location !== 'undefined' && location.port === '8000' ? 'http://127.0.0.1:8000/api/v1' : 'http://127.0.0.1:8001/api/v1');
     let portalState = {
       token: localStorage.getItem('cliniqo_patient_token') || '',
       clinic: null,

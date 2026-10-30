@@ -525,6 +525,7 @@ class SaasWorkspaceController
             'holidays' => $holidays,
             'notifications' => $notifications,
             'audit_logs' => $auditLogs,
+            'saas_console' => in_array($ctx['role'] ?? '', ['owner', 'saas_owner']) ? ReportsAndAdminController::buildSaasOwnerPayload($pdo) : null,
         ];
     }
 

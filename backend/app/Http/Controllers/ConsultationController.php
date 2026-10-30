@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CliniqoAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -12,6 +13,7 @@ class ConsultationController
      */
     public function startEncounter(Request $request): JsonResponse
     {
+        CliniqoAuthService::requireRole($request, ['docteur', 'owner', 'medecin', 'admin_clinique'], 'la consultation clinique');
         $appointmentId = $request->input('appointment_id');
         $patientId = $request->input('patient_id');
 
@@ -29,6 +31,7 @@ class ConsultationController
      */
     public function recordVitals(Request $request, int $id): JsonResponse
     {
+        CliniqoAuthService::requireRole($request, ['docteur', 'owner', 'medecin', 'admin_clinique'], 'l\'enregistrement des constantes vitales');
         $vitals = $request->validate([
             'systolic_bp' => 'nullable|integer',
             'diastolic_bp' => 'nullable|integer',
@@ -51,6 +54,7 @@ class ConsultationController
      */
     public function issuePrescription(Request $request, int $id): JsonResponse
     {
+        CliniqoAuthService::requireRole($request, ['docteur', 'owner', 'medecin', 'admin_clinique'], 'l\'émission d\'ordonnances médicales');
         $hash = hash('sha256', uniqid() . microtime());
 
         return response()->json([
