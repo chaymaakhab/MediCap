@@ -15,17 +15,10 @@ use PDO;
 class CliniqoAuthService
 {
     public const ROLE_PERMISSIONS = [
-        // 3 Rôles Officiels Cabinet Médical Cliniqo (Solo / Privé) - Isolation Stricte
+        // 3 Rôles Officiels Cliniqo - Isolation Stricte & Séparation des Espaces
         'owner' => [
-            'dashboard.view', 'appointments.read', 'appointments.write', 'doctors.write',
-            'patients.read', 'patients.write', 'patients.dme',
-            'labs.read', 'labs.write', 'labs.validate',
-            'finance.read', 'finance.write', 'expenses.read', 'expenses.write',
-            'stock.read', 'stock.write', 'documents.read', 'documents.write',
-            'prescriptions.write',
-            'reports.read', 'reports.export', 'settings.manage', 'users.manage',
-            'branches.manage', 'backups.manage', 'audit.read', 'cabinet.ownership',
-            'saas.admin', 'subscriptions.manage',
+            'saas.admin', 'subscriptions.manage', 'plans.manage', 'backups.manage', 'clinics.manage', 'audit.read',
+            // NOTE: 'appointments.*', 'patients.*', 'finance.*', 'labs.*', 'stock.*' SONT STRICTEMENT INTERDITS À L'OWNER (ZÉRO DONNÉES CLINIQUES/MÉDICALES EXPOSÉES)
         ],
         'admin' => [
             'dashboard.view', 'appointments.read', 'appointments.write', 'doctors.write',
@@ -80,13 +73,7 @@ class CliniqoAuthService
             'stock.read', 'documents.read', 'reports.read', 'reports.export', 'audit.read',
         ],
         'saas_owner' => [
-            'dashboard.view', 'appointments.read', 'appointments.write', 'doctors.write',
-            'patients.read', 'patients.write', 'patients.dme',
-            'labs.read', 'labs.write', 'labs.validate',
-            'finance.read', 'finance.write', 'expenses.read', 'expenses.write',
-            'stock.read', 'stock.write', 'documents.read', 'documents.write',
-            'reports.read', 'reports.export', 'settings.manage', 'users.manage',
-            'branches.manage', 'backups.manage', 'audit.read', 'cabinet.ownership',
+            'saas.admin', 'subscriptions.manage', 'plans.manage', 'backups.manage', 'clinics.manage', 'audit.read',
         ],
     ];
 
@@ -175,23 +162,23 @@ class CliniqoAuthService
         $role = (string) ($user['role'] ?? 'admin_clinique');
         $permissions = self::ROLE_PERMISSIONS[$role] ?? [];
 
-        // Platform Owner has tenant_id = NULL and MUST NOT silently access clinic medical workspaces
-        if ($role === 'saas_owner') {
+        // Platform Owner has tenant_id = NULL and MUST NOT access clinic medical workspaces
+        if (in_array($role, ['owner', 'saas_owner'], true)) {
             return [
                 'user' => self::sanitizeUser($user, []),
-                'role' => 'saas_owner',
-                'permissions' => $permissions,
+                'role' => 'owner',
+                'permissions' => self::ROLE_PERMISSIONS['owner'],
                 'tenant_id' => null,
                 'branch_id' => null,
                 'allowed_branch_ids' => [],
             ];
         }
 
-        // Non-owner staff are bound to their own tenant (unless demo admin Dr. Jackson #1 switches between authorized centres)
+        // Non-owner staff are bound strictly to their own tenant
         $userTenantId = (int) ($user['tenant_id'] ?? 1);
-        $activeTenantId = ((int) $user['id'] === 1) ? $requestedTenant : $userTenantId;
+        $activeTenantId = $userTenantId;
 
-        if ((int) $user['id'] !== 1 && $requestedTenant !== $userTenantId && $request->hasHeader('X-Tenant-ID')) {
+        if ($requestedTenant !== $userTenantId && $request->hasHeader('X-Tenant-ID')) {
             // If user explicitly tries to read another clinic's tenant_id -> 403!
             self::abortJson(403, 'CROSS_TENANT_FORBIDDEN', 'Accès interdit : votre compte est rattaché uniquement à votre centre médical.');
         }
@@ -208,7 +195,7 @@ class CliniqoAuthService
         $stAllB->execute([$activeTenantId]);
         $tenantBranchIds = array_map('intval', array_column($stAllB->fetchAll(), 'id'));
 
-        if ((int) ($user['all_branches'] ?? 0) === 1 || (int) $user['id'] === 1) {
+        if ((int) ($user['all_branches'] ?? 0) === 1) {
             $allowedBranchIds = $tenantBranchIds;
         } else {
             $stUb = $pdo->prepare('SELECT ub.branch_id FROM user_branches ub INNER JOIN branches b ON b.id = ub.branch_id WHERE ub.user_id = ? AND b.tenant_id = ? AND b.is_active = 1');
@@ -283,7 +270,7 @@ class CliniqoAuthService
     {
         $ctx = $request->attributes->get('cliniqo_ctx') ?? self::resolveStaffContext($request);
 
-        if ($ctx['role'] === 'saas_owner' && $permission !== 'saas.admin' && $permission !== 'backups.manage') {
+        if (in_array($ctx['role'], ['owner', 'saas_owner'], true) && !in_array($permission, ['saas.admin', 'backups.manage', 'subscriptions.manage', 'plans.manage', 'clinics.manage', 'audit.read'], true)) {
             self::abortJson(403, 'SAAS_OWNER_MEDICAL_ISOLATION', 'Sécurité SaaS : le propriétaire de la plateforme n’a pas accès aux dossiers médicaux ni aux opérations cliniques.');
         }
 

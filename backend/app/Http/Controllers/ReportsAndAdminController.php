@@ -1120,6 +1120,100 @@ class ReportsAndAdminController
         ]);
     }
 
+    public function saasCreatePlan(Request $request): JsonResponse
+    {
+        $ctx = CliniqoAuthService::requirePermission($request, 'saas.admin');
+        $pdo = CliniqoDatabase::connection();
+
+        $name = trim((string) $request->input('name', ''));
+        if ($name === '') {
+            return response()->json(['success' => false, 'message' => 'Le nom du pack est obligatoire.'], 422);
+        }
+
+        $code = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '-', $name));
+        $code = trim($code, '-');
+        if ($code === '') {
+            $code = 'pack-' . time();
+        }
+
+        $chk = $pdo->prepare('SELECT COUNT(*) FROM subscription_plans WHERE code = ?');
+        $chk->execute([$code]);
+        if ((int) $chk->fetchColumn() > 0) {
+            $code .= '-' . rand(10, 99);
+        }
+
+        $price = max(0.0, (float) $request->input('monthly_price_mad', 490));
+        $maxUsers = max(1, (int) $request->input('max_users', 5));
+        $maxBranches = max(1, (int) $request->input('max_branches', 1));
+        $maxDoctors = max(1, (int) $request->input('max_doctors', 5));
+        $enableLab = (int) ((bool) $request->input('enable_lab_feature', 1));
+        $enableInventory = (int) ((bool) $request->input('enable_inventory_feature', 1));
+        $enablePortal = (int) ((bool) $request->input('enable_portal_feature', 1));
+        $enableMulti = (int) ((bool) $request->input('enable_multibranch_feature', 0));
+
+        $stmt = $pdo->prepare('
+            INSERT INTO subscription_plans (
+                code, name, monthly_price_mad, max_users, max_branches, max_doctors,
+                enable_lab_feature, enable_inventory_feature, enable_portal_feature, enable_multibranch_feature
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ');
+        $stmt->execute([
+            $code, $name, $price, $maxUsers, $maxBranches, $maxDoctors,
+            $enableLab, $enableInventory, $enablePortal, $enableMulti
+        ]);
+
+        $newId = (int) $pdo->lastInsertId();
+
+        CliniqoAuthService::audit(
+            null, null, (int) $ctx['user']['id'], $ctx['user']['name'], 'saas_owner',
+            'SAAS_CREATE_PLAN', 'plan', $code, "Création du pack SaaS: {$name} ({$price} MAD/mois)", $request->ip() ?? '127.0.0.1'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Nouveau pack d\'abonnement créé avec succès.',
+            'plan_id' => $newId,
+            'saas_console' => self::buildSaasOwnerPayload($pdo),
+        ], 201);
+    }
+
+    public function saasDeletePlan(Request $request, int $planId): JsonResponse
+    {
+        $ctx = CliniqoAuthService::requirePermission($request, 'saas.admin');
+        $pdo = CliniqoDatabase::connection();
+
+        $st = $pdo->prepare('SELECT * FROM subscription_plans WHERE id = ? LIMIT 1');
+        $st->execute([$planId]);
+        $p = $st->fetch();
+        if (!$p) {
+            return response()->json(['success' => false, 'message' => 'Pack introuvable.'], 404);
+        }
+
+        // Vérifier si des cliniques utilisent ce pack
+        $usage = $pdo->prepare('SELECT COUNT(*) FROM subscriptions WHERE plan_id = ?');
+        $usage->execute([$planId]);
+        $count = (int) $usage->fetchColumn();
+        if ($count > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => "Impossible de supprimer ce pack : {$count} clinique(s) y sont actuellement abonnées."
+            ], 422);
+        }
+
+        $pdo->prepare('DELETE FROM subscription_plans WHERE id = ?')->execute([$planId]);
+
+        CliniqoAuthService::audit(
+            null, null, (int) $ctx['user']['id'], $ctx['user']['name'], 'saas_owner',
+            'SAAS_DELETE_PLAN', 'plan', $p['code'], "Suppression du pack SaaS: {$p['name']}", $request->ip() ?? '127.0.0.1'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pack d\'abonnement supprimé.',
+            'saas_console' => self::buildSaasOwnerPayload($pdo),
+        ]);
+    }
+
     // =========================================================================
     // SECTION 3E — SECURE DATABASE BACKUPS & RESTORATION
     // =========================================================================

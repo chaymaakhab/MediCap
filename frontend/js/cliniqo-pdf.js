@@ -412,6 +412,48 @@
         'Direction Administrative & Financière'
       );
       return launchPrintPopup(html);
+    },
+
+    printSaasInvoice: function (inv, tenant) {
+      inv = inv || { id: 1, num: 'FAC-SAAS-2026-10', date: '29-10-2026', total: 990, status: 'Payé', plan: 'Pack Cabinet Pro' };
+      const body = `
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <strong style="color:#005131;font-size:14px;display:block;">Facture d'Abonnement SaaS Logiciel</strong>
+              <span style="font-size:11px;color:#6b7280;">Plateforme Médicale Cliniqo Cloud OS • Mono-Cabinet</span>
+            </div>
+            <span style="background:#005131;color:#fff;font-size:10.5px;font-weight:bold;padding:3px 10px;border-radius:9999px;">ACQUITTÉE</span>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Description de la prestation</th><th>Période</th><th>Taux TVA</th><th style="text-align:right;">Total TTC</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Licence ${esc(inv.plan || 'Pack Cabinet Pro')}</strong><br/><span style="font-size:10px;color:#6b7280;">Hébergement HDS, 10 utilisateurs, télétransmission CNSS, module Caisse &amp; Stock</span></td>
+              <td>1 Mois</td>
+              <td>20% (Incluse)</td>
+              <td style="text-align:right;font-weight:bold;">${fmtMad(inv.total || 990)}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:20px;text-align:right;">
+          <div style="font-size:16px;font-weight:800;color:#005131;">Total Réglé : ${fmtMad(inv.total || 990)}</div>
+          <span style="font-size:11px;color:#6b7280;">Règlement effectué par Prélèvement / Carte Bancaire CMI</span>
+        </div>
+      `;
+      const html = buildPrintWindowHtml(
+        tenant,
+        'FACTURE SAAS OFFICIELLE',
+        `Facture d'Abonnement ${esc(inv.num)}`,
+        inv.num,
+        inv.date,
+        body,
+        'Direction Cliniqo Cloud Technologies'
+      );
+      return launchPrintPopup(html);
     }
   };
 })();

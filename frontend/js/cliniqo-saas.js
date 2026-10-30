@@ -84,15 +84,15 @@ const ROLE_SPACES_CONFIG = {
   owner: {
     key: 'owner',
     name: 'Dr. Jackson',
-    title: 'Propriétaire (Owner) — Fondateur',
+    title: 'Propriétaire SaaS — Super-Admin',
     avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120',
     defaultTab: 'saas-owner',
-    allowedTabs: ['saas-owner', 'overview', 'patients', 'labs', 'finance', 'stock', 'reports'],
+    allowedTabs: ['saas-owner'],
     canManageSaas: true,
-    canManageFinance: true,
-    canAccessDme: true,
-    canPrescribe: true,
-    canManageStock: true,
+    canManageFinance: false,
+    canAccessDme: false,
+    canPrescribe: false,
+    canManageStock: false,
   },
   admin: {
     key: 'admin',
@@ -101,11 +101,11 @@ const ROLE_SPACES_CONFIG = {
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120',
     defaultTab: 'overview',
     allowedTabs: ['overview', 'finance', 'stock', 'reports', 'patients', 'labs'],
-    canManageSaas: false, // ⛔ INTERDIT D'ACCÉDER À L'ESPACE OWNER
-    canManageFinance: true, // ✅ CAISSE MAD & FACTURATION
-    canAccessDme: false, // ⛔ SECRET MÉDICAL (DME MÉDICAL CONFIDENTIEL INTERDIT)
-    canPrescribe: false, // ⛔ INTERDIT DE PRESCRIRE DES ORDONNANCES
-    canManageStock: true, // ✅ GESTION DES STOCKS & DÉPENSES
+    canManageSaas: false, // Interdit d'accéder à l'espace Owner
+    canManageFinance: true, // Caisse MAD & facturation autorisées
+    canAccessDme: false, // Secret médical (DME confidentiel réservé aux médecins)
+    canPrescribe: false, // Prescription réservée aux médecins
+    canManageStock: true, // Gestion des stocks & dépenses autorisée
   },
   docteur: {
     key: 'docteur',
@@ -114,11 +114,11 @@ const ROLE_SPACES_CONFIG = {
     avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120',
     defaultTab: 'overview',
     allowedTabs: ['overview', 'patients', 'labs', 'reports'],
-    canManageSaas: false, // ⛔ INTERDIT D'ACCÉDER À L'ESPACE OWNER
-    canManageFinance: false, // ⛔ CAISSE & FACTURATION RÉSERVÉES À L'ADMIN
-    canAccessDme: true, // ✅ DOSSIER MÉDICAL ÉLECTRONIQUE COMPLET
-    canPrescribe: true, // ✅ RÉDACTION D'ORDONNANCES QR CODE
-    canManageStock: false, // ⛔ DÉPENSES ADMINISTRATIVES RÉSERVÉES À L'ADMIN
+    canManageSaas: false, // Interdit d'accéder à l'espace Owner
+    canManageFinance: false, // Caisse & facturation gérées par l'admin
+    canAccessDme: true, // Dossier Médical Électronique complet
+    canPrescribe: true, // Rédaction d'ordonnances QR code
+    canManageStock: false, // Dépenses et stock gérés par l'admin
   }
 };
 
@@ -162,24 +162,26 @@ window.showRoleAccessDenied = showRoleAccessDenied;
 function can(perm) {
   const role = saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
   
-  if (role === 'owner' || role === 'saas_owner' || role === 'admin_clinique') {
-    return true;
+  if (role === 'owner' || role === 'saas_owner') {
+    // Owner gère UNIQUEMENT les abonnements, packs SaaS, cliniques clientes et sauvegardes
+    // STRICTEMENT INTERDIT d'accéder aux dossiers médicaux des patients et à la caisse du cabinet
+    const ownerPerms = [
+      'cabinet.ownership', 'saas.admin', 'subscriptions.manage', 'saas.manage',
+      'plans.manage', 'backups.manage', 'clinics.manage'
+    ];
+    return ownerPerms.includes(perm);
   }
   
   if (role === 'admin') {
-    // Admin gère l'accueil, planning, caisse MAD, facturation, dépenses et stock
-    // MAIS EST STRICTEMENT INTERDIT de l'Espace Owner et du Secret Médical (DME / Prescriptions)
     const adminForbidden = [
       'cabinet.ownership', 'saas.admin', 'subscriptions.manage', 'saas.manage',
-      'patients.dme', 'prescriptions.write', 'medical.diagnose'
+      'plans.manage', 'patients.dme', 'prescriptions.write', 'medical.diagnose'
     ];
     if (adminForbidden.includes(perm)) return false;
     return true;
   }
   
   if (role === 'docteur' || role === 'medecin') {
-    // Docteur gère l'agenda clinique, DME, biologie et prescriptions
-    // MAIS EST STRICTEMENT INTERDIT de l'Espace Owner, de la Caisse MAD et des Dépenses
     const clinicalPerms = [
       'dashboard.view', 'appointments.read', 'appointments.write',
       'patients.read', 'patients.dme', 'prescriptions.write',
@@ -363,9 +365,10 @@ async function initWorkspace() {
   }
 
   const curRole = localStorage.getItem('cliniqo_user_role') || saas.auth?.role || 'owner';
+  const roleCfg = ROLE_SPACES_CONFIG[curRole] || ROLE_SPACES_CONFIG.owner;
   applyRoleUiGuards(curRole);
 
-  const finalTab = getTargetTabFromUrl() || saas.activeTab || 'overview';
+  const finalTab = getTargetTabFromUrl() || (curRole === 'owner' ? 'saas-owner' : (saas.activeTab || roleCfg.defaultTab || 'overview'));
   switchTab(finalTab);
 }
 
@@ -545,6 +548,9 @@ function toggleRoleSelector(ev) {
 function applyRoleUiGuards(roleKey) {
   const role = roleKey || saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
   const cfg = ROLE_SPACES_CONFIG[role] || ROLE_SPACES_CONFIG.owner;
+  const isOwner = (role === 'owner' || role === 'saas_owner');
+  const isAdmin = (role === 'admin');
+  const isDoc = (role === 'docteur');
 
   // 1. Mise à jour de l'en-tête (Nom, Rôle, Avatar)
   const dutyLabelEl = document.getElementById('duty-label');
@@ -554,19 +560,68 @@ function applyRoleUiGuards(roleKey) {
   if (userNameEl) userNameEl.textContent = cfg.name;
   if (avatarEl && cfg.avatar) avatarEl.src = cfg.avatar;
 
-  // 2. Masquage/Affichage des boutons de l'Espace Owner (Abonnements & Forfaits)
-  // Seul l'Owner a le droit de voir et de cliquer sur les Abonnements & Packs
-  const isOwner = (role === 'owner' || role === 'saas_owner' || role === 'admin_clinique');
+  // 2. Séparation Navbar stricte:
+  // Owner a SA PROPRE barre (Gestion des Abonnements, Packs d'Abonnement, Sauvegardes)
+  // Admin et Docteur ont la barre Clinique (Tableau de bord, Rendez-vous, Patients & DME, etc.)
+  const clinicNav = document.getElementById('nav-clinic-tabs');
+  const ownerNav = document.getElementById('nav-owner-tabs');
+  if (clinicNav) clinicNav.classList.toggle('hidden', isOwner);
+  if (ownerNav) ownerNav.classList.toggle('hidden', !isOwner);
+
+  // 3. Masquer/Afficher les éléments de sous-en-tête selon le rôle
+  const rdvPill = document.getElementById('sub-header-rdv-link');
+  if (rdvPill) rdvPill.classList.toggle('hidden', isOwner);
+
+  const tenantSubtitle = document.getElementById('tenant-subtitle-pill');
+  if (tenantSubtitle) {
+    tenantSubtitle.textContent = isOwner 
+      ? '• Plateforme SaaS Cliniqo • Supervision Multi-Cliniques' 
+      : '• Casablanca • Médecine Générale & Cardiologie';
+  }
+
+  // 4. Badge du centre / plateforme
+  const branchNameEl = document.getElementById('active-branch-name');
+  const branchPlanEl = document.getElementById('active-plan-badge');
+  if (branchNameEl) {
+    branchNameEl.textContent = isOwner ? 'Plateforme SaaS Cliniqo' : (saas.tenant?.short_name || 'Cabinet Cliniqo');
+  }
+  if (branchPlanEl) {
+    branchPlanEl.textContent = isOwner ? 'Super-Admin' : 'Solo';
+    branchPlanEl.className = isOwner 
+      ? 'text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-primary text-white' 
+      : 'text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary';
+  }
+
+  // 5. Masquer le portail patient pour l'Owner
+  const portalLink = document.querySelector('a[href="espace-patient.html"]');
+  if (portalLink) portalLink.style.display = isOwner ? 'none' : 'flex';
+
+  // 6. Bouton Paramètres en-tête
+  const headerSettingsBtn = document.querySelector('button[onclick*="settings-modal"]');
+  if (headerSettingsBtn) {
+    if (isOwner) {
+      headerSettingsBtn.style.display = 'flex';
+      headerSettingsBtn.title = "Sauvegardes & Paramètres Plateforme";
+      headerSettingsBtn.setAttribute('onclick', "switchOwnerSection('backups')");
+    } else if (isAdmin) {
+      headerSettingsBtn.style.display = 'flex';
+      headerSettingsBtn.title = "Paramètres du Cabinet";
+      headerSettingsBtn.setAttribute('onclick', "openModal('settings-modal')");
+    } else {
+      headerSettingsBtn.style.display = 'none';
+    }
+  }
+
+  // 7. Masquer les boutons du cabinet pour l'Owner et vice-versa
   document.querySelectorAll('button[onclick*="saas-owner"]').forEach(btn => {
     btn.style.display = isOwner ? 'flex' : 'none';
   });
 
-  // 3. Adaptations spécifiques par rôle
-  if (role === 'docteur') {
-    if (saas.activeTab === 'finance' || saas.activeTab === 'stock') {
-      const ctaLabel = document.getElementById('primary-cta-label');
-      if (ctaLabel) ctaLabel.textContent = 'Mode Consultation';
-    }
+  // 8. Redirection automatique stricte si l'onglet actif n'est pas autorisé
+  if (isOwner && saas.activeTab !== 'saas-owner') {
+    switchTab('saas-owner');
+  } else if (!isOwner && saas.activeTab === 'saas-owner') {
+    switchTab('overview');
   }
 }
 window.applyRoleUiGuards = applyRoleUiGuards;
@@ -661,32 +716,26 @@ async function openNotifTarget(id, tab) {
 }
 
 function switchTab(tab) {
-  if (saas.auth?.is_saas_owner) {
-    renderSaasOwnerConsole();
-    return;
-  }
-
   const role = saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
   const roleCfg = ROLE_SPACES_CONFIG[role] || ROLE_SPACES_CONFIG.owner;
+  const isOwner = (role === 'owner' || role === 'saas_owner');
 
-  // Strict RBAC Separation Check : Espace Owner réservé au Propriétaire (Dr. Jackson)
-  if (tab === 'saas-owner') {
-    if (!roleCfg.canManageSaas) {
-      showRoleAccessDenied({
-        attemptedSpace: "Espace Owner — Abonnements & Packs SaaS",
-        currentRoleLabel: roleCfg.title,
-        requiredRoleLabel: "Propriétaire (Dr. Jackson)",
-        reason: "La gestion contractuelle des forfaits, abonnements SaaS, renouvellements et licences structurelles du cabinet est strictement réservée au Propriétaire du cabinet (Dr. Jackson).",
-        legalRef: "Séparation Contractuelle & Propriété SaaS",
-        redirectTab: roleCfg.defaultTab
-      });
-      return;
-    }
+  // Si Owner tente d'accéder aux onglets de gestion clinique (Tableau de bord, RDV, DME, etc.)
+  if (isOwner && tab !== 'saas-owner') {
+    tab = 'saas-owner';
   }
 
-  // Avertissement de sécurité Caisse pour le Docteur
-  if (tab === 'finance' && role === 'docteur') {
-    showToast('Mode consultation : la caisse et la facturation sont gérées par Sarah Benali (Admin).', 'info');
+  // Si Admin ou Docteur tente d'accéder à la console SaaS Owner
+  if (!isOwner && tab === 'saas-owner') {
+    showRoleAccessDenied({
+      attemptedSpace: "Console Propriétaire SaaS (Abonnements & Forfaits)",
+      currentRoleLabel: roleCfg.title,
+      requiredRoleLabel: "Propriétaire SaaS (Super-Admin)",
+      reason: "La gestion globale des abonnements, facturation des forfaits, création des packs et provisionnement des cliniques est strictement réservée au Propriétaire de la plateforme SaaS.",
+      legalRef: "Séparation d'Infrastructure SaaS & RGPD/CNDP",
+      redirectTab: 'overview'
+    });
+    return;
   }
 
   const validTabs = ['overview', 'patients', 'labs', 'finance', 'stock', 'reports', 'saas-owner'];
@@ -810,6 +859,8 @@ function handlePrimaryCta() {
     }
   } else if (saas.activeTab === 'reports') {
     if (typeof printCurrentReportPdf === 'function') printCurrentReportPdf();
+  } else if (saas.activeTab === 'saas-owner') {
+    openModal('saas-clinic-modal');
   }
 }
 
@@ -1316,8 +1367,8 @@ function renderPatientsView() {
                 reason: 'En vertu de la Loi 131-13 (Secret Médical & Exercice de la Médecine) et de la CNDP, l\\'accès aux antécédents médicaux, observations cliniques et ordonnances est strictement réservé au corps médical.',
                 legalRef: 'Secret Médical • Loi 131-13 & Code de Déontologie',
                 redirectTab: 'patients'
-              })" class="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-bold hover:bg-amber-100 flex items-center gap-1" title="Cliquez pour voir les restrictions de secret médical">
-               <span class="material-symbols-outlined text-[12px] text-amber-600">lock</span>
+              })" class="px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant/40 text-on-surface-variant hover:bg-secondary-container hover:text-primary text-[10px] font-bold flex items-center gap-1 transition-colors" title="Cliquez pour voir les restrictions de secret médical">
+               <span class="material-symbols-outlined text-[12px] text-primary">lock</span>
                <span>Secret Médical</span>
              </button>`
         }
@@ -1669,3 +1720,34 @@ window.saveVitalsQuick = saveVitalsQuick;
 window.validateLabOrder = validateLabOrder;
 window.deleteLabOrder = deleteLabOrder;
 window.exportActiveCsv = exportActiveCsv;
+
+
+window.switchOwnerSection = function(sec) {
+  const secSubs = document.getElementById('owner-sec-subs');
+  const secPlans = document.getElementById('owner-sec-plans');
+  const secBackups = document.getElementById('owner-sec-backups');
+
+  document.querySelectorAll('.saas-owner-nav-btn').forEach(b => {
+    b.className = 'saas-owner-nav-btn px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1.5';
+  });
+
+  const activeBtn = document.getElementById('owner-subnav-' + sec);
+  if (activeBtn) {
+    activeBtn.className = 'saas-owner-nav-btn px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow flex items-center gap-1.5 transition-all';
+  }
+
+  if (sec === 'plans') {
+    if (secSubs) secSubs.classList.add('hidden');
+    if (secPlans) secPlans.classList.remove('hidden');
+    if (secBackups) secBackups.classList.add('hidden');
+  } else if (sec === 'backups') {
+    if (secSubs) secSubs.classList.add('hidden');
+    if (secPlans) secPlans.classList.add('hidden');
+    if (secBackups) secBackups.classList.remove('hidden');
+  } else {
+    // subscriptions
+    if (secSubs) secSubs.classList.remove('hidden');
+    if (secPlans) secPlans.classList.add('hidden');
+    if (secBackups) secBackups.classList.add('hidden');
+  }
+};

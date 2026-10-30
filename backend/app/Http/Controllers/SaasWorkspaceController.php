@@ -18,11 +18,11 @@ class SaasWorkspaceController
         $today = CliniqoDatabase::TODAY;
 
         // If SaaS Platform Owner is logged in, return platform-owner state with ZERO medical records!
-        if (($ctx['role'] ?? '') === 'saas_owner') {
+        if (in_array(($ctx['role'] ?? ''), ['owner', 'saas_owner'], true)) {
             return [
                 'auth' => [
                     'user' => $ctx['user'],
-                    'role' => 'saas_owner',
+                    'role' => 'owner',
                     'permissions' => $ctx['permissions'],
                     'is_saas_owner' => true,
                 ],

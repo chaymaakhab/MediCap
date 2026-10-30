@@ -418,18 +418,23 @@
           <button id="lang-en" class="px-2 py-1 rounded text-outline hover:text-on-surface" onclick="switchLanguage('en')">EN</button>
         </div>
 
-        <!-- Login Button with Fast-Access Dropdown -->
+        <!-- Login Button with Fast-Access Dropdown & Direct Modal Trigger -->
         <div class="relative" id="nav-login-wrapper">
-          <button id="nav-login-btn" onclick="toggleNavLoginDropdown(event)" 
-                  class="hidden sm:inline-flex items-center gap-1.5 font-bold text-xs bg-surface-container-lowest hover:bg-secondary-container text-primary border border-primary/25 hover:border-primary px-3 py-2 rounded-xl shadow-xs transition-all duration-200 group focus:outline-none">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-soft-mint opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            <span class="material-symbols-outlined text-[17px] text-primary group-hover:scale-110 transition-transform">lock_open</span>
-            <span>Connexion</span>
-            <span class="material-symbols-outlined text-[15px] text-outline transition-transform duration-200" id="login-chevron">expand_more</span>
-          </button>
+          <div class="inline-flex items-center rounded-xl bg-surface-container-lowest border border-primary/25 hover:border-primary shadow-xs transition-all duration-200">
+            <button id="nav-login-btn" onclick="openLoginModal('roles')" 
+                    class="inline-flex items-center gap-1.5 font-bold text-xs hover:bg-secondary-container text-primary px-3 py-2 rounded-l-xl transition-all duration-200 group focus:outline-none">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-soft-mint opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <span class="material-symbols-outlined text-[17px] text-primary group-hover:scale-110 transition-transform">lock_open</span>
+              <span>Connexion</span>
+            </button>
+            <button onclick="toggleNavLoginDropdown(event)" title="Menu d'accès rapide"
+                    class="px-1.5 py-2 hover:bg-secondary-container text-outline hover:text-primary rounded-r-xl border-l border-outline-variant/30 transition-colors focus:outline-none">
+              <span class="material-symbols-outlined text-[16px] transition-transform duration-200 block" id="login-chevron">expand_more</span>
+            </button>
+          </div>
 
           <!-- Dropdown Accès Rapide aux Espaces -->
           <div id="nav-login-dropdown" onclick="event.stopPropagation()" 
@@ -449,8 +454,8 @@
               <!-- Item 1: Owner -->
               <button onclick="quickLoginRole('owner')" 
                       class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
-                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
-                  👑
+                <div class="w-8 h-8 rounded-lg bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[18px]">verified_user</span>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between gap-1">
@@ -465,8 +470,8 @@
               <!-- Item 2: Admin -->
               <button onclick="quickLoginRole('admin')" 
                       class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
-                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
-                  💼
+                <div class="w-8 h-8 rounded-lg bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[18px]">badge</span>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between gap-1">
@@ -481,8 +486,8 @@
               <!-- Item 3: Docteur -->
               <button onclick="quickLoginRole('docteur')" 
                       class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
-                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
-                  🩺
+                <div class="w-8 h-8 rounded-lg bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[18px]">stethoscope</span>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between gap-1">
@@ -497,8 +502,8 @@
               <!-- Item 4: Patient Portal -->
               <a href="espace-patient.html" 
                  class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
-                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
-                  👤
+                <div class="w-8 h-8 rounded-lg bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
+                  <span class="material-symbols-outlined text-[18px]">person</span>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center justify-between gap-1">
@@ -562,7 +567,7 @@
         </div>
         <button onclick="toggleMobileMenu(); quickLoginRole('owner')" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <span class="text-lg">👑</span>
+            <span class="material-symbols-outlined text-[20px] text-primary">verified_user</span>
             <div>
               <strong class="text-xs font-bold text-on-surface block">Espace Owner</strong>
               <span class="text-[10px] text-outline">Abonnements, Packs &amp; Super-Admin</span>
@@ -572,7 +577,7 @@
         </button>
         <button onclick="toggleMobileMenu(); quickLoginRole('admin')" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <span class="text-lg">💼</span>
+            <span class="material-symbols-outlined text-[20px] text-primary">badge</span>
             <div>
               <strong class="text-xs font-bold text-on-surface block">Espace Admin</strong>
               <span class="text-[10px] text-outline">Gestion Cabinet, Caisse &amp; Stock</span>
@@ -582,7 +587,7 @@
         </button>
         <button onclick="toggleMobileMenu(); quickLoginRole('docteur')" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <span class="text-lg">🩺</span>
+            <span class="material-symbols-outlined text-[20px] text-primary">stethoscope</span>
             <div>
               <strong class="text-xs font-bold text-on-surface block">Espace Docteur</strong>
               <span class="text-[10px] text-outline">Rendez-vous, Fiche Patient DME &amp; Ordonnances</span>
@@ -592,7 +597,7 @@
         </button>
         <a href="espace-patient.html" onclick="toggleMobileMenu()" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <span class="text-lg">👤</span>
+            <span class="material-symbols-outlined text-[20px] text-primary">person</span>
             <div>
               <strong class="text-xs font-bold text-on-surface block">Espace Patient</strong>
               <span class="text-[10px] text-outline">Portail Citoyen &amp; Ordonnances QR</span>
@@ -1856,7 +1861,7 @@
           <div class="p-3.5 rounded-2xl bg-surface-container-low border border-primary/25 hover:border-primary shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
             <div class="space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-2xl group-hover:scale-110 transition-transform inline-block">👑</span>
+                <span class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">verified_user</span></span>
                 <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-primary text-white">OWNER</span>
               </div>
               <div>
@@ -1888,7 +1893,7 @@
           <div class="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/40 hover:border-primary shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
             <div class="space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-2xl group-hover:scale-110 transition-transform inline-block">💼</span>
+                <span class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">badge</span></span>
                 <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-secondary-container text-primary">ADMIN</span>
               </div>
               <div>
@@ -1920,7 +1925,7 @@
           <div class="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/40 hover:border-primary shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
             <div class="space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-2xl group-hover:scale-110 transition-transform inline-block">🩺</span>
+                <span class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">stethoscope</span></span>
                 <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-primary/15 text-primary">DOCTEUR</span>
               </div>
               <div>
@@ -1953,7 +1958,7 @@
         <!-- Carte Bonus Patient Portal -->
         <div class="p-3 rounded-2xl bg-secondary-container/35 border border-primary/20 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div class="flex items-center gap-3">
-            <span class="text-2xl">👤</span>
+            <span class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">person</span></span>
             <div>
               <strong class="text-xs font-extrabold text-on-surface">Portail Patient Sécurisé</strong>
               <p class="text-[10.5px] text-outline">Accès en ligne aux ordonnances, bilans de santé et prise de rendez-vous (CIN BE-882911 • PIN 1234).</p>
@@ -1993,9 +1998,9 @@
           <div class="p-2.5 rounded-xl bg-surface-container-low border border-surface-container space-y-1">
             <span class="text-[10px] font-bold text-outline uppercase block">Remplissage rapide des comptes démo :</span>
             <div class="flex flex-wrap gap-1.5">
-              <button type="button" onclick="fillDemoCredentials('owner')" class="px-2 py-0.5 rounded-lg bg-surface-container-lowest text-primary text-[10px] font-bold border border-primary/20 hover:bg-secondary-container">👑 Owner</button>
-              <button type="button" onclick="fillDemoCredentials('admin')" class="px-2 py-0.5 rounded-lg bg-surface-container-lowest text-primary text-[10px] font-bold border border-primary/20 hover:bg-secondary-container">💼 Admin</button>
-              <button type="button" onclick="fillDemoCredentials('docteur')" class="px-2 py-0.5 rounded-lg bg-surface-container-lowest text-primary text-[10px] font-bold border border-primary/20 hover:bg-secondary-container">🩺 Docteur</button>
+              <button type="button" onclick="fillDemoCredentials('owner')" class="px-2 py-0.5 rounded-lg bg-surface-container-lowest text-primary text-[10px] font-bold border border-primary/20 hover:bg-secondary-container flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">verified_user</span><span>Owner</span></button>
+              <button type="button" onclick="fillDemoCredentials('admin')" class="px-2 py-0.5 rounded-lg bg-surface-container-lowest text-primary text-[10px] font-bold border border-primary/20 hover:bg-secondary-container flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">badge</span><span>Admin</span></button>
+              <button type="button" onclick="fillDemoCredentials('docteur')" class="px-2 py-0.5 rounded-lg bg-surface-container-lowest text-primary text-[10px] font-bold border border-primary/20 hover:bg-secondary-container flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">stethoscope</span><span>Docteur</span></button>
             </div>
           </div>
 
@@ -2506,46 +2511,43 @@
 
       if (roleKey === 'patient') {
         showLoginToast('Redirection vers le Portail Patient Sécurisé...', 'info');
-        setTimeout(() => { window.location.href = cfg.targetUrl; }, 350);
+        setTimeout(() => { window.location.href = cfg.targetUrl; }, 200);
         return;
       }
 
       showLoginToast(`Connexion à l'Espace ${cfg.roleLabel} (${cfg.name})...`, 'info');
 
-      let token = 'cliniqo-token-demo-' + roleKey;
-      const apiCandidates = [
-        'http://127.0.0.1:8000/api/v1',
-        'http://127.0.0.1:8001/api/v1'
-      ];
-
-      for (const base of apiCandidates) {
-        try {
-          const res = await fetch(`${base}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify({ user_id: cfg.id })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.token) {
-              token = data.token;
-              break;
-            }
-          }
-        } catch (_) {}
-      }
-
-      // Configure local session
-      localStorage.setItem('cliniqo_staff_token', token);
+      // Configure local session IMMEDIATELY so the user experience is instant
+      const defaultToken = 'cliniqo-token-demo-' + roleKey;
+      localStorage.setItem('cliniqo_staff_token', defaultToken);
       localStorage.setItem('cliniqo_tenant_id', '1');
       localStorage.setItem('cliniqo_branch_id', 'all');
       localStorage.setItem('cliniqo_user_role', roleKey);
       localStorage.setItem('cliniqo_user_name', cfg.name);
 
+      // Fast non-blocking background API login against Laravel (port 8001)
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 400);
+        const res = await fetch('http://127.0.0.1:8001/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ user_id: cfg.id }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.token) {
+            localStorage.setItem('cliniqo_staff_token', data.token);
+          }
+        }
+      } catch (_) {}
+
       showLoginToast(`Session initialisée ! Bienvenue ${cfg.name}`, 'success');
       setTimeout(() => {
         window.location.href = cfg.targetUrl;
-      }, 400);
+      }, 200);
     }
 
     function fillDemoCredentials(roleKey) {

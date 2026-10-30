@@ -156,7 +156,7 @@
         <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest border border-outline-variant/35 hover:border-primary/40 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-pill transition-all" title="Détails du Cabinet Médical">
           <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-pulse"></span>
           <span id="active-branch-name" class="font-bold text-on-surface">Cabinet Médical Cliniqo</span>
-          <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Solo</span>
+          <span id="active-plan-badge" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Solo</span>
           <span class="material-symbols-outlined text-[13px] text-outline">info</span>
         </button>
 
@@ -176,9 +176,10 @@
         </div>
       </div>
 
-      <!-- Centre : Navigation Principale (Tableau de bord -> Rendez-vous -> Patients & DME -> Laboratoire -> Facturation & CNSS -> Dépenses & Stock -> Rapports -> Paramétrage) -->
+      <!-- Centre : Navigation Principale Adaptative par Rôle -->
       <nav aria-label="Navigation Principale" class="order-3 md:order-2 w-full md:w-auto overflow-x-auto slim-scroll">
-        <div class="inline-flex items-center bg-surface-container-lowest border border-outline-variant/35 rounded-full p-1 shadow-pill gap-0.5 min-w-max">
+        <!-- Barre de Navigation Standard Clinique (Admin / Docteur / Vue Cabinet) -->
+        <div id="nav-clinic-tabs" class="inline-flex items-center bg-surface-container-lowest border border-outline-variant/35 rounded-full p-1 shadow-pill gap-0.5 min-w-max">
           <button id="tab-overview" onclick="switchTab('overview')" class="saas-tab px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow transition-all">
             Tableau de bord
           </button>
@@ -271,6 +272,29 @@
               </div>
             </div>
           </div>
+
+          <!-- Bouton retour Abonnements (affiché uniquement à l'Owner quand il visite la vue cabinet) -->
+          <button id="btn-return-owner-subs" onclick="toggleOwnerCabinetView()" class="hidden saas-tab px-3 py-1.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center gap-1" title="Revenir à l'Espace Abonnements & Packs SaaS">
+            <span class="material-symbols-outlined text-[14px]">card_membership</span>
+            <span>Abonnements</span>
+          </button>
+        </div>
+
+        <!-- Barre de Navigation Exclusive Propriétaire (Abonnements & Packs SaaS) -->
+        <div id="nav-owner-tabs" class="hidden inline-flex items-center bg-surface-container-lowest border border-primary/20 rounded-full p-1 shadow-pill gap-0.5 min-w-max">
+          <button id="owner-subnav-subscriptions" onclick="switchOwnerSection('subscriptions')" class="saas-owner-nav-btn px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow flex items-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined text-[15px]">card_membership</span>
+            <span>Gestion des Abonnements</span>
+          </button>
+          <button id="owner-subnav-plans" onclick="switchOwnerSection('plans')" class="saas-owner-nav-btn px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[15px]">inventory_2</span>
+            <span>Packs d'Abonnement</span>
+            <span id="badge-plans-count" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">3</span>
+          </button>
+          <button id="owner-subnav-backups" onclick="switchOwnerSection('backups')" class="saas-owner-nav-btn px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[15px]">security</span>
+            <span>Sauvegardes Plateforme</span>
+          </button>
         </div>
       </nav>
 
@@ -316,17 +340,21 @@
               <span class="text-[9px] font-semibold text-primary">1-Clic Rapide</span>
             </div>
             <button onclick="switchRoleFast('owner')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
-              <div class="w-8 h-8 rounded-full bg-amber-500/15 text-amber-700 flex items-center justify-center font-bold text-sm">👑</div>
+              <div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-sm">
+                <span class="material-symbols-outlined text-[17px]">verified_user</span>
+              </div>
               <div class="flex-1 leading-tight">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-on-surface group-hover:text-primary">Owner</span>
-                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">Propriétaire</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary text-white">Propriétaire</span>
                 </div>
                 <span class="text-[10px] text-outline">Dr. Jackson • Plein Pouvoir</span>
               </div>
             </button>
             <button onclick="switchRoleFast('admin')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
-              <div class="w-8 h-8 rounded-full bg-emerald-500/15 text-primary flex items-center justify-center font-bold text-sm">💼</div>
+              <div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-sm">
+                <span class="material-symbols-outlined text-[17px]">badge</span>
+              </div>
               <div class="flex-1 leading-tight">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-on-surface group-hover:text-primary">Admin</span>
@@ -336,11 +364,13 @@
               </div>
             </button>
             <button onclick="switchRoleFast('docteur')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
-              <div class="w-8 h-8 rounded-full bg-blue-500/15 text-blue-700 flex items-center justify-center font-bold text-sm">🩺</div>
+              <div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-sm">
+                <span class="material-symbols-outlined text-[17px]">stethoscope</span>
+              </div>
               <div class="flex-1 leading-tight">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-on-surface group-hover:text-primary">Docteur</span>
-                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800">Médecin</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-surface-container text-on-surface-variant">Médecin</span>
                 </div>
                 <span class="text-[10px] text-outline">Dr. Alimi Jan • Consultations &amp; DME</span>
               </div>
@@ -385,7 +415,7 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <a href="rendez-vous.html" title="Ouvrir la page dédiée aux Rendez-vous" class="bg-primary hover:bg-primary-hover text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold flex items-center gap-1.5 shadow-xs transition-colors">
+        <a id="sub-header-rdv-link" href="rendez-vous.html" title="Ouvrir la page dédiée aux Rendez-vous" class="bg-primary hover:bg-primary-hover text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold flex items-center gap-1.5 shadow-xs transition-colors">
           <span class="material-symbols-outlined text-[14px] text-primary-light">calendar_month</span>
           <span>29-10-2026</span>
           <span id="today-rdv-pill" class="px-1.5 py-0.2 rounded-full bg-white/15 text-[10px] font-bold">6 RDV</span>
@@ -1061,64 +1091,128 @@
       </div>
     </section>
 
+        <!-- ========================================================================= -->
+    <!-- VUE EXCLUSIVE PROPRIÉTAIRE SAAS : ABONNEMENTS & PACKS (SUPER-ADMIN ONLY) -->
     <!-- ========================================================================= -->
-    <!-- VUE 6 : CONSOLE PROPRIÉTAIRE SAAS (Section 3C - Zéro Dossier Médical Exposé) -->
-    <!-- ========================================================================= -->
-    <section id="view-saas-owner" class="saas-view hidden space-y-3">
+    <section id="view-saas-owner" class="saas-view hidden space-y-4">
+
+      <!-- Bandeau En-tête Espace Propriétaire -->
       <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
         <div>
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
             <h2 class="text-base font-extrabold text-on-surface">Console d'Administration Plateforme SaaS</h2>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">Isolation Médicale HDS Active</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">Isolation Médicale Active • Rôle Propriétaire</span>
           </div>
-          <p class="text-xs text-outline mt-0.5">Supervision des cliniques clientes, gestion des abonnements, forfaits et suivi des essais 30 jours.</p>
+          <p class="text-xs text-outline mt-0.5">Supervision globale des cliniques clientes, gestion des abonnements et création des packs d'abonnement.</p>
         </div>
-        <button onclick="openModal('saas-clinic-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
-          + Provisionner une Clinique
-        </button>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
-          <span class="text-[11px] font-semibold text-outline">Cliniques Inscrites</span>
-          <div id="saas-stat-clinics" class="text-xl font-extrabold text-on-surface mt-0.5">0</div>
-        </div>
-        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
-          <span class="text-[11px] font-semibold text-outline">Abonnements Actifs</span>
-          <div id="saas-stat-active-subs" class="text-xl font-extrabold text-primary mt-0.5">0</div>
-        </div>
-        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
-          <span class="text-[11px] font-semibold text-outline">Essais 30j en Cours</span>
-          <div id="saas-stat-trials" class="text-xl font-extrabold text-on-surface mt-0.5">0</div>
-        </div>
-        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
-          <span class="text-[11px] font-semibold text-outline">MRR Global (MAD/mois)</span>
-          <div id="saas-stat-mrr" class="text-xl font-extrabold text-primary mt-0.5">0 MAD</div>
+        <div class="flex items-center gap-2">
+          <button onclick="openModal('saas-plan-modal')" class="px-3.5 py-2 rounded-full bg-surface-container-lowest border border-outline-variant/40 hover:border-primary text-primary text-xs font-bold shadow-xs flex items-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined text-[16px]">add_box</span>
+            <span>+ Créer un Pack</span>
+          </button>
+          <button onclick="openModal('saas-clinic-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow flex items-center gap-1.5 transition-all">
+            <span class="material-symbols-outlined text-[16px]">domain_add</span>
+            <span>+ Provisionner une Clinique</span>
+          </button>
         </div>
       </div>
 
-      <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
-        <h3 class="text-sm font-bold text-on-surface mb-3">Cliniques Abonnées &amp; Statut des Contrats</h3>
-        <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
-              <th class="py-2 pr-2">Établissement</th>
-              <th class="py-2 px-2">Forfait Souscrit</th>
-              <th class="py-2 px-2">Statut Abonnement</th>
-              <th class="py-2 px-2">Comptes &amp; Branches</th>
-              <th class="py-2 px-2">Échéance</th>
-              <th class="py-2 pl-2 text-right">Actions Propriétaire</th>
-            </tr>
-          </thead>
-          <tbody id="saas-clinics-tbody" class="divide-y divide-surface-container/60"></tbody>
-        </table>
+      <!-- SECTION 1 : GESTION DES ABONNEMENTS & CLINIQUES -->
+      <div id="owner-sec-subs" class="space-y-3.5">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Cliniques Inscrites</span>
+            <div id="saas-stat-clinics" class="text-xl font-extrabold text-on-surface mt-0.5">1</div>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Abonnements Actifs</span>
+            <div id="saas-stat-active-subs" class="text-xl font-extrabold text-primary mt-0.5">1</div>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Essais 30j en Cours</span>
+            <div id="saas-stat-trials" class="text-xl font-extrabold text-on-surface mt-0.5">0</div>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">MRR Global (MAD/mois)</span>
+            <div id="saas-stat-mrr" class="text-xl font-extrabold text-primary mt-0.5">990 MAD</div>
+          </div>
+        </div>
+
+        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-on-surface">Cliniques Abonnées &amp; Statut des Contrats</h3>
+            <span class="text-[10px] font-bold text-primary flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">verified</span>
+              <span>Comptes Isolés</span>
+            </span>
+          </div>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                <th class="py-2 pr-2">Établissement</th>
+                <th class="py-2 px-2">Forfait Souscrit</th>
+                <th class="py-2 px-2">Statut Abonnement</th>
+                <th class="py-2 px-2">Comptes &amp; Branches</th>
+                <th class="py-2 px-2">Échéance</th>
+                <th class="py-2 pl-2 text-right">Actions Propriétaire</th>
+              </tr>
+            </thead>
+            <tbody id="saas-clinics-tbody" class="divide-y divide-surface-container/60"></tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
-        <h3 class="text-sm font-bold text-on-surface">Forfaits SaaS &amp; Grille Tarifaire</h3>
-        <div id="saas-plans-list" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+      <!-- SECTION 2 : PACKS D'ABONNEMENT & CRÉATION -->
+      <div id="owner-sec-plans" class="hidden space-y-3.5">
+        <div class="bento-card rounded-2xl p-4 shadow-bento space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-surface-container">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                <h3 class="text-sm font-extrabold text-on-surface">Packs &amp; Forfaits d'Abonnement SaaS</h3>
+                <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">Gestion des Offres Commerciales</span>
+              </div>
+              <p class="text-[11px] text-outline mt-0.5">Créez de nouveaux packs, configurez les tarifs mensuels en MAD et définissez les quotas d'accès.</p>
+            </div>
+            <button onclick="openModal('saas-plan-modal')" class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow flex items-center gap-1.5 transition-all">
+              <span class="material-symbols-outlined text-[15px]">add_box</span>
+              <span>+ Créer un Nouveau Pack</span>
+            </button>
+          </div>
+
+          <!-- Grille Dynamique des Packs d'Abonnement -->
+          <div id="saas-dynamic-plans-grid" class="grid grid-cols-1 md:grid-cols-3 gap-3.5"></div>
+        </div>
       </div>
+
+      <!-- SECTION 3 : SAUVEGARDES & SÉCURITÉ PLATEFORME -->
+      <div id="owner-sec-backups" class="hidden space-y-3.5">
+        <div class="bento-card rounded-2xl p-4 shadow-bento space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-surface-container">
+            <div>
+              <h3 class="text-sm font-extrabold text-on-surface">Sauvegardes Complètes de la Base de Données SQLite</h3>
+              <p class="text-[11px] text-outline">Générez une copie sécurisée de l'ensemble de la plateforme en 1 clic.</p>
+            </div>
+            <button onclick="createNewBackup()" class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px]">cloud_download</span>
+              <span>Sauvegarder Maintenant</span>
+            </button>
+          </div>
+          <div id="saas-backups-list" class="space-y-2 text-xs">
+            <div class="p-3 rounded-xl bg-surface-container-low flex items-center justify-between">
+              <div>
+                <strong class="font-mono text-on-surface">backup_cliniqo_latest.sqlite</strong>
+                <span class="text-[10px] text-outline block">Sauvegarde cryptée conforme CNDP</span>
+              </div>
+              <button onclick="window.location.href='/api/v1/backups/download'" class="px-3 py-1 rounded-full bg-secondary-container text-primary font-bold text-xs hover:bg-primary hover:text-white transition-all">
+                Télécharger .sqlite
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
   </div>
@@ -1983,7 +2077,148 @@
   </div>
 
   <!-- MODAL : CRÉER / PROVISIONNER UNE CLINIQUE (Propriétaire SaaS) -->
-  <div id="saas-clinic-modal" class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="saas-clinic-modal"
+
+  <!-- MODALE CRÉATION DE PACK D'ABONNEMENT SAAS -->
+  <div id="saas-plan-modal" class="hidden fixed inset-0 z-[75] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-lg shadow-floatCard border border-outline-variant/30 space-y-4 modal-pop">
+      <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+        <div>
+          <h3 class="text-sm font-extrabold text-on-surface flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-primary text-[18px]">add_box</span>
+            <span>Créer un Nouveau Pack d'Abonnement SaaS</span>
+          </h3>
+          <span class="text-[11px] text-outline">Configuration commerciale des tarifs MAD et limites techniques</span>
+        </div>
+        <button onclick="closeModal('saas-plan-modal')" class="p-1 rounded-full hover:bg-surface-container-low text-outline">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="submitNewSaasPlan(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Nom du Pack *</label>
+          <input id="new-plan-name" type="text" required placeholder="Ex : Pack Spécialités &amp; Polyclinique" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary focus:outline-none font-bold text-on-surface">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Tarif Mensuel (MAD / mois) *</label>
+            <input id="new-plan-price" type="number" min="0" step="50" required value="790" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary focus:outline-none font-extrabold text-primary">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Max Utilisateurs *</label>
+            <input id="new-plan-max-users" type="number" min="1" max="100" required value="10" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary focus:outline-none font-semibold">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Max Branches / Sites *</label>
+            <input id="new-plan-max-branches" type="number" min="1" max="20" required value="2" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary focus:outline-none font-semibold">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Max Médecins *</label>
+            <input id="new-plan-max-doctors" type="number" min="1" max="50" required value="5" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary focus:outline-none font-semibold">
+          </div>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30 space-y-2">
+          <span class="text-[10px] font-bold uppercase text-outline block">Modules &amp; Fonctionnalités Inclus :</span>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-on-surface">
+              <input id="new-plan-feat-lab" type="checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary">
+              <span>Laboratoire d'analyses</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-on-surface">
+              <input id="new-plan-feat-stock" type="checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary">
+              <span>Stock &amp; Pharmacie</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-on-surface">
+              <input id="new-plan-feat-portal" type="checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary">
+              <span>Portail Patient en ligne</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-on-surface">
+              <input id="new-plan-feat-multi" type="checkbox" class="rounded border-outline-variant text-primary focus:ring-primary">
+              <span>Multi-établissements</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/20">
+          <button type="button" onclick="closeModal('saas-plan-modal')" class="px-4 py-2 rounded-full text-xs font-semibold hover:bg-surface-container-low text-outline">Annuler</button>
+          <button type="submit" class="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-2xs flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[15px]">save</span>
+            <span>Enregistrer le Pack</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODALE MODIFICATION PACK D'ABONNEMENT SAAS -->
+  <div id="saas-plan-edit-modal" class="hidden fixed inset-0 z-[75] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-lg shadow-floatCard border border-outline-variant/30 space-y-4 modal-pop">
+      <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
+        <div>
+          <h3 class="text-sm font-extrabold text-on-surface flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-primary text-[18px]">edit_note</span>
+            <span>Modifier les Limites du Pack</span>
+          </h3>
+          <span id="edit-plan-subtitle" class="text-[11px] text-outline">Configuration du pack</span>
+        </div>
+        <button onclick="closeModal('saas-plan-edit-modal')" class="p-1 rounded-full hover:bg-surface-container-low text-outline">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <form onsubmit="submitEditSaasPlan(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="edit-plan-id">
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Tarif Mensuel (MAD / mois) *</label>
+          <input id="edit-plan-price" type="number" min="0" step="50" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary focus:outline-none font-extrabold text-primary">
+        </div>
+
+        <div class="grid grid-cols-3 gap-2.5">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Max Users</label>
+            <input id="edit-plan-max-users" type="number" min="1" max="100" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary focus:outline-none font-semibold">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Max Branches</label>
+            <input id="edit-plan-max-branches" type="number" min="1" max="20" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary focus:outline-none font-semibold">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Max Médecins</label>
+            <input id="edit-plan-max-doctors" type="number" min="1" max="50" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary focus:outline-none font-semibold">
+          </div>
+        </div>
+
+        <div class="p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30 space-y-2">
+          <span class="text-[10px] font-bold uppercase text-outline block">Fonctionnalités :</span>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-on-surface">
+              <input id="edit-plan-feat-lab" type="checkbox" class="rounded border-outline-variant text-primary focus:ring-primary">
+              <span>Laboratoire</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-on-surface">
+              <input id="edit-plan-feat-stock" type="checkbox" class="rounded border-outline-variant text-primary focus:ring-primary">
+              <span>Stock &amp; Pharmacie</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-on-surface">
+              <input id="edit-plan-feat-multi" type="checkbox" class="rounded border-outline-variant text-primary focus:ring-primary">
+              <span>Multi-branches</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-outline-variant/20">
+          <button type="button" onclick="closeModal('saas-plan-edit-modal')" class="px-4 py-2 rounded-full text-xs font-semibold hover:bg-surface-container-low text-outline">Annuler</button>
+          <button type="submit" class="px-5 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-2xs">Enregistrer les Modifications</button>
+        </div>
+      </form>
+    </div>
+  </div> class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-md shadow-floatCard border border-outline-variant/30 space-y-4">
       <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
         <div>
@@ -2060,11 +2295,11 @@
       <div class="p-3.5 rounded-2xl bg-surface-container-low border border-outline-variant/30 space-y-2 text-xs">
         <div class="flex items-center justify-between">
           <span class="text-outline">Votre profil connecté :</span>
-          <span id="denied-current-role" class="font-extrabold text-primary flex items-center gap-1">💼 Admin (Sarah Benali)</span>
+          <span id="denied-current-role" class="font-extrabold text-primary flex items-center gap-1"><span class="material-symbols-outlined text-[15px]">badge</span> Admin (Sarah Benali)</span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-outline">Rôle exclusif requis :</span>
-          <span id="denied-required-role" class="font-extrabold text-amber-700 flex items-center gap-1">👑 Propriétaire (Dr. Jackson)</span>
+          <span id="denied-required-role" class="font-extrabold text-primary flex items-center gap-1"><span class="material-symbols-outlined text-[15px]">verified_user</span> Propriétaire (Dr. Jackson)</span>
         </div>
         <div class="flex items-center justify-between border-t border-outline-variant/30 pt-1.5">
           <span class="text-outline">Périmètre légal &amp; conformité :</span>

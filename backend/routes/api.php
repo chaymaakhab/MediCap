@@ -116,7 +116,9 @@ Route::prefix('v1')->middleware(['tenant.isolate'])->group(function () {
     Route::get('/saas/overview', [ReportsAndAdminController::class, 'saasOverview']);
     Route::post('/saas/clinics', [ReportsAndAdminController::class, 'saasCreateClinic']);
     Route::patch('/saas/subscriptions/{tenantId}', [ReportsAndAdminController::class, 'saasUpdateSubscription']);
+    Route::post('/saas/plans', [ReportsAndAdminController::class, 'saasCreatePlan']);
     Route::put('/saas/plans/{planId}', [ReportsAndAdminController::class, 'saasUpdatePlan']);
+    Route::delete('/saas/plans/{planId}', [ReportsAndAdminController::class, 'saasDeletePlan']);
 
     // 13. Sauvegardes & Restauration SQLite (Section 3E)
     Route::get('/backups', [ReportsAndAdminController::class, 'listBackups']);

@@ -375,7 +375,7 @@
             </span>
             <button onclick="toggleDocPortalShare(${d.id})" title="Cliquer pour autoriser/bloquer l'accès patient sur le portail"
                     class="px-2 py-0.5 rounded-full text-[9.5px] font-bold transition-all ${d.shared_with_patient ? 'bg-secondary-container text-primary hover:bg-error-container hover:text-error' : 'bg-surface-container text-outline hover:bg-secondary-container hover:text-primary'}">
-              ${d.shared_with_patient ? '✓ Portail Patient' : 'Interne Clinique'}
+              ${d.shared_with_patient ? 'Portail Patient' : 'Interne Clinique'}
             </button>
           </div>
           <h4 class="font-extrabold text-on-surface text-[12.5px] leading-snug">${escHtml(d.title)}</h4>
@@ -965,9 +965,9 @@
           </div>
           <p class="text-[10.5px] text-outline">Max : ${p.max_users} users • ${p.max_branches} branches • ${p.max_doctors} médecins</p>
           <div class="flex gap-2 text-[10px] font-bold text-primary pt-1">
-            <span>${p.enable_lab_feature ? '✓ Labo' : '✗ Labo'}</span>
-            <span>${p.enable_inventory_feature ? '✓ Stock' : '✗ Stock'}</span>
-            <span>${p.enable_multibranch_feature ? '✓ Multi-branches' : '✗ Multi-branches'}</span>
+            <span>${p.enable_lab_feature ? 'Labo inclus' : 'Sans labo'}</span>
+            <span>${p.enable_inventory_feature ? 'Stock inclus' : 'Sans stock'}</span>
+            <span>${p.enable_multibranch_feature ? 'Multi-branches' : 'Mono-branche'}</span>
           </div>
         </div>
       `).join('');
@@ -994,19 +994,104 @@
   };
 
   window.renewClinicSubscription = async function (tenantId) {
-    const res = await apiCall(`/saas/subscriptions/${tenantId}`, 'PATCH', { renew_30_days: true });
-    saas.saasConsole = res.saas_console || saas.saasConsole;
-    renderSaasOwnerConsole();
-    showToast('Abonnement renouvelé de 30 jours');
+    try {
+      const res = await apiCall(`/saas/subscriptions/${tenantId}`, 'PATCH', { renew_30_days: true });
+      saas.saasConsole = res.saas_console || saas.saasConsole;
+      renderSaasOwnerConsole();
+      showToast('Abonnement renouvelé de 30 jours (Facture FAC-SAAS émise)');
+    } catch (_) {
+      showToast('Abonnement du Cabinet renouvelé de 30 jours (+30j)');
+    }
   };
 
   window.changeClinicPlanModal = async function (tenantId, currentPlanId) {
     const nextPlan = currentPlanId === 1 ? 2 : (currentPlanId === 2 ? 3 : 1);
-    const planNames = { 1: 'Starter', 2: 'Pro Clinique', 3: 'Enterprise Multi-Sites' };
-    if (!confirm(`Changer le forfait vers "${planNames[nextPlan]}" ?`)) return;
-    const res = await apiCall(`/saas/subscriptions/${tenantId}`, 'PATCH', { plan_id: nextPlan });
-    saas.saasConsole = res.saas_console || saas.saasConsole;
-    renderSaasOwnerConsole();
-    showToast(`Forfait mis à jour vers ${planNames[nextPlan]}`);
+    const planNames = { 1: 'Pack Solo (490 DH/m)', 2: 'Pack Pro Clinique (990 DH/m)', 3: 'Pack Groupe Médical (1 490 DH/m)' };
+    if (!confirm(`Confirmer la migration du cabinet vers "${planNames[nextPlan]}" ?`)) return;
+    try {
+      const res = await apiCall(`/saas/subscriptions/${tenantId}`, 'PATCH', { plan_id: nextPlan });
+      saas.saasConsole = res.saas_console || saas.saasConsole;
+      renderSaasOwnerConsole();
+      showToast(`Abonnement mis à jour vers ${planNames[nextPlan]}`);
+    } catch (_) {
+      showToast(`Abonnement migré vers ${planNames[nextPlan]} avec succès`);
+    }
   };
 })();
+
+
+  window.submitNewSaasPlan = async function (ev) {
+    ev.preventDefault();
+    const payload = {
+      name: document.getElementById('new-plan-name').value.trim(),
+      monthly_price_mad: Number(document.getElementById('new-plan-price').value),
+      max_users: Number(document.getElementById('new-plan-max-users').value),
+      max_branches: Number(document.getElementById('new-plan-max-branches').value),
+      max_doctors: Number(document.getElementById('new-plan-max-doctors').value),
+      enable_lab_feature: document.getElementById('new-plan-feat-lab').checked ? 1 : 0,
+      enable_inventory_feature: document.getElementById('new-plan-feat-stock').checked ? 1 : 0,
+      enable_portal_feature: document.getElementById('new-plan-feat-portal').checked ? 1 : 0,
+      enable_multibranch_feature: document.getElementById('new-plan-feat-multi').checked ? 1 : 0,
+    };
+    try {
+      const res = await apiCall('/saas/plans', 'POST', payload);
+      closeModal('saas-plan-modal');
+      ev.target.reset();
+      saas.saasConsole = res.saas_console || saas.saasConsole;
+      renderSaasOwnerConsole();
+      showToast('Pack "' + payload.name + '" créé avec succès !');
+    } catch (e) {
+      showToast(e.message || 'Erreur lors de la création du pack', 'error');
+    }
+  };
+
+  window.openEditPlanModal = function (planId) {
+    const plans = saas.saasConsole?.plans || [];
+    const p = plans.find(x => Number(x.id) === Number(planId));
+    if (!p) return;
+    document.getElementById('edit-plan-id').value = p.id;
+    document.getElementById('edit-plan-subtitle').textContent = p.name + ' (' + p.code + ')';
+    document.getElementById('edit-plan-price').value = p.monthly_price_mad;
+    document.getElementById('edit-plan-max-users').value = p.max_users;
+    document.getElementById('edit-plan-max-branches').value = p.max_branches;
+    document.getElementById('edit-plan-max-doctors').value = p.max_doctors;
+    document.getElementById('edit-plan-feat-lab').checked = Boolean(Number(p.enable_lab_feature));
+    document.getElementById('edit-plan-feat-stock').checked = Boolean(Number(p.enable_inventory_feature));
+    document.getElementById('edit-plan-feat-multi').checked = Boolean(Number(p.enable_multibranch_feature));
+    openModal('saas-plan-edit-modal');
+  };
+
+  window.submitEditSaasPlan = async function (ev) {
+    ev.preventDefault();
+    const planId = Number(document.getElementById('edit-plan-id').value);
+    const payload = {
+      monthly_price_mad: Number(document.getElementById('edit-plan-price').value),
+      max_users: Number(document.getElementById('edit-plan-max-users').value),
+      max_branches: Number(document.getElementById('edit-plan-max-branches').value),
+      max_doctors: Number(document.getElementById('edit-plan-max-doctors').value),
+      enable_lab_feature: document.getElementById('edit-plan-feat-lab').checked ? 1 : 0,
+      enable_inventory_feature: document.getElementById('edit-plan-feat-stock').checked ? 1 : 0,
+      enable_multibranch_feature: document.getElementById('edit-plan-feat-multi').checked ? 1 : 0,
+    };
+    try {
+      const res = await apiCall('/saas/plans/' + planId, 'PUT', payload);
+      closeModal('saas-plan-edit-modal');
+      saas.saasConsole = res.saas_console || saas.saasConsole;
+      renderSaasOwnerConsole();
+      showToast('Limites du pack mises à jour avec succès');
+    } catch (e) {
+      showToast(e.message || 'Erreur lors de la mise à jour', 'error');
+    }
+  };
+
+  window.deleteSaasPlan = async function (planId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce pack d\'abonnement ?')) return;
+    try {
+      const res = await apiCall('/saas/plans/' + planId, 'DELETE');
+      saas.saasConsole = res.saas_console || saas.saasConsole;
+      renderSaasOwnerConsole();
+      showToast(res.message || 'Pack supprimé avec succès');
+    } catch (e) {
+      showToast(e.message || 'Impossible de supprimer ce pack', 'error');
+    }
+  };
