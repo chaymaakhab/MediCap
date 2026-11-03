@@ -26,7 +26,8 @@ backend/storage/logs/*.log
 
 # IDEs & Editors
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json
 *.suo
 *.ntvs*
 *.njsproj

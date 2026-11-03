@@ -24,11 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$storageDir = dirname(__DIR__) . '/storage';
-if (!is_dir($storageDir)) {
-    mkdir($storageDir, 0775, true);
+$envStorage = getenv('CLINIQO_STORAGE_DIR');
+if ($envStorage && is_string($envStorage)) {
+    $storageDir = rtrim($envStorage, '/\\');
+} else {
+    $storageDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cliniqo_storage';
 }
-$dbFile = $storageDir . '/saas_multitenant_v3.json';
+if (!is_dir($storageDir)) {
+    @mkdir($storageDir, 0775, true);
+}
+$dbFile = $storageDir . DIRECTORY_SEPARATOR . 'saas_multitenant_v3.json';
 
 function buildTenantSeed(int $tenantId): array
 {
