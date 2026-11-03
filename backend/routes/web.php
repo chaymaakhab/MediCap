@@ -5,9 +5,10 @@ use Illuminate\Http\Request;
 
 function cliniqo_resolve_file(string $relative): ?string {
     $candidates = [
+        base_path('../frontend/' . $relative),
+        base_path('frontend/' . $relative),
         base_path($relative),
         base_path('../' . $relative),
-        base_path('../frontend/' . $relative),
     ];
     foreach ($candidates as $cand) {
         if (file_exists($cand) && !is_dir($cand)) {
