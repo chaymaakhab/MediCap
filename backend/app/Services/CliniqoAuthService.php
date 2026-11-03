@@ -148,12 +148,28 @@ class CliniqoAuthService
                 self::abortJson(401, 'USER_DISABLED', 'Ce compte utilisateur est désactivé.');
             }
         } else {
-            // Default authenticated workspace user for active clinic when no explicit Bearer token is supplied
-            $stU = $pdo->prepare('SELECT * FROM users WHERE tenant_id = ? AND role = ? AND is_active = 1 ORDER BY id ASC LIMIT 1');
-            $stU->execute([$requestedTenant, 'admin_clinique']);
-            $user = $stU->fetch();
+            // Resolve role from header or fallback
+            $reqRole = strtolower(trim((string) ($request->header('X-User-Role') ?? $request->header('X-Cliniqo-Role') ?? '')));
+            if (in_array($reqRole, ['owner', 'saas_owner'], true)) {
+                $stU = $pdo->prepare("SELECT * FROM users WHERE role IN ('owner', 'saas_owner') AND is_active = 1 ORDER BY id ASC LIMIT 1");
+                $stU->execute();
+                $user = $stU->fetch();
+            } elseif (in_array($reqRole, ['docteur', 'medecin', 'doctor'], true)) {
+                $stU = $pdo->prepare("SELECT * FROM users WHERE tenant_id = ? AND role IN ('docteur', 'medecin', 'doctor') AND is_active = 1 ORDER BY id ASC LIMIT 1");
+                $stU->execute([$requestedTenant]);
+                $user = $stU->fetch();
+            } elseif (in_array($reqRole, ['admin', 'admin_clinique'], true)) {
+                $stU = $pdo->prepare("SELECT * FROM users WHERE tenant_id = ? AND role IN ('admin', 'admin_clinique') AND is_active = 1 ORDER BY id ASC LIMIT 1");
+                $stU->execute([$requestedTenant]);
+                $user = $stU->fetch();
+            }
             if (!$user) {
-                $stU2 = $pdo->prepare('SELECT * FROM users WHERE id = 1 LIMIT 1');
+                $stU = $pdo->prepare("SELECT * FROM users WHERE tenant_id = ? AND role IN ('admin', 'admin_clinique') AND is_active = 1 ORDER BY id ASC LIMIT 1");
+                $stU->execute([$requestedTenant]);
+                $user = $stU->fetch();
+            }
+            if (!$user) {
+                $stU2 = $pdo->prepare('SELECT * FROM users WHERE is_active = 1 ORDER BY id ASC LIMIT 1');
                 $stU2->execute();
                 $user = $stU2->fetch();
             }

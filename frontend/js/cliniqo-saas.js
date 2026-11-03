@@ -194,6 +194,22 @@ function can(perm) {
   return Array.isArray(saas.auth?.permissions) && saas.auth.permissions.includes(perm);
 }
 
+window.fmtMoney = fmtMoney;
+window.escHtml = escHtml;
+window.applyBackendState = applyBackendState;
+window.initWorkspace = initWorkspace;
+window.createNewBackup = function() {
+  if (typeof createBackupArchive === 'function') createBackupArchive();
+};
+window.cycleBedTrendPeriod = cycleBedTrendPeriod;
+window.cycleDiagnosePeriod = cycleDiagnosePeriod;
+window.filterSpecialists = filterSpecialists;
+window.populatePatientSelects = populatePatientSelects;
+window.printQrPrescription = printQrPrescription;
+window.toggleOwnerCabinetView = function() {
+  switchTab('saas-owner');
+};
+
 function fmtMoney(val, withCode = false) {
   const n = Number(val || 0);
   const converted = saas.currency === 'EUR' ? n / 10.8 : n;
@@ -222,11 +238,13 @@ function showToast(msg, icon = 'check_circle') {
 }
 
 function buildAuthHeaders(extra = {}) {
+  const curRole = localStorage.getItem('cliniqo_user_role') || saas.auth?.role || 'owner';
   const h = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
     'X-Tenant-ID': String(saas.tenantId || 1),
     'X-Branch-ID': String(saas.branchId || 'all'),
+    'X-User-Role': curRole,
     ...extra
   };
   if (saas.token) {
@@ -277,10 +295,24 @@ function applyBackendState(st) {
   if (st.auth) saas.auth = st.auth;
   if (st.backups) saas.backups = st.backups;
 
-  if (st.auth?.is_saas_owner) {
+  if (st.auth?.is_saas_owner || st.auth?.role === 'owner' || st.auth?.role === 'saas_owner') {
     saas.saasConsole = st.saas_console || null;
+    saas.auth = st.auth;
+    saas.activeTab = 'saas-owner';
+    localStorage.setItem('cliniqo_user_role', 'owner');
+    document.documentElement.classList.add('role-owner');
     renderHeaderAndBranches();
-    renderSaasOwnerConsole();
+    // Apply UI guards inline without triggering switchTab
+    const clinicNav = document.getElementById('nav-clinic-tabs');
+    const ownerNav  = document.getElementById('nav-owner-tabs');
+    if (clinicNav) clinicNav.classList.add('hidden');
+    if (ownerNav) ownerNav.classList.remove('hidden');
+    document.querySelectorAll('.saas-view').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-saas-owner')?.classList.remove('hidden');
+    try { history.replaceState(null, '', 'dashboard.html#saas-owner'); } catch(_) {}
+    if (typeof renderSaasOwnerConsole === 'function') {
+      renderSaasOwnerConsole();
+    }
     return;
   }
 
@@ -371,16 +403,28 @@ async function initWorkspace() {
 
   const curRole = localStorage.getItem('cliniqo_user_role') || saas.auth?.role || 'owner';
   const roleCfg = ROLE_SPACES_CONFIG[curRole] || ROLE_SPACES_CONFIG.owner;
-  applyRoleUiGuards(curRole);
 
-  const finalTab = getTargetTabFromUrl() || (curRole === 'owner' ? 'saas-owner' : (saas.activeTab || roleCfg.defaultTab || 'overview'));
-  switchTab(finalTab);
+  // If applyBackendState already set up Owner mode, skip redundant calls
+  if (curRole === 'owner' && saas.activeTab === 'saas-owner') {
+    applyRoleUiGuards(curRole);
+    return;
+  }
+
+  applyRoleUiGuards(curRole);
+  const finalTab = getTargetTabFromUrl() || (saas.activeTab || roleCfg.defaultTab || 'overview');
+  if (finalTab !== saas.activeTab) {
+    switchTab(finalTab);
+  }
 }
 
+let _hashChangeLock = false;
 window.addEventListener('hashchange', () => {
+  if (_hashChangeLock) return;
   const t = getTargetTabFromUrl();
   if (t && t !== saas.activeTab) {
+    _hashChangeLock = true;
     switchTab(t);
+    _hashChangeLock = false;
   }
 });
 
@@ -553,9 +597,15 @@ function toggleRoleSelector(ev) {
 function applyRoleUiGuards(roleKey) {
   const role = roleKey || saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
   const cfg = ROLE_SPACES_CONFIG[role] || ROLE_SPACES_CONFIG.owner;
-  const isOwner = (role === 'owner' || role === 'saas_owner');
+  const isOwner = (role === 'owner' || role === 'saas_owner' || Boolean(saas.auth?.is_saas_owner));
   const isAdmin = (role === 'admin');
   const isDoc = (role === 'docteur');
+
+  if (isOwner) {
+    document.documentElement.classList.add('role-owner');
+  } else {
+    document.documentElement.classList.remove('role-owner');
+  }
 
   // 1. Mise à jour de l'en-tête (Nom, Rôle, Avatar)
   const dutyLabelEl = document.getElementById('duty-label');
@@ -566,22 +616,42 @@ function applyRoleUiGuards(roleKey) {
   if (avatarEl && cfg.avatar) avatarEl.src = cfg.avatar;
 
   // 2. Séparation Navbar stricte:
-  // Owner a SA PROPRE barre (Gestion des Abonnements, Packs d'Abonnement, Sauvegardes)
-  // Admin et Docteur ont la barre Clinique (Tableau de bord, Rendez-vous, Patients & DME, etc.)
   const clinicNav = document.getElementById('nav-clinic-tabs');
-  const ownerNav = document.getElementById('nav-owner-tabs');
-  if (clinicNav) clinicNav.classList.toggle('hidden', isOwner);
-  if (ownerNav) ownerNav.classList.toggle('hidden', !isOwner);
+  const ownerNav  = document.getElementById('nav-owner-tabs');
+  if (clinicNav) {
+    if (isOwner) clinicNav.classList.add('hidden');
+    else clinicNav.classList.remove('hidden');
+  }
+  if (ownerNav) {
+    if (isOwner) ownerNav.classList.remove('hidden');
+    else ownerNav.classList.add('hidden');
+  }
 
-  // 3. Masquer/Afficher les éléments de sous-en-tête selon le rôle
-  const rdvPill = document.getElementById('sub-header-rdv-link');
-  if (rdvPill) rdvPill.classList.toggle('hidden', isOwner);
-
+  // 3. Sous-en-tête et Titre de page
+  const pageHeading    = document.getElementById('page-heading');
   const tenantSubtitle = document.getElementById('tenant-subtitle-pill');
-  if (tenantSubtitle) {
-    tenantSubtitle.textContent = isOwner 
-      ? '• Plateforme SaaS Cliniqo • Supervision Multi-Cliniques' 
-      : '• Casablanca • Médecine Générale & Cardiologie';
+  const rdvPill        = document.getElementById('sub-header-rdv-link');
+  const ctaBtn         = document.getElementById('primary-cta-btn');
+  const ctaLabel       = document.getElementById('primary-cta-label');
+
+  if (isOwner) {
+    if (pageHeading) pageHeading.textContent = "Supervision & Gestion des Cabinets Médicaux";
+    if (tenantSubtitle) tenantSubtitle.textContent = "• Plateforme SaaS MediCab • Supervision Nationale des Cabinets";
+    if (rdvPill) rdvPill.classList.add('hidden');
+    if (ctaLabel) ctaLabel.textContent = "+ Provisionner un Cabinet";
+    if (ctaBtn) ctaBtn.setAttribute('onclick', "openModal('saas-clinic-modal')");
+
+    // Afficher la console Owner et masquer toutes les vues du cabinet
+    document.querySelectorAll('.saas-view').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-saas-owner')?.classList.remove('hidden');
+    if (typeof renderSaasOwnerConsole === 'function') {
+      renderSaasOwnerConsole();
+    }
+  } else {
+    if (pageHeading && saas.activeTab === 'overview') pageHeading.textContent = "Surveillance Diagnostique & Activité Réelle";
+    if (tenantSubtitle) tenantSubtitle.textContent = "• " + (saas.tenant?.name || 'Cabinet Médical') + " • Casablanca";
+    if (rdvPill) rdvPill.classList.remove('hidden');
+    document.getElementById('view-saas-owner')?.classList.add('hidden');
   }
 
   // 4. Badge du centre / plateforme
@@ -622,11 +692,17 @@ function applyRoleUiGuards(roleKey) {
     btn.style.display = isOwner ? 'flex' : 'none';
   });
 
-  // 8. Redirection automatique stricte si l'onglet actif n'est pas autorisé
+  // 8. Redirection automatique stricte (sans boucle récursive)
   if (isOwner && saas.activeTab !== 'saas-owner') {
-    switchTab('saas-owner');
+    saas.activeTab = 'saas-owner';
+    document.querySelectorAll('.saas-view').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-saas-owner')?.classList.remove('hidden');
+    try { history.replaceState(null, '', 'dashboard.html#saas-owner'); } catch(_) {}
   } else if (!isOwner && saas.activeTab === 'saas-owner') {
-    switchTab('overview');
+    saas.activeTab = 'overview';
+    document.querySelectorAll('.saas-view').forEach(v => v.classList.add('hidden'));
+    document.getElementById('view-overview')?.classList.remove('hidden');
+    try { history.replaceState(null, '', 'dashboard.html'); } catch(_) {}
   }
 }
 window.applyRoleUiGuards = applyRoleUiGuards;
@@ -1924,13 +2000,6 @@ document.addEventListener('keydown', e => {
 
 document.addEventListener('DOMContentLoaded', initWorkspace);
 
-window.addEventListener('hashchange', () => {
-  const target = getTargetTabFromUrl() || 'overview';
-  if (target !== saas.activeTab) {
-    switchTab(target);
-  }
-});
-
 // Explicitly bind to window for HTML onclick attributes
 window.switchTab = switchTab;
 window.handlePrimaryCta = handlePrimaryCta;
@@ -1955,11 +2024,59 @@ window.advanceAptStatus = advanceAptStatus;
 window.openDoctorModal = openDoctorModal;
 window.submitNewDoctor = submitNewDoctor;
 window.submitNewPatient = submitNewPatient;
+
+function saveVitalsQuick() {
+  if (typeof sealClinicalEncounter === 'function') sealClinicalEncounter();
+}
+
+async function validateLabOrder(id) {
+  try {
+    const res = await apiCall(`/labs/${id}/validate`, 'POST');
+    applyBackendState(res.data || res);
+    showToast('Analyse biologique validée avec succès');
+  } catch (_) {}
+}
+
+async function deleteLabOrder(id) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cette demande d\'analyse ?')) return;
+  try {
+    const res = await apiCall(`/labs/${id}`, 'DELETE');
+    applyBackendState(res.data || res);
+    showToast('Demande d\'analyse supprimée');
+  } catch (_) {}
+}
+
+function exportActiveCsv() {
+  const rows = [['Date', 'Patient', 'Service', 'Total MAD']];
+  (saas.invoices || []).forEach(i => rows.push([i.date || i.issued_date, i.patient, i.service, i.total]));
+  const csv = rows.map(r => r.join(';')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `export_${saas.activeTab}_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+}
+
 window.sealClinicalEncounter = sealClinicalEncounter;
 window.saveVitalsQuick = saveVitalsQuick;
 window.validateLabOrder = validateLabOrder;
 window.deleteLabOrder = deleteLabOrder;
 window.exportActiveCsv = exportActiveCsv;
+window.fmtMoney = fmtMoney;
+window.escHtml = escHtml;
+window.applyBackendState = applyBackendState;
+window.initWorkspace = initWorkspace;
+window.createNewBackup = function() {
+  if (typeof createBackupArchive === 'function') createBackupArchive();
+};
+window.cycleBedTrendPeriod = cycleBedTrendPeriod;
+window.cycleDiagnosePeriod = cycleDiagnosePeriod;
+window.filterSpecialists = filterSpecialists;
+window.populatePatientSelects = populatePatientSelects;
+window.printQrPrescription = printQrPrescription;
+window.toggleOwnerCabinetView = function() {
+  switchTab('saas-owner');
+};
 
 
 window.switchOwnerSection = function(sec) {

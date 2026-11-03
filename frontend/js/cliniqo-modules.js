@@ -1197,10 +1197,10 @@
       } else {
         payTbody.innerHTML = pList.map(p => `
           <tr class="hover:bg-surface-container-low/65 transition-colors">
-            <td class="py-2 pr-2 font-mono font-bold text-primary">${escHtml(p.payment_reference || 'PAY-' + p.id)}</td>
+            <td class="py-2 pr-2 font-mono font-bold text-primary">${escHtml(p.receipt_ref || p.payment_reference || 'PAY-' + p.id)}</td>
             <td class="py-2 px-2 font-bold text-on-surface">${escHtml(p.tenant_name || 'Cabinet')}</td>
             <td class="py-2 px-2 text-[10.5px] text-outline">${escHtml(p.plan_name || 'Standard')}</td>
-            <td class="py-2 px-2"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-secondary-container text-primary">${p.billing_period === 'annual' ? 'Annuel (1 an)' : 'Mensuel (30j)'}</span></td>
+            <td class="py-2 px-2"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-secondary-container text-primary">${((p.period_start && p.period_end && (new Date(p.period_end) - new Date(p.period_start)) > 180*86400000) || p.billing_period === 'annual') ? 'Annuel (1 an)' : 'Mensuel (30j)'}</span></td>
             <td class="py-2 px-2 text-[10.5px] text-outline">${escHtml(p.payment_method || 'Virement')}</td>
             <td class="py-2 px-2 font-mono font-bold text-primary">${fmtMoney(p.amount_mad)} MAD</td>
             <td class="py-2 pl-2 text-right font-mono text-[10.5px] text-outline">${escHtml(p.payment_date || '—')}</td>

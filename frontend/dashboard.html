@@ -121,7 +121,30 @@
 
     @keyframes ecgMove { to { stroke-dashoffset: -120; } }
     .ecg-trace { stroke-dasharray: 60 12; animation: ecgMove 2.5s linear infinite; }
+
+    /* Isolation Stricte Espace SaaS Owner */
+    html.role-owner #nav-clinic-tabs,
+    html.role-owner #view-overview,
+    html.role-owner #sub-header-rdv-link {
+      display: none !important;
+    }
+    html.role-owner #nav-owner-tabs {
+      display: inline-flex !important;
+    }
+    html.role-owner #view-saas-owner {
+      display: block !important;
+    }
   </style>
+  <script>
+    (function () {
+      try {
+        var role = localStorage.getItem("cliniqo_user_role");
+        if (role === null || role === "owner" || role === "saas_owner") {
+          document.documentElement.classList.add("role-owner");
+        }
+      } catch (_) {}
+    })();
+  </script>
 </head>
 
 <body class="saas-bg font-sans antialiased min-h-screen selection:bg-primary selection:text-white">
@@ -2682,7 +2705,9 @@
         </div>
       </form>
     </div>
-  </div> class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
+  </div>
+
+  <div id="saas-clinic-modal" class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-md shadow-floatCard border border-outline-variant/30 space-y-4">
       <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
         <div>

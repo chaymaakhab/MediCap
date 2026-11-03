@@ -832,6 +832,30 @@ SQL;
                 'Cabinet Pédiatrique Anfa • Casablanca'
             ]); // id=3
 
+            // Cabinet 4 : Cardiologie Dr. El Amrani (Actif, expiration proche)
+            $stTenant->execute([
+                'Cabinet de Cardiologie Dr. El Amrani', 'Cardio El Amrani', 'cardio-el-amrani',
+                'Dr. Hassan El Amrani', 'cardiology', 'active', 'Marrakech',
+                '15 Avenue Mohammed V, Guéliz, 40000 Marrakech', '+212 524-441122', 'contact@cardio-elamrani.ma',
+                '004120881000033', '62481022', 'INPE-04002201', 'CNSS-661442',
+                'assets/logo.svg', 'MAD', 1, 1, 0, 0, 0,
+                'FAC', 'REC', 'DEV', 'ORD', 'CERT',
+                'Cabinet de Cardiologie et Maladies Cardiovasculaires • Agréé',
+                'Cabinet Cardio El Amrani • Marrakech • +212 524-441122'
+            ]); // id=4
+
+            // Cabinet 5 : Dermatologie Dr. Kettani (Suspendu / Impayé)
+            $stTenant->execute([
+                'Cabinet de Dermatologie Dr. Kettani', 'Dermato Kettani', 'dermato-kettani',
+                'Dr. Samira Kettani', 'dermatology', 'suspended', 'Tanger',
+                '42 Boulevard Pasteur, 90000 Tanger', '+212 539-332211', 'contact@dermato-kettani.ma',
+                '005881220000019', '77310458', 'INPE-05009912', 'CNSS-554881',
+                'assets/logo.svg', 'MAD', 0, 0, 0, 0, 0,
+                'FAC', 'REC', 'DEV', 'ORD', 'CERT',
+                'Cabinet de Dermatologie Médicale et Esthétique',
+                'Cabinet Dermato Dr. Kettani • Tanger'
+            ]); // id=5
+
             // 3. Subscriptions & Payment History
             $stSub = $pdo->prepare('INSERT INTO subscriptions (tenant_id, plan_id, status, is_trial, started_at, trial_ends_at, expires_at, last_payment_date, last_payment_amount, payment_method, billing_cycle, auto_renew, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)');
             $stSub->execute([1, 2, 'active', 0, '2026-01-01', null, '2026-12-31', '2026-10-01', 990, 'Virement Attijariwafa', 'monthly', 1, 'Contrat Actif Cabinet Zerktouni']);
@@ -839,8 +863,28 @@ SQL;
             $stSub->execute([3, 1, 'trialing', 1, '2026-10-15', '2026-11-14', '2026-11-14', null, 0, 'Essai Gratuit 30 Jours', 'monthly', 0, 'Essai 30j en cours (expire le 14 Nov)']);
 
             $stSubPay = $pdo->prepare('INSERT INTO subscription_payments (tenant_id, plan_id, amount_mad, payment_date, payment_method, receipt_ref, period_start, period_end, notes) VALUES (?,?,?,?,?,?,?,?,?)');
+            // Cabinet Zerktouni — Historique 6 mois
+            $stSubPay->execute([1, 2, 990, '2026-05-01', 'Virement Attijariwafa', 'MEDICAB-REC-2026-005', '2026-05-01', '2026-05-31', 'Mensualité Mai 2026']);
+            $stSubPay->execute([1, 2, 990, '2026-06-01', 'Virement Attijariwafa', 'MEDICAB-REC-2026-006', '2026-06-01', '2026-06-30', 'Mensualité Juin 2026']);
+            $stSubPay->execute([1, 2, 990, '2026-07-01', 'Virement Attijariwafa', 'MEDICAB-REC-2026-007', '2026-07-01', '2026-07-31', 'Mensualité Juillet 2026']);
+            $stSubPay->execute([1, 2, 990, '2026-08-01', 'Virement Attijariwafa', 'MEDICAB-REC-2026-008', '2026-08-01', '2026-08-31', 'Mensualité Août 2026']);
+            $stSubPay->execute([1, 2, 990, '2026-09-01', 'Virement Attijariwafa', 'MEDICAB-REC-2026-009', '2026-09-01', '2026-09-30', 'Mensualité Septembre 2026']);
             $stSubPay->execute([1, 2, 990, '2026-10-01', 'Virement Attijariwafa', 'MEDICAB-REC-2026-001', '2026-10-01', '2026-10-31', 'Mensualité Octobre 2026']);
+            // Cabinet Dentaire Alami — Paiement annuel
             $stSubPay->execute([2, 3, 16900, '2026-02-01', 'Virement Banque Populaire', 'MEDICAB-REC-2026-002', '2026-02-01', '2027-01-31', 'Paiement Annuel Premium 2026/2027']);
+            // Subscriptions pour cabinets 4 et 5
+            $stSub->execute([4, 2, 'active', 0, '2026-03-01', null, '2026-11-05', '2026-10-01', 990, 'Chèque BMCE', 'monthly', 1, 'Expire dans 3 jours — renouvellement attendu']);
+            $stSub->execute([5, 1, 'suspended', 0, '2026-06-01', null, '2026-09-30', '2026-08-01', 490, 'Impayé depuis 2 mois', 'monthly', 0, 'Suspendu pour non-paiement (Sept/Oct)']);
+
+            // Paiements cabinet 4
+            $stSubPay->execute([4, 2, 990, '2026-08-01', 'Chèque BMCE', 'MEDICAB-REC-2026-010', '2026-08-01', '2026-08-31', 'Mensualité Août 2026']);
+            $stSubPay->execute([4, 2, 990, '2026-09-01', 'Chèque BMCE', 'MEDICAB-REC-2026-011', '2026-09-01', '2026-09-30', 'Mensualité Septembre 2026']);
+            $stSubPay->execute([4, 2, 990, '2026-10-01', 'Chèque BMCE', 'MEDICAB-REC-2026-012', '2026-10-01', '2026-10-31', 'Mensualité Octobre 2026']);
+
+            // Paiements cabinet 5 (avant suspension)
+            $stSubPay->execute([5, 1, 490, '2026-06-01', 'Virement CIH', 'MEDICAB-REC-2026-013', '2026-06-01', '2026-06-30', 'Mensualité Juin 2026']);
+            $stSubPay->execute([5, 1, 490, '2026-07-01', 'Virement CIH', 'MEDICAB-REC-2026-014', '2026-07-01', '2026-07-31', 'Mensualité Juillet 2026']);
+            $stSubPay->execute([5, 1, 490, '2026-08-01', 'Virement CIH', 'MEDICAB-REC-2026-015', '2026-08-01', '2026-08-31', 'Mensualité Août 2026 — Dernier paiement']);
 
             // 4. Branches (1 par cabinet pour le modèle mono-cabinet)
             $stBranch = $pdo->prepare('INSERT INTO branches (tenant_id, name, code, city, address, phone, email, specialties_summary, is_main, is_active) VALUES (?,?,?,?,?,?,?,?,?,?)');

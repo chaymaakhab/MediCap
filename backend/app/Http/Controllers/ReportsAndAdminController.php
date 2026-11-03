@@ -866,8 +866,8 @@ class ReportsAndAdminController
                    s.expires_at, s.last_payment_date, s.last_payment_amount, s.payment_method, s.auto_renew,
                    p.code AS plan_code, p.name AS plan_name, p.monthly_price_mad, p.annual_price_mad,
                    p.max_users, p.max_branches, p.max_doctors, p.storage_limit_mb,
-                   (SELECT u.name FROM users u WHERE u.tenant_id = t.id AND u.role = 'admin_clinique' AND u.is_active = 1 LIMIT 1) AS admin_name,
-                   (SELECT u.email FROM users u WHERE u.tenant_id = t.id AND u.role = 'admin_clinique' AND u.is_active = 1 LIMIT 1) AS admin_email,
+                   (SELECT u.name FROM users u WHERE u.tenant_id = t.id AND u.role IN ('admin_clinique','admin') AND u.is_active = 1 LIMIT 1) AS admin_name,
+                   (SELECT u.email FROM users u WHERE u.tenant_id = t.id AND u.role IN ('admin_clinique','admin') AND u.is_active = 1 LIMIT 1) AS admin_email,
                    (SELECT COUNT(*) FROM users u WHERE u.tenant_id = t.id AND u.is_active = 1) AS active_users_count,
                    (SELECT COUNT(*) FROM branches b WHERE b.tenant_id = t.id AND b.is_active = 1) AS active_branches_count,
                    (SELECT COUNT(*) FROM doctors d WHERE d.tenant_id = t.id AND d.is_active = 1) AS active_doctors_count
