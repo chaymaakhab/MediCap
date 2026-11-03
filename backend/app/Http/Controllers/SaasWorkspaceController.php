@@ -167,6 +167,12 @@ class SaasWorkspaceController
                 'bp' => $canReadDme ? $p['bp'] : '—',
                 'spo2' => $canReadDme ? $p['spo2'] : '—',
                 'hr' => $canReadDme ? $p['hr'] : '—',
+                'birth_date' => $p['birth_date'] ?? '',
+                'emergency_contact' => $p['emergency_contact'] ?? '',
+                'family_group_id' => !empty($p['family_group_id']) ? (int) $p['family_group_id'] : null,
+                'weight_kg' => (float) ($p['weight_kg'] ?? 70),
+                'height_cm' => (float) ($p['height_cm'] ?? 172),
+                'temperature_c' => (float) ($p['temperature_c'] ?? 37.0),
                 'portal_enabled' => (bool) $p['portal_enabled'],
                 'avatar' => $p['avatar'],
                 'dme_authorized' => $canReadDme,
@@ -373,6 +379,38 @@ class SaasWorkspaceController
         $stHol->execute([$tenantId]);
         $holidays = $stHol->fetchAll();
 
+        // 9b. Quotes (Devis)
+        $stQuotes = $pdo->prepare('SELECT * FROM quotes WHERE tenant_id = ? ORDER BY id DESC');
+        $stQuotes->execute([$tenantId]);
+        $rawQuotes = $stQuotes->fetchAll();
+        $quotesList = [];
+        foreach ($rawQuotes as $q) {
+            $stItems = $pdo->prepare('SELECT * FROM quote_items WHERE quote_id = ?');
+            $stItems->execute([(int) $q['id']]);
+            $q['items'] = $stItems->fetchAll();
+            $quotesList[] = $q;
+        }
+
+        // 9c. Family Links
+        $stFam = $pdo->prepare('
+            SELECT fl.id, fl.patient_id, fl.related_patient_id, fl.relation_type,
+                   p.first AS related_first, p.last AS related_last, p.cin AS related_cin, p.phone AS related_phone
+            FROM family_links fl
+            JOIN patients p ON p.id = fl.related_patient_id
+            WHERE fl.tenant_id = ?
+        ');
+        $stFam->execute([$tenantId]);
+        $familyLinks = $stFam->fetchAll();
+
+        // 9d. Dental Chart & Treatment Plans
+        $stTeeth = $pdo->prepare('SELECT * FROM dental_teeth_chart WHERE tenant_id = ?');
+        $stTeeth->execute([$tenantId]);
+        $dentalTeeth = $stTeeth->fetchAll();
+
+        $stDPlans = $pdo->prepare('SELECT * FROM dental_treatment_plans WHERE tenant_id = ? ORDER BY id DESC');
+        $stDPlans->execute([$tenantId]);
+        $dentalPlans = $stDPlans->fetchAll();
+
         // 10. Notifications (respecting user preferences & role)
         $stPref = $pdo->prepare('SELECT * FROM notification_preferences WHERE user_id = ? LIMIT 1');
         $stPref->execute([(int) ($ctx['user']['id'] ?? 1)]);
@@ -460,6 +498,9 @@ class SaasWorkspaceController
                 'name' => $tenantRow['name'],
                 'short' => $activeBranchRow ? $activeBranchRow['code'] : $tenantRow['short_name'],
                 'short_name' => $tenantRow['short_name'],
+                'responsible_doctor' => $tenantRow['responsible_doctor'] ?? '',
+                'specialty_code' => $tenantRow['specialty_code'] ?? 'general_practice',
+                'status' => $tenantRow['status'] ?? 'active',
                 'city' => $tenantRow['city'],
                 'branch' => $branchLabel,
                 'address' => $tenantRow['address'],
@@ -470,6 +511,7 @@ class SaasWorkspaceController
                 'inpe' => $tenantRow['inpe'],
                 'cnss_affiliation' => $tenantRow['cnss_affiliation'],
                 'logo_url' => $tenantRow['logo_url'],
+                'stamp_signature_url' => $tenantRow['stamp_signature_url'] ?? '',
                 'currency' => $tenantRow['currency'],
                 'primary_language' => $tenantRow['primary_language'],
                 'timezone' => $tenantRow['timezone'],
@@ -477,10 +519,10 @@ class SaasWorkspaceController
                 'raw_enable_laboratory' => (bool) $tenantRow['enable_laboratory'],
                 'enable_inventory' => $inventoryEnabled,
                 'raw_enable_inventory' => (bool) $tenantRow['enable_inventory'],
-                'enable_inpatient_beds' => $bedsEnabled,
-                'raw_enable_inpatient_beds' => (bool) $tenantRow['enable_inpatient_beds'],
-                'total_beds' => (int) $tenantRow['total_beds'],
-                'occupied_beds' => (int) $tenantRow['occupied_beds'],
+                'enable_inpatient_beds' => false,
+                'raw_enable_inpatient_beds' => false,
+                'total_beds' => 0,
+                'occupied_beds' => 0,
                 'default_slot_minutes' => (int) $tenantRow['default_slot_minutes'],
                 'work_day_start' => $tenantRow['work_day_start'],
                 'work_day_end' => $tenantRow['work_day_end'],
@@ -521,6 +563,10 @@ class SaasWorkspaceController
             'cash_session' => $cashSession,
             'inventory' => $inventory,
             'documents' => $documents,
+            'quotes' => $quotesList,
+            'family_links' => $familyLinks,
+            'dental_teeth_chart' => $dentalTeeth,
+            'dental_treatment_plans' => $dentalPlans,
             'services' => $services,
             'holidays' => $holidays,
             'notifications' => $notifications,
@@ -1525,6 +1571,21 @@ class SaasWorkspaceController
         $stEnc = $pdo->prepare('SELECT * FROM encounters WHERE patient_id = ? AND tenant_id = ? ORDER BY encounter_date DESC, id DESC');
         $stEnc->execute([$id, $tenantId]);
 
+        $stTeeth = $pdo->prepare('SELECT * FROM dental_teeth_chart WHERE patient_id = ? AND tenant_id = ?');
+        $stTeeth->execute([$id, $tenantId]);
+
+        $stPlans = $pdo->prepare('SELECT * FROM dental_treatment_plans WHERE patient_id = ? AND tenant_id = ? ORDER BY id DESC');
+        $stPlans->execute([$id, $tenantId]);
+
+        $stFam = $pdo->prepare('
+            SELECT fl.id, fl.patient_id, fl.related_patient_id, fl.relation_type,
+                   p.first AS related_first, p.last AS related_last, p.cin AS related_cin, p.phone AS related_phone, p.age AS related_age
+            FROM family_links fl
+            JOIN patients p ON p.id = fl.related_patient_id
+            WHERE fl.patient_id = ? AND fl.tenant_id = ?
+        ');
+        $stFam->execute([$id, $tenantId]);
+
         CliniqoAuthService::audit(
             $tenantId, (int) $p['branch_id'], (int) $ctx['user']['id'], $ctx['user']['name'], $ctx['role'],
             'VIEW_SENSITIVE_DME', 'patient', $p['code'],
@@ -1532,10 +1593,25 @@ class SaasWorkspaceController
             $request->ip() ?? '127.0.0.1'
         );
 
+        $encs  = $stEnc->fetchAll();
+        $teeth = $stTeeth->fetchAll();
+        $plans = $stPlans->fetchAll();
+        $fam   = $stFam->fetchAll();
+
         return response()->json([
             'success' => true,
+            'dme' => [
+                'patient' => $p,
+                'encounters' => $encs,
+                'dental_teeth' => $teeth,
+                'dental_plans' => $plans,
+                'family_links' => $fam,
+            ],
             'patient' => $p,
-            'encounters' => $stEnc->fetchAll(),
+            'encounters' => $encs,
+            'dental_teeth' => $teeth,
+            'dental_plans' => $plans,
+            'family_links' => $fam,
         ]);
     }
 
@@ -2310,5 +2386,267 @@ class SaasWorkspaceController
         ]);
 
         return $this->respond($ctx, [], $t0);
+    }
+
+    // =========================================================================
+    // QUOTES / DEVIS (Section 3F)
+    // =========================================================================
+    public function listQuotes(Request $request): JsonResponse
+    {
+        $ctx = CliniqoAuthService::requirePermission($request, 'finance.read');
+        $tenantId = (int) $ctx['tenant_id'];
+        $pdo = CliniqoDatabase::connection();
+
+        $st = $pdo->prepare('SELECT * FROM quotes WHERE tenant_id = ? ORDER BY id DESC');
+        $st->execute([$tenantId]);
+        $quotes = $st->fetchAll();
+        foreach ($quotes as &$q) {
+            $stItems = $pdo->prepare('SELECT * FROM quote_items WHERE quote_id = ?');
+            $stItems->execute([(int) $q['id']]);
+            $q['items'] = $stItems->fetchAll();
+        }
+        return response()->json(['success' => true, 'quotes' => $quotes]);
+    }
+
+    public function createQuote(Request $request): JsonResponse
+    {
+        $t0 = microtime(true);
+        $ctx = CliniqoAuthService::requirePermission($request, 'finance.write');
+        $tenantId = (int) $ctx['tenant_id'];
+        $pdo = CliniqoDatabase::connection();
+
+        $patientId = (int) $request->input('patient_id', 0);
+        $patientName = trim((string) $request->input('patient_name', ''));
+        $doctorName = trim((string) $request->input('doctor_name', 'Dr. Jackson'));
+        $issuedDate = trim((string) $request->input('issued_date', CliniqoDatabase::TODAY));
+        $validUntil = trim((string) $request->input('valid_until', date('Y-m-d', strtotime("{$issuedDate} +30 days"))));
+        $discount = (float) $request->input('discount', 0);
+        $notes = trim((string) $request->input('notes', ''));
+        $items = (array) $request->input('items', []);
+
+        if ($patientId <= 0 || empty($items)) {
+            return response()->json(['success' => false, 'message' => 'Patient et articles du devis requis.'], 422);
+        }
+
+        $subtotal = 0.0;
+        foreach ($items as $it) {
+            $subtotal += ((int) ($it['quantity'] ?? 1)) * ((float) ($it['unit_price'] ?? 0));
+        }
+        $total = max(0.0, $subtotal - $discount);
+
+        $num = 'DEV-' . date('Y') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+
+        $pdo->beginTransaction();
+        try {
+            $pdo->prepare('
+                INSERT INTO quotes (tenant_id, quote_num, patient_id, patient_name, doctor_name, issued_date, valid_until, subtotal, discount, total, status, notes)
+                VALUES (?,?,?,?,?,?,?,?,?,?,"sent",?)
+            ')->execute([$tenantId, $num, $patientId, $patientName, $doctorName, $issuedDate, $validUntil, $subtotal, $discount, $total, $notes]);
+            $quoteId = (int) $pdo->lastInsertId();
+
+            $stItem = $pdo->prepare('INSERT INTO quote_items (quote_id, description, quantity, unit_price, total_price) VALUES (?,?,?,?,?)');
+            foreach ($items as $it) {
+                $q = max(1, (int) ($it['quantity'] ?? 1));
+                $p = (float) ($it['unit_price'] ?? 0);
+                $stItem->execute([$quoteId, trim((string) ($it['description'] ?? 'Acte Médical')), $q, $p, $q * $p]);
+            }
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+
+        CliniqoAuthService::audit($tenantId, null, (int) $ctx['user']['id'], $ctx['user']['name'], $ctx['role'], 'CREATE_QUOTE', 'quote', $num, "Total: {$total} MAD", $request->ip() ?? '127.0.0.1');
+
+        return $this->respond($ctx, ['quote_id' => $quoteId, 'quote_num' => $num], $t0, 201);
+    }
+
+    public function convertQuoteToInvoice(Request $request, int $id): JsonResponse
+    {
+        $t0 = microtime(true);
+        $ctx = CliniqoAuthService::requirePermission($request, 'finance.write');
+        $tenantId = (int) $ctx['tenant_id'];
+        $pdo = CliniqoDatabase::connection();
+
+        $st = $pdo->prepare('SELECT * FROM quotes WHERE id = ? AND tenant_id = ? LIMIT 1');
+        $st->execute([$id, $tenantId]);
+        $quote = $st->fetch();
+        if (!$quote) {
+            return response()->json(['success' => false, 'message' => 'Devis introuvable.'], 404);
+        }
+
+        $invNum = 'FAC-' . date('Y') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+        $pdo->beginTransaction();
+        try {
+            $pdo->prepare('
+                INSERT INTO invoices (tenant_id, branch_id, num, patient_id, patient_name, doctor_name, service, issued_date, total, paid, status, method, cnss_org, cnss_est, cnss_status)
+                VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, 0, "unpaid", "En attente", "CNSS AMO", ?, "Dossier prêt")
+            ')->execute([
+                $tenantId, $invNum, (int) $quote['patient_id'], $quote['patient_name'], $quote['doctor_name'],
+                "Facturation suite au Devis {$quote['quote_num']}", CliniqoDatabase::TODAY, (float) $quote['total'],
+                round((float) $quote['total'] * 0.8, 2)
+            ]);
+            $invId = (int) $pdo->lastInsertId();
+
+            $pdo->prepare('UPDATE quotes SET status = "converted", converted_invoice_id = ? WHERE id = ?')->execute([$invId, $id]);
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+
+        CliniqoAuthService::audit($tenantId, null, (int) $ctx['user']['id'], $ctx['user']['name'], $ctx['role'], 'CONVERT_QUOTE', 'quote', $quote['quote_num'], "Converti en facture {$invNum}", $request->ip() ?? '127.0.0.1');
+
+        return $this->respond($ctx, ['invoice_id' => $invId, 'invoice_num' => $invNum], $t0);
+    }
+
+    // =========================================================================
+    // DENTISTERIE & ODONTOGRAMME INTERACTIF (Section 4D)
+    // =========================================================================
+    public function saveDentalTooth(Request $request): JsonResponse
+    {
+        $t0 = microtime(true);
+        $ctx = CliniqoAuthService::requirePermission($request, 'patients.dme');
+        $tenantId = (int) $ctx['tenant_id'];
+        $pdo = CliniqoDatabase::connection();
+
+        $patientId = (int) $request->input('patient_id', 0);
+        $toothNumber = (int) $request->input('tooth_number', 0);
+        $condition = trim((string) $request->input('condition', 'healthy'));
+        $surface = trim((string) $request->input('surface', ''));
+        $notes = trim((string) $request->input('notes', ''));
+
+        if ($patientId <= 0 || $toothNumber <= 0) {
+            return response()->json(['success' => false, 'message' => 'Numéro de dent et patient requis.'], 422);
+        }
+
+        $pdo->prepare('
+            INSERT INTO dental_teeth_chart (tenant_id, patient_id, doctor_id, tooth_number, condition, surface, notes, updated_at)
+            VALUES (?,?,?,?,?,?,?,CURRENT_TIMESTAMP)
+            ON CONFLICT(tenant_id, patient_id, tooth_number) DO UPDATE SET
+                condition = excluded.condition,
+                surface = excluded.surface,
+                notes = excluded.notes,
+                updated_at = CURRENT_TIMESTAMP
+        ')->execute([$tenantId, $patientId, (int) $ctx['user']['id'], $toothNumber, $condition, $surface, $notes]);
+
+        CliniqoAuthService::audit($tenantId, null, (int) $ctx['user']['id'], $ctx['user']['name'], $ctx['role'], 'UPDATE_ODONTOGRAM', 'dental', "Dent-{$toothNumber}", "État: {$condition}", $request->ip() ?? '127.0.0.1');
+
+        return $this->respond($ctx, ['tooth_number' => $toothNumber, 'condition' => $condition], $t0);
+    }
+
+    public function listDentalPlans(Request $request): JsonResponse
+    {
+        $ctx = CliniqoAuthService::requirePermission($request, 'patients.read');
+        $tenantId = (int) $ctx['tenant_id'];
+        $pdo = CliniqoDatabase::connection();
+
+        $st = $pdo->prepare('SELECT * FROM dental_treatment_plans WHERE tenant_id = ? ORDER BY id DESC');
+        $st->execute([$tenantId]);
+        return response()->json(['success' => true, 'plans' => $st->fetchAll()]);
+    }
+
+    public function createDentalPlan(Request $request): JsonResponse
+    {
+        $t0 = microtime(true);
+        $ctx = CliniqoAuthService::requirePermission($request, 'patients.dme');
+        $tenantId = (int) $ctx['tenant_id'];
+        $pdo = CliniqoDatabase::connection();
+
+        $patientId = (int) $request->input('patient_id', 0);
+        $toothNumber = $request->filled('tooth_number') ? (int) $request->input('tooth_number') : null;
+        $procedureName = trim((string) $request->input('procedure_name', ''));
+        $cost = (float) $request->input('estimated_cost_mad', 0);
+        $status = trim((string) $request->input('status', 'planned'));
+        $notes = trim((string) $request->input('notes', ''));
+
+        if ($patientId <= 0 || $procedureName === '') {
+            return response()->json(['success' => false, 'message' => 'Acte dentaire et patient requis.'], 422);
+        }
+
+        $pdo->prepare('
+            INSERT INTO dental_treatment_plans (tenant_id, patient_id, doctor_id, tooth_number, procedure_name, estimated_cost_mad, status, treatment_date, notes)
+            VALUES (?,?,?,?,?,?,?,?,?)
+        ')->execute([$tenantId, $patientId, (int) $ctx['user']['id'], $toothNumber, $procedureName, $cost, $status, CliniqoDatabase::TODAY, $notes]);
+
+        $planId = (int) $pdo->lastInsertId();
+
+        CliniqoAuthService::audit($tenantId, null, (int) $ctx['user']['id'], $ctx['user']['name'], $ctx['role'], 'CREATE_DENTAL_PLAN', 'dental', "Plan-{$planId}", $procedureName, $request->ip() ?? '127.0.0.1');
+
+        return $this->respond($ctx, ['plan_id' => $planId], $t0, 201);
+    }
+
+    public function updateDentalPlan(Request $request, int $id): JsonResponse
+    {
+        $t0 = microtime(true);
+        $ctx = CliniqoAuthService::requirePermission($request, 'patients.dme');
+        $tenantId = (int) $ctx['tenant_id'];
+        $pdo = CliniqoDatabase::connection();
+
+        $status = trim((string) $request->input('status', 'completed'));
+        $pdo->prepare('UPDATE dental_treatment_plans SET status = ? WHERE id = ? AND tenant_id = ?')->execute([$status, $id, $tenantId]);
+
+        return $this->respond($ctx, ['status' => $status], $t0);
+    }
+
+    // =========================================================================
+    // LIENS FAMILIAUX (Family Linking - Section 3B)
+    // =========================================================================
+    public function addFamilyLink(Request $request, int $patientId): JsonResponse
+    {
+        $t0 = microtime(true);
+        $ctx = CliniqoAuthService::requirePermission($request, 'patients.write');
+        $tenantId = (int) $ctx['tenant_id'];
+        $pdo = CliniqoDatabase::connection();
+
+        $relatedId = (int) $request->input('related_patient_id', 0);
+        $relationType = trim((string) $request->input('relation_type', 'Conjoint'));
+
+        if ($relatedId <= 0 || $relatedId === $patientId) {
+            return response()->json(['success' => false, 'message' => 'Patient rattaché invalide.'], 422);
+        }
+
+        $pdo->prepare('INSERT INTO family_links (tenant_id, patient_id, related_patient_id, relation_type) VALUES (?,?,?,?)')
+            ->execute([$tenantId, $patientId, $relatedId, $relationType]);
+
+        return $this->respond($ctx, ['linked' => true], $t0, 201);
+    }
+
+    // =========================================================================
+    // CLÔTURE DE CAISSE (Section 3F - Caisse)
+    // =========================================================================
+    public function closeCashSession(Request $request): JsonResponse
+    {
+        $t0 = microtime(true);
+        $ctx = CliniqoAuthService::requirePermission($request, 'finance.write');
+        $tenantId = (int) $ctx['tenant_id'];
+        $pdo = CliniqoDatabase::connection();
+
+        $st = $pdo->prepare('SELECT * FROM cash_sessions WHERE tenant_id = ? AND status = "open" ORDER BY id DESC LIMIT 1');
+        $st->execute([$tenantId]);
+        $session = $st->fetch();
+        if (!$session) {
+            return response()->json(['success' => false, 'message' => 'Aucune session de caisse ouverte.'], 404);
+        }
+
+        $stCash = $pdo->prepare('SELECT COALESCE(SUM(amount), 0) FROM payments WHERE tenant_id = ? AND cash_session_id = ? AND status = "valid" AND method = "Espèces"');
+        $stCash->execute([$tenantId, (int) $session['id']]);
+        $cashIn = (float) $stCash->fetchColumn();
+
+        $expected = (float) $session['opening_balance'] + $cashIn;
+        $counted = (float) $request->input('counted_balance', $expected);
+        $diff = round($counted - $expected, 2);
+
+        $pdo->prepare('
+            UPDATE cash_sessions
+            SET closing_balance = ?, counted_balance = ?, difference = ?, closed_by = ?, closed_date = CURRENT_TIMESTAMP, status = "closed"
+            WHERE id = ?
+        ')->execute([$expected, $counted, $diff, $ctx['user']['name'], (int) $session['id']]);
+
+        CliniqoAuthService::audit($tenantId, null, (int) $ctx['user']['id'], $ctx['user']['name'], $ctx['role'], 'CLOSE_CASH_SESSION', 'cash_session', $session['session_code'], "Théorique: {$expected} | Réel: {$counted} | Écart: {$diff} MAD", $request->ip() ?? '127.0.0.1');
+
+        return $this->respond($ctx, ['closing_balance' => $expected, 'counted_balance' => $counted, 'difference' => $diff], $t0);
     }
 }

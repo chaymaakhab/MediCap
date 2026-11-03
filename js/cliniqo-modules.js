@@ -1,19 +1,22 @@
 /**
- * Cliniqo Cloud — Modules Métier Avancés :
- * - Facturation, Encaissements, Dépenses & Stock (Section 3H)
+ * MediCab — Modules Métier Avancés :
+ * - Facturation, Encaissements, Dépenses & Stock
+ * - Devis (Quotes) & Clôture de Caisse Journalière
  * - Rapports Analytiques Complets (Section 2)
- * - Paramètres du Centre, Branches, Modèles PDF & Sauvegardes SQLite (Section 3A, 3B, 3E)
- * - Console Propriétaire SaaS (Section 3C)
+ * - Paramètres du Cabinet, Branches, Modèles PDF & Sauvegardes SQLite
+ * - Console Propriétaire SaaS MediCab (Section 3C)
+ * - Odontogramme FDI Interactif & Plans de Traitement Dentaires
+ * - Liens Familiaux & Ayants Droit
  */
 (function () {
   'use strict';
 
   // =========================================================================
-  // VUE FACTURATION, CNSS, DÉPENSES & STOCK (Section 3H & Facturation)
+  // VUE FACTURATION, CNSS, DÉPENSES & STOCK
   // =========================================================================
   window.switchFinanceSubTab = function (sub) {
     saas.financeSubTab = sub;
-    ['invoices', 'expenses', 'stock', 'documents'].forEach(s => {
+    ['invoices', 'expenses', 'stock', 'documents', 'quotes', 'caisse'].forEach(s => {
       document.getElementById(`fin-sub-${s}`)?.classList.toggle('hidden', s !== sub);
       const btn = document.getElementById(`fin-pill-${s}`);
       if (btn) {
@@ -30,7 +33,9 @@
         invoices: 'Nouvelle Facture',
         expenses: 'Nouvelle Dépense',
         stock: 'Ajouter Produit',
-        documents: 'Nouveau Document'
+        documents: 'Nouveau Document',
+        quotes: 'Créer un Devis',
+        caisse: 'Clôturer la Caisse'
       };
       ctaEl.textContent = labels[sub] || 'Action';
     }
@@ -63,11 +68,13 @@
     if (remEl) remEl.textContent = fmtMoney(remainingSum);
     if (cnssEl) cnssEl.textContent = fmtMoney(cnssSum);
 
-    // Render Subtabs
+    // Render all subtabs
     renderInvoicesTable();
     renderExpensesSubpanel();
     renderStockSubpanel();
     renderDocumentsSubpanel();
+    renderQuotesSubpanel();
+    renderCaisseSubpanel();
   };
 
   function renderInvoicesTable() {
@@ -393,7 +400,221 @@
     `).join('');
   }
 
-  window.toggleDocPortalShare = async function (docId) {
+  // --- Sub-panel 5: Devis (Quotes) ---
+  function renderQuotesSubpanel() {
+    const quotes = saas.quotes || [];
+    const setV = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    let totalAmt = 0, acceptedCount = 0, convertedCount = 0;
+    quotes.forEach(q => {
+      totalAmt += Number(q.total || 0);
+      if (q.status === 'accepted') acceptedCount++;
+      if (q.converted_to_invoice_id) convertedCount++;
+    });
+    setV('quote-stat-total', fmtMoney(totalAmt) + ' MAD');
+    setV('quote-stat-accepted', String(acceptedCount));
+    setV('quote-stat-converted', String(convertedCount));
+    setV('quotes-count-badge', `${quotes.length} devis`);
+
+    const tbody = document.getElementById('quotes-tbody');
+    if (!tbody) return;
+    if (quotes.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-outline">Aucun devis émis sur cette période.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = quotes.map(q => {
+      const net = Number(q.total || 0) - Number(q.discount || 0);
+      const isConverted = !!q.converted_to_invoice_id;
+      return `<tr class="hover:bg-surface-container-low/65 transition-colors">
+        <td class="py-2.5 pr-2"><strong class="font-mono text-primary">${escHtml(q.quote_num || String(q.id))}</strong><span class="text-[10px] text-outline block">${escHtml(q.validity_date || '—')}</span></td>
+        <td class="py-2.5 px-2"><strong>${escHtml(q.patient_name || '')}</strong><span class="text-[10px] text-outline block">${escHtml(q.doctor_name || '')} • ${escHtml(q.title || '')}</span></td>
+        <td class="py-2.5 px-2 font-mono">${fmtMoney(q.total)} MAD</td>
+        <td class="py-2.5 px-2 text-error font-mono">${Number(q.discount) > 0 ? '-' + fmtMoney(q.discount) : '—'}</td>
+        <td class="py-2.5 px-2 font-bold font-mono text-primary">${fmtMoney(net)} MAD</td>
+        <td class="py-2.5 px-2"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isConverted ? 'bg-secondary-container text-primary' : 'bg-surface-container text-outline'}">${isConverted ? 'Facturé' : (q.status || 'En attente')}</span></td>
+        <td class="py-2.5 pl-2 text-right space-x-1">
+          ${!isConverted ? `<button onclick="convertQuoteToInvoice(${q.id})" class="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold hover:bg-primary-hover">Facturer</button>` : ''}
+          <button onclick="CliniqoPdf.printDocument(saas.tenant, {title:'Devis '+${q.id},body_text:${JSON.stringify(q.title||'')},issued_date:${JSON.stringify(q.validity_date||'')}}, saas.currency)" class="px-2 py-1 rounded-full bg-surface-container-low text-primary text-[10px] font-bold hover:bg-secondary-container">PDF</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // --- Sub-panel 6: Session Caisse ---
+  function renderCaisseSubpanel() {
+    const sess = saas.cashSession;
+    const setV = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+    if (!sess) {
+      setV('caisse-opening', '— MAD');
+      setV('caisse-cash-in', '— MAD');
+      setV('caisse-expected', '— MAD');
+      return;
+    }
+    const opening = Number(sess.opening_balance || 0);
+    const cashIn = Number(sess.cash_in || 0);
+    const expected = opening + cashIn;
+    setV('caisse-opening', fmtMoney(opening) + ' MAD');
+    setV('caisse-cash-in', '+' + fmtMoney(cashIn) + ' MAD');
+    setV('caisse-expected', fmtMoney(expected) + ' MAD');
+    const badge = document.getElementById('caisse-session-badge');
+    if (badge) {
+      badge.textContent = sess.status === 'closed' ? 'Session Clôturée' : 'Session Ouverte';
+      badge.className = sess.status === 'closed'
+        ? 'px-2 py-0.5 rounded-full bg-error-container text-error text-[10px] font-bold'
+        : 'px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold';
+    }
+    const mOpening = document.getElementById('modal-caisse-opening');
+    const mCashIn  = document.getElementById('modal-caisse-in');
+    const mExpect  = document.getElementById('modal-caisse-expected');
+    if (mOpening) mOpening.textContent = fmtMoney(opening) + ' MAD';
+    if (mCashIn)  mCashIn.textContent  = '+' + fmtMoney(cashIn) + ' MAD';
+    if (mExpect)  mExpect.textContent  = fmtMoney(expected) + ' MAD';
+    window._caisseExpected = expected;
+  }
+
+  window.calculateCaisseDifference = function () {
+    const counted = parseFloat(document.getElementById('caisse-counted-input')?.value || 0);
+    const expected = window._caisseExpected || 0;
+    const diff = counted - expected;
+    const badge = document.getElementById('caisse-diff-badge');
+    if (!badge) return;
+    if (Math.abs(diff) < 0.01) {
+      badge.textContent = '0,00 MAD (Equilibree)';
+      badge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-secondary-container text-primary';
+    } else if (diff > 0) {
+      badge.textContent = `+${fmtMoney(diff)} MAD (Excedent)`;
+      badge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-secondary-container text-primary';
+    } else {
+      badge.textContent = `${fmtMoney(diff)} MAD (Manquant)`;
+      badge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-error-container text-error';
+    }
+  };
+
+  window.submitNewQuote = async function (ev) {
+    ev.preventDefault();
+    const payload = {
+      patient_id: Number(document.getElementById('quote-patient-select')?.value || 0),
+      doctor_name: document.getElementById('quote-doctor-select')?.value || '',
+      title: document.getElementById('quote-title-input')?.value.trim() || '',
+      total: Number(document.getElementById('quote-total-input')?.value || 0),
+      discount: Number(document.getElementById('quote-discount-input')?.value || 0),
+      validity_date: document.getElementById('quote-validity-input')?.value || '',
+      notes: document.getElementById('quote-notes-input')?.value.trim() || ''
+    };
+    const res = await apiCall('/quotes', 'POST', payload);
+    saas.quotes = res.data?.quotes || res.quotes || saas.quotes;
+    applyBackendState(res.data || res);
+    closeModal('quote-modal');
+    ev.target.reset();
+    showToast('Devis emis avec succes');
+  };
+
+  window.convertQuoteToInvoice = async function (quoteId) {
+    if (!confirm('Convertir ce devis en facture definitive ?')) return;
+    const res = await apiCall(`/quotes/${quoteId}/convert`, 'POST', {});
+    applyBackendState(res.data || res);
+    showToast('Devis converti en facture avec succes');
+  };
+
+  window.submitCloseCashSession = async function (ev) {
+    ev.preventDefault();
+    const counted = Number(document.getElementById('caisse-counted-input')?.value || 0);
+    const res = await apiCall('/cash-sessions/close', 'POST', { counted_balance: counted });
+    applyBackendState(res.data || res);
+    closeModal('close-caisse-modal');
+    showToast('Session de caisse cloturee avec succes');
+  };
+
+  window.openSaasPaymentModal = function (tenantId, tenantName) {
+    const idEl   = document.getElementById('saas-pay-tenant-id');
+    const nameEl = document.getElementById('saas-pay-tenant-name');
+    const dateEl = document.getElementById('saas-pay-date');
+    if (idEl)   idEl.value   = tenantId;
+    if (nameEl) nameEl.value = tenantName;
+    if (dateEl) dateEl.value = new Date().toISOString().slice(0, 10);
+    openModal('saas-payment-modal');
+  };
+
+  window.submitSaasPayment = async function (ev) {
+    ev.preventDefault();
+    const tenantId = document.getElementById('saas-pay-tenant-id')?.value;
+    const payload = {
+      amount_mad: Number(document.getElementById('saas-pay-amount')?.value || 0),
+      billing_period: document.getElementById('saas-pay-period')?.value || 'monthly',
+      payment_method: document.getElementById('saas-pay-method')?.value || 'virement',
+      payment_reference: document.getElementById('saas-pay-ref')?.value || '',
+      payment_date: document.getElementById('saas-pay-date')?.value || new Date().toISOString().slice(0, 10)
+    };
+    const res = await apiCall(`/saas/clinics/${tenantId}/payments`, 'POST', payload);
+    saas.saasConsole = res.saas_console || saas.saasConsole;
+    renderSaasOwnerConsole();
+    closeModal('saas-payment-modal');
+    ev.target?.reset();
+    showToast('Paiement abonnement enregistre avec succes');
+  };
+
+  window.openEditCabinetModal = function (tenantId) {
+    const cl = (saas.saasConsole?.clinics || []).find(c => Number(c.id) === Number(tenantId));
+    if (!cl) return;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('edit-cab-id',       cl.id);
+    set('edit-cab-name',     cl.name);
+    set('edit-cab-doctor',   cl.responsible_doctor);
+    set('edit-cab-specialty',cl.specialty_code || 'general_practice');
+    set('edit-cab-city',     cl.city);
+    set('edit-cab-phone',    cl.phone);
+    set('edit-cab-address',  cl.address);
+    openModal('edit-cabinet-modal');
+  };
+
+  window.submitEditCabinet = async function (ev) {
+    ev.preventDefault();
+    const tenantId = document.getElementById('edit-cab-id')?.value;
+    const payload = {
+      name:               document.getElementById('edit-cab-name')?.value.trim(),
+      responsible_doctor: document.getElementById('edit-cab-doctor')?.value.trim(),
+      specialty_code:     document.getElementById('edit-cab-specialty')?.value,
+      city:               document.getElementById('edit-cab-city')?.value.trim(),
+      phone:              document.getElementById('edit-cab-phone')?.value.trim(),
+      address:            document.getElementById('edit-cab-address')?.value.trim()
+    };
+    const res = await apiCall(`/saas/clinics/${tenantId}`, 'PUT', payload);
+    saas.saasConsole = res.saas_console || saas.saasConsole;
+    renderSaasOwnerConsole();
+    closeModal('edit-cabinet-modal');
+    showToast('Cabinet mis a jour avec succes');
+  };
+
+  window.toggleSuspendCabinet = async function (tenantId) {
+    if (!confirm('Basculer le statut de ce cabinet (Actif / Suspendu) ?')) return;
+    const res = await apiCall(`/saas/clinics/${tenantId}/toggle-suspend`, 'POST', {});
+    saas.saasConsole = res.saas_console || saas.saasConsole;
+    renderSaasOwnerConsole();
+    showToast(res.message || 'Statut du cabinet bascule avec succes');
+  };
+
+  window.submitNewSaasClinicEnhanced = async function (ev) {
+    ev.preventDefault();
+    const payload = {
+      name:               document.getElementById('saas-new-clinic-name')?.value.trim(),
+      city:               document.getElementById('saas-new-clinic-city')?.value.trim(),
+      admin_name:         document.getElementById('saas-new-admin-name')?.value.trim(),
+      admin_email:        document.getElementById('saas-new-admin-email')?.value.trim(),
+      phone:              document.getElementById('saas-new-clinic-phone')?.value.trim(),
+      plan_id:            Number(document.getElementById('saas-new-plan-select')?.value || 1),
+      is_trial:           document.getElementById('saas-new-trial-check')?.checked ?? true,
+      responsible_doctor: document.getElementById('saas-new-clinic-doctor')?.value?.trim() || '',
+      specialty_code:     document.getElementById('saas-new-clinic-specialty')?.value || 'general_practice',
+      address:            document.getElementById('saas-new-clinic-address')?.value?.trim() || ''
+    };
+    const res = await apiCall('/saas/clinics', 'POST', payload);
+    closeModal('saas-clinic-modal');
+    ev.target.reset();
+    saas.saasConsole = res.saas_console || saas.saasConsole;
+    renderSaasOwnerConsole();
+    showToast(`Cabinet "${payload.name}" provisione avec succes`);
+  };
+
+    window.toggleDocPortalShare = async function (docId) {
     const res = await apiCall(`/documents/${docId}/share`, 'PATCH');
     applyBackendState(res.data || res);
     showToast('Visibilité sur le Portail Patient mise à jour');
@@ -915,59 +1136,103 @@
     const sm = sc.summary || {};
 
     const setVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-    setVal('saas-stat-clinics', String(sm.total_clinics || 0));
+    setVal('saas-stat-clinics', String(sm.total_cabinets || 0));
     setVal('saas-stat-active-subs', String(sm.active_subscriptions || 0));
     setVal('saas-stat-trials', String(sm.active_trials || 0));
     setVal('saas-stat-mrr', `${fmtMoney(sm.mrr_mad || 0)} MAD`);
+    setVal('saas-stat-expiring', String(sm.expiring_soon || 0));
+    setVal('saas-stat-arr', `${fmtMoney(sm.arr_mad || 0)} MAD`);
+    setVal('saas-stat-suspended', String(sm.suspended_cabinets || 0));
 
     // Clinics table
     const tbody = document.getElementById('saas-clinics-tbody');
     if (tbody) {
-      tbody.innerHTML = (sc.clinics || []).map(c => `
+      tbody.innerHTML = (sc.clinics || []).map(c => {
+        const isSusp = (c.cabinet_status === 'suspended' || c.sub_status === 'suspended');
+        return `
         <tr class="hover:bg-surface-container-low/65 transition-colors">
           <td class="py-2.5 pr-2">
             <strong class="text-on-surface block font-bold">${escHtml(c.name)}</strong>
-            <span class="text-[10.5px] text-outline">${escHtml(c.city)} • ${escHtml(c.email)}</span>
+            <span class="text-[10.5px] text-outline">${escHtml(c.city || '—')} • ${escHtml(c.responsible_doctor ? 'Dr. ' + c.responsible_doctor : c.admin_email || c.email)}</span>
+            ${c.specialty_code ? `<span class="text-[9.5px] font-bold text-primary block">${escHtml(c.specialty_code)}</span>` : ''}
           </td>
           <td class="py-2.5 px-2">
             <span class="font-bold text-xs text-primary">${escHtml(c.plan_name || 'Standard')}</span>
-            <span class="text-[10px] text-outline block">${fmtMoney(c.monthly_price_mad)} MAD/mois</span>
+            <span class="text-[10px] text-outline block">${fmtMoney(c.monthly_price_mad)} MAD/m</span>
           </td>
           <td class="py-2.5 px-2">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${c.sub_status === 'active' ? 'bg-secondary-container text-primary' : (c.sub_status === 'trialing' ? 'bg-primary/15 text-primary' : 'bg-error-container text-error')}">
-              ${c.sub_status === 'trialing' ? `Essai (J-${c.days_remaining})` : c.sub_status}
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isSusp ? 'bg-error-container text-error' : (c.sub_status === 'active' ? 'bg-secondary-container text-primary' : 'bg-amber-100 text-amber-800')}">
+              ${isSusp ? 'Suspendu' : (c.sub_status === 'trialing' ? `Essai (J-${c.days_remaining})` : c.sub_status)}
             </span>
           </td>
           <td class="py-2.5 px-2 text-[10.5px] text-outline">
-            ${c.active_users_count} utilisateurs • ${c.active_branches_count} branches • ${c.active_doctors_count} médecins
+            ${c.active_users_count || 1} utilisateurs • ${c.active_doctors_count || 1} médecins
           </td>
           <td class="py-2.5 px-2 font-mono text-xs">${escHtml(c.expires_at || '—')}</td>
-          <td class="py-2.5 pl-2 text-right space-x-1">
-            <button onclick="renewClinicSubscription(${c.id})" class="px-2.5 py-1 rounded-full bg-secondary-container hover:bg-primary hover:text-white text-primary text-[10.5px] font-bold transition-colors">
+          <td class="py-2.5 pl-2 text-right space-x-1 whitespace-nowrap">
+            <button onclick="renewClinicSubscription(${c.id})" title="Prolonger de 30 jours" class="px-2.5 py-1 rounded-full bg-secondary-container hover:bg-primary hover:text-white text-primary text-[10.5px] font-bold transition-colors">
               +30 Jours
             </button>
-            <button onclick="changeClinicPlanModal(${c.id}, ${c.plan_id})" class="px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant hover:text-primary text-[10.5px] font-bold transition-colors">
-              Plan
+            <button onclick="openEditCabinetModal(${c.id})" class="px-2.5 py-1 rounded-full bg-surface-container text-on-surface hover:text-primary text-[10.5px] font-bold transition-colors">
+              Modifier
+            </button>
+            <button onclick="openSaasPaymentModal(${c.id}, \`${escHtml(c.name)}\`)" class="px-2.5 py-1 rounded-full bg-primary text-white text-[10.5px] font-bold hover:bg-primary-hover transition-colors">
+              Paiement
+            </button>
+            <button onclick="toggleSuspendCabinet(${c.id})" class="px-2 py-1 rounded-full ${isSusp ? 'bg-secondary-container text-primary' : 'bg-error-container text-error'} text-[10px] font-bold hover:opacity-80 transition-colors">
+              ${isSusp ? 'Réactiver' : 'Suspendre'}
             </button>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
     }
 
-    // Plans list
-    const plansEl = document.getElementById('saas-plans-list');
+    // Recent Payments table
+    const payTbody = document.getElementById('saas-payments-tbody');
+    if (payTbody) {
+      const pList = sc.recent_payments || [];
+      if (pList.length === 0) {
+        payTbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-outline">Aucun paiement d'abonnement enregistré.</td></tr>`;
+      } else {
+        payTbody.innerHTML = pList.map(p => `
+          <tr class="hover:bg-surface-container-low/65 transition-colors">
+            <td class="py-2 pr-2 font-mono font-bold text-primary">${escHtml(p.payment_reference || 'PAY-' + p.id)}</td>
+            <td class="py-2 px-2 font-bold text-on-surface">${escHtml(p.tenant_name || 'Cabinet')}</td>
+            <td class="py-2 px-2 text-[10.5px] text-outline">${escHtml(p.plan_name || 'Standard')}</td>
+            <td class="py-2 px-2"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-secondary-container text-primary">${p.billing_period === 'annual' ? 'Annuel (1 an)' : 'Mensuel (30j)'}</span></td>
+            <td class="py-2 px-2 text-[10.5px] text-outline">${escHtml(p.payment_method || 'Virement')}</td>
+            <td class="py-2 px-2 font-mono font-bold text-primary">${fmtMoney(p.amount_mad)} MAD</td>
+            <td class="py-2 pl-2 text-right font-mono text-[10.5px] text-outline">${escHtml(p.payment_date || '—')}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // Plans list (supporting both saas-dynamic-plans-grid and saas-plans-list)
+    const plansEl = document.getElementById('saas-dynamic-plans-grid') || document.getElementById('saas-plans-list');
     if (plansEl) {
       plansEl.innerHTML = (sc.plans || []).map(p => `
-        <div class="p-3 rounded-2xl bg-surface-container-low border border-outline-variant/30 space-y-1.5 text-xs">
-          <div class="flex items-center justify-between">
-            <strong class="font-extrabold text-on-surface">${escHtml(p.name)}</strong>
-            <strong class="font-mono text-primary">${fmtMoney(p.monthly_price_mad)} MAD/m</strong>
+        <div class="bento-card rounded-2xl p-4 bg-surface-container-low border border-outline-variant/30 space-y-2.5 text-xs flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between">
+              <strong class="font-extrabold text-on-surface text-sm">${escHtml(p.name)}</strong>
+              <span class="font-mono font-bold text-primary text-sm">${fmtMoney(p.monthly_price_mad)} MAD<span class="text-[10px] text-outline">/m</span></span>
+            </div>
+            <p class="text-[10.5px] text-outline mt-1">Limites : max ${p.max_users} utilisateurs • ${p.max_doctors} médecins • ${p.max_branches} branche(s)</p>
+            <div class="flex flex-wrap gap-1 text-[9.5px] font-bold pt-2">
+              <span class="px-1.5 py-0.5 rounded-full ${p.enable_lab_feature ? 'bg-secondary-container text-primary' : 'bg-surface-container text-outline'}">${p.enable_lab_feature ? 'Labo Inclus' : 'Sans Labo'}</span>
+              <span class="px-1.5 py-0.5 rounded-full ${p.enable_inventory_feature ? 'bg-secondary-container text-primary' : 'bg-surface-container text-outline'}">${p.enable_inventory_feature ? 'Pharmacie/Stock' : 'Sans Stock'}</span>
+              <span class="px-1.5 py-0.5 rounded-full ${p.enable_multibranch_feature ? 'bg-secondary-container text-primary' : 'bg-surface-container text-outline'}">${p.enable_multibranch_feature ? 'Multi-Branches' : 'Mono-Cabinet'}</span>
+            </div>
           </div>
-          <p class="text-[10.5px] text-outline">Max : ${p.max_users} users • ${p.max_branches} branches • ${p.max_doctors} médecins</p>
-          <div class="flex gap-2 text-[10px] font-bold text-primary pt-1">
-            <span>${p.enable_lab_feature ? 'Labo inclus' : 'Sans labo'}</span>
-            <span>${p.enable_inventory_feature ? 'Stock inclus' : 'Sans stock'}</span>
-            <span>${p.enable_multibranch_feature ? 'Multi-branches' : 'Mono-branche'}</span>
+          <div class="flex justify-end gap-1.5 pt-2 border-t border-outline-variant/20">
+            <button onclick="openEditPlanModal(${p.id})" class="px-3 py-1 rounded-full bg-surface-container hover:bg-secondary-container text-primary text-[10.5px] font-bold transition-all">
+              Modifier
+            </button>
+            <button onclick="deleteSaasPlan(${p.id})" class="px-3 py-1 rounded-full bg-error-container text-error hover:bg-error hover:text-white text-[10.5px] font-bold transition-all">
+              Supprimer
+            </button>
           </div>
         </div>
       `).join('');
@@ -977,13 +1242,16 @@
   window.submitNewSaasClinic = async function (ev) {
     ev.preventDefault();
     const payload = {
-      name: document.getElementById('saas-new-clinic-name').value.trim(),
-      city: document.getElementById('saas-new-clinic-city').value.trim(),
-      admin_name: document.getElementById('saas-new-admin-name').value.trim(),
-      admin_email: document.getElementById('saas-new-admin-email').value.trim(),
-      phone: document.getElementById('saas-new-clinic-phone').value.trim(),
-      plan_id: Number(document.getElementById('saas-new-plan-select').value),
-      is_trial: document.getElementById('saas-new-trial-check').checked
+      name: (document.getElementById('saas-new-clinic-name')?.value || '').trim(),
+      city: (document.getElementById('saas-new-clinic-city')?.value || '').trim(),
+      admin_name: (document.getElementById('saas-new-admin-name')?.value || '').trim(),
+      admin_email: (document.getElementById('saas-new-admin-email')?.value || '').trim(),
+      phone: (document.getElementById('saas-new-clinic-phone')?.value || '').trim(),
+      plan_id: Number(document.getElementById('saas-new-plan-select')?.value || 1),
+      is_trial: document.getElementById('saas-new-trial-check')?.checked ?? true,
+      responsible_doctor: (document.getElementById('saas-new-clinic-doctor')?.value || document.getElementById('saas-new-admin-name')?.value || '').trim(),
+      specialty_code: document.getElementById('saas-new-clinic-specialty')?.value || 'general_practice',
+      address: (document.getElementById('saas-new-clinic-address')?.value || '').trim()
     };
     const res = await apiCall('/saas/clinics', 'POST', payload);
     closeModal('saas-clinic-modal');

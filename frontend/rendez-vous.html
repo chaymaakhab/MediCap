@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Cliniqo Cloud | Gestion des Rendez-vous &amp; Agenda Médical</title>
+  <title>MediCab | Gestion des Rendez-vous &amp; Agenda Médical</title>
   <meta name="description" content="Module dédié à la gestion des rendez-vous médicaux, calendrier interactif, anti-chevauchement praticien/salle et facturation automatique Cliniqo SaaS."/>
 
   <!-- Official Green Cliniqo Favicon -->
@@ -129,7 +129,7 @@
 
       <!-- Gauche : Logo Vert Cliniqo + Sélecteur Multi-Cliniques -->
       <div class="flex items-center gap-2 relative">
-        <a href="index.html" class="flex items-center gap-2 group focus:outline-none" title="Retour à l'accueil Cliniqo">
+        <a href="index.html" class="flex items-center gap-2 group focus:outline-none" title="Retour à l'accueil MediCab">
           <div class="w-8 h-8 rounded-xl bg-surface-container-lowest border border-outline-variant/40 shadow-pill flex items-center justify-center group-hover:scale-105 transition-transform">
             <svg class="w-5 h-5" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="36" y="8" width="28" height="84" rx="14" fill="#005131"/>
@@ -140,14 +140,14 @@
             </svg>
           </div>
           <div class="leading-none">
-            <span class="text-[17px] font-extrabold tracking-tight text-on-surface group-hover:text-primary transition-colors">Cliniqo</span>
+            <span class="text-[17px] font-extrabold tracking-tight text-on-surface group-hover:text-primary transition-colors">MediCab</span>
             <span class="hidden xl:inline-block ml-1 text-[8.5px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">SaaS</span>
           </div>
         </a>
 
         <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest border border-outline-variant/35 hover:border-primary/40 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-pill transition-all" title="Détails du Cabinet Médical">
           <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-pulse"></span>
-          <span id="active-branch-name" class="font-bold text-on-surface">Cabinet Médical Cliniqo</span>
+          <span id="active-branch-name" class="font-bold text-on-surface">Cabinet Médical MediCab</span>
           <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Solo</span>
           <span class="material-symbols-outlined text-[13px] text-outline">info</span>
         </button>
@@ -158,7 +158,7 @@
               <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-primary">Cabinet Médical Privé</span>
               <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary text-white">Mono-Cabinet</span>
             </div>
-            <h4 class="text-xs font-extrabold text-on-surface">Cabinet Médical Cliniqo</h4>
+            <h4 class="text-xs font-extrabold text-on-surface">Cabinet Médical MediCab</h4>
             <p class="text-[10.5px] text-outline leading-tight">142 Boulevard Zerktouni, Quartier Maarif, 20100 Casablanca</p>
             <div class="flex items-center gap-1.5 pt-1 text-[10px] font-semibold text-primary">
               <span class="material-symbols-outlined text-[13px] text-brand-soft-green">verified</span>
@@ -1078,8 +1078,8 @@
             <span class="material-symbols-outlined text-[16px] text-primary">local_pharmacy</span>
           </div>
           <div>
-            <strong class="text-sm text-on-surface block">Cliniqo Cloud Médical</strong>
-            <span id="print-clinic-sub" class="text-[10px] text-outline">Cabinet Médical Cliniqo • Maarif</span>
+            <strong class="text-sm text-on-surface block">MediCab Cloud Médical</strong>
+            <span id="print-clinic-sub" class="text-[10px] text-outline">Cabinet Médical MediCab • Maarif</span>
           </div>
         </div>
         <span class="px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">ORDONNANCE QR</span>
@@ -1163,7 +1163,7 @@
 
     const rdvApp = {
       tenantId: Number(localStorage.getItem('cliniqo_tenant_id') || 1),
-      tenantName: 'Cabinet Médical Cliniqo',
+      tenantName: 'Cabinet Médical MediCab',
       currency: localStorage.getItem('cliniqo_currency') || 'MAD',
       selectedDate: TODAY_ISO,
       calYear: 2026,

@@ -861,10 +861,13 @@ class ReportsAndAdminController
 
         $clinics = $pdo->query("
             SELECT t.id, t.name, t.short_name, t.city, t.email, t.phone, t.ice, t.created_at,
-                   s.plan_id, s.status AS sub_status, s.is_trial, s.started_at, s.trial_ends_at,
+                   t.responsible_doctor, t.specialty_code, t.status AS cabinet_status,
+                   s.id AS subscription_id, s.plan_id, s.status AS sub_status, s.is_trial, s.started_at, s.trial_ends_at,
                    s.expires_at, s.last_payment_date, s.last_payment_amount, s.payment_method, s.auto_renew,
-                   p.code AS plan_code, p.name AS plan_name, p.monthly_price_mad,
-                   p.max_users, p.max_branches, p.max_doctors,
+                   p.code AS plan_code, p.name AS plan_name, p.monthly_price_mad, p.annual_price_mad,
+                   p.max_users, p.max_branches, p.max_doctors, p.storage_limit_mb,
+                   (SELECT u.name FROM users u WHERE u.tenant_id = t.id AND u.role = 'admin_clinique' AND u.is_active = 1 LIMIT 1) AS admin_name,
+                   (SELECT u.email FROM users u WHERE u.tenant_id = t.id AND u.role = 'admin_clinique' AND u.is_active = 1 LIMIT 1) AS admin_email,
                    (SELECT COUNT(*) FROM users u WHERE u.tenant_id = t.id AND u.is_active = 1) AS active_users_count,
                    (SELECT COUNT(*) FROM branches b WHERE b.tenant_id = t.id AND b.is_active = 1) AS active_branches_count,
                    (SELECT COUNT(*) FROM doctors d WHERE d.tenant_id = t.id AND d.is_active = 1) AS active_doctors_count
@@ -876,31 +879,64 @@ class ReportsAndAdminController
 
         $today = CliniqoDatabase::TODAY;
         $mrr = 0.0;
+        $arr = 0.0;
         $trialCount = 0;
         $activeCount = 0;
+        $expiringSoonCount = 0;
+        $expiredCount = 0;
+        $suspendedCount = 0;
+
         foreach ($clinics as &$cl) {
-            $cl['days_remaining'] = !empty($cl['expires_at'])
-                ? (int) floor((strtotime($cl['expires_at']) - strtotime($today)) / 86400)
+            $days = !empty($cl['expires_at'])
+                ? (int) round((strtotime($cl['expires_at']) - strtotime($today)) / 86400)
                 : 0;
-            if ($cl['sub_status'] === 'active') {
-                $activeCount++;
-                $mrr += (float) $cl['monthly_price_mad'];
+            $cl['days_remaining'] = $days;
+
+            if ($cl['cabinet_status'] === 'suspended' || $cl['sub_status'] === 'suspended') {
+                $suspendedCount++;
+            } elseif ($cl['sub_status'] === 'expired' || ($days < 0 && $cl['sub_status'] !== 'trialing')) {
+                $expiredCount++;
             } elseif ($cl['sub_status'] === 'trialing') {
                 $trialCount++;
+                if ($days >= 0 && $days <= 7) {
+                    $expiringSoonCount++;
+                }
+            } elseif ($cl['sub_status'] === 'active') {
+                $activeCount++;
+                $planPrice = (float) ($cl['monthly_price_mad'] ?? 0);
+                $mrr += $planPrice;
+                $arr += ($cl['annual_price_mad'] ? (float)$cl['annual_price_mad'] : $planPrice * 12);
+                if ($days >= 0 && $days <= 7) {
+                    $expiringSoonCount++;
+                }
             }
         }
         unset($cl);
 
+        $payments = $pdo->query("
+            SELECT sp.*, t.name AS tenant_name, p.name AS plan_name
+            FROM subscription_payments sp
+            JOIN tenants t ON t.id = sp.tenant_id
+            JOIN subscription_plans p ON p.id = sp.plan_id
+            ORDER BY sp.payment_date DESC, sp.id DESC
+            LIMIT 50
+        ")->fetchAll();
+
         return [
             'summary' => [
-                'total_clinics' => count($clinics),
+                'total_cabinets' => count($clinics),
                 'active_subscriptions' => $activeCount,
                 'active_trials' => $trialCount,
+                'expiring_soon' => $expiringSoonCount,
+                'expired_subscriptions' => $expiredCount,
+                'suspended_cabinets' => $suspendedCount,
                 'mrr_mad' => round($mrr, 2),
+                'arr_mad' => round($arr, 2),
                 'medical_records_exposed' => false,
             ],
             'plans' => $plans,
             'clinics' => $clinics,
+            'recent_payments' => $payments,
         ];
     }
 
@@ -922,12 +958,16 @@ class ReportsAndAdminController
         $name = trim((string) $request->input('name', ''));
         $city = trim((string) $request->input('city', 'Casablanca'));
         $adminEmail = strtolower(trim((string) $request->input('admin_email', '')));
-        $adminName = trim((string) $request->input('admin_name', 'Dr. Directeur Clinique'));
+        $adminName = trim((string) $request->input('admin_name', 'Dr. Directeur'));
+        $responsibleDoctor = trim((string) $request->input('responsible_doctor', $adminName));
+        $specialtyCode = trim((string) $request->input('specialty_code', 'general_practice'));
         $planId = max(1, (int) $request->input('plan_id', 2));
         $startTrial = (bool) $request->input('is_trial', true);
+        $phone = trim((string) $request->input('phone', '+212 522-000000'));
+        $address = trim((string) $request->input('address', ''));
 
         if ($name === '' || $adminEmail === '') {
-            return response()->json(['success' => false, 'message' => 'Nom de la clinique et email administrateur requis.'], 422);
+            return response()->json(['success' => false, 'message' => 'Nom du cabinet et email administrateur requis.'], 422);
         }
 
         $stDup = $pdo->prepare('SELECT id FROM users WHERE LOWER(email) = ? LIMIT 1');
@@ -947,12 +987,21 @@ class ReportsAndAdminController
         $expiresAt = $startTrial ? $trialEnd : date('Y-m-d', strtotime("{$today} +365 days"));
         $status = $startTrial ? 'trialing' : 'active';
 
+        $doctorSpecialty = 'Médecin Généraliste';
+        if ($specialtyCode === 'dentistry') {
+            $doctorSpecialty = 'Médecin Dentiste';
+        } elseif ($specialtyCode === 'pediatrics') {
+            $doctorSpecialty = 'Pédiatre';
+        } elseif ($specialtyCode === 'cardiology') {
+            $doctorSpecialty = 'Cardiologue';
+        }
+
         $pdo->beginTransaction();
         try {
-            $pdo->prepare('INSERT INTO tenants (name, short_name, slug, city, email, phone, enable_laboratory, enable_inventory) VALUES (?,?,?,?,?,?,?,?)')
+            $pdo->prepare('INSERT INTO tenants (name, short_name, slug, city, address, email, phone, responsible_doctor, specialty_code, status, enable_laboratory, enable_inventory) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)')
                 ->execute([
-                    $name, $short, $slug, $city, $adminEmail,
-                    trim((string) $request->input('phone', '+212 522-000000')),
+                    $name, $short, $slug, $city, $address, $adminEmail, $phone,
+                    $responsibleDoctor, $specialtyCode, 'active',
                     (int) $plan['enable_lab_feature'],
                     (int) $plan['enable_inventory_feature'],
                 ]);
@@ -963,18 +1012,18 @@ class ReportsAndAdminController
                     $newTenantId, (int) $plan['id'], $status, $startTrial ? 1 : 0,
                     $today, $startTrial ? $trialEnd : null, $expiresAt,
                     $startTrial ? 'Essai Gratuit 30 Jours' : 'Virement Bancaire',
-                    $startTrial ? 'Essai gratuit 30 jours activé à la création' : 'Abonnement annuel activé',
+                    $startTrial ? 'Essai gratuit 30 jours activé à la création' : 'Abonnement activé',
                 ]);
 
             $pdo->prepare('INSERT INTO branches (tenant_id, name, code, city, is_main, is_active) VALUES (?,?,?,?,1,1)')
-                ->execute([$newTenantId, "{$short} — Siège {$city}", strtoupper(substr($slug, 0, 6)), $city]);
+                ->execute([$newTenantId, "Cabinet Principal — {$city}", strtoupper(substr($slug, 0, 6)), $city]);
             $bId = (int) $pdo->lastInsertId();
 
             $pdo->prepare('INSERT INTO rooms (tenant_id, branch_id, name, room_type, daily_capacity_slots) VALUES (?,?,?,?,12)')
-                ->execute([$newTenantId, $bId, 'Salle 101', 'Consultation']);
+                ->execute([$newTenantId, $bId, 'Fauteuil / Bureau 1', 'Consultation']);
 
-            $pdo->prepare('INSERT INTO doctors (tenant_id, branch_id, name, specialty, pole, room, fee_mad) VALUES (?,?,?,?,?,?,600)')
-                ->execute([$newTenantId, $bId, $adminName, 'Médecin Généraliste', 'Médecine Générale', 'Salle 101']);
+            $pdo->prepare('INSERT INTO doctors (tenant_id, branch_id, name, specialty, pole, room, fee_mad) VALUES (?,?,?,?,?,?,400)')
+                ->execute([$newTenantId, $bId, $responsibleDoctor, $doctorSpecialty, $doctorSpecialty, 'Bureau 1']);
 
             $pwHash = password_hash('Cliniqo2026!', PASSWORD_BCRYPT);
             $pdo->prepare('INSERT INTO users (tenant_id, name, email, password_hash, role, title, all_branches, is_active) VALUES (?,?,?,?,?,?,1,1)')
@@ -986,7 +1035,7 @@ class ReportsAndAdminController
             if ($startTrial) {
                 CliniqoAuthService::pushNotification(
                     $newTenantId, $bId, 'subscription', 'info',
-                    'Bienvenue sur Cliniqo • Essai Gratuit 30 Jours',
+                    'Bienvenue sur MediCab • Essai Gratuit 30 Jours',
                     "Votre essai gratuit de 30 jours est actif jusqu'au {$trialEnd}.",
                     'overview', 'admin_clinique'
                 );
@@ -1001,15 +1050,174 @@ class ReportsAndAdminController
         CliniqoAuthService::audit(
             null, null, (int) $ctx['user']['id'], $ctx['user']['name'], 'saas_owner',
             'SAAS_CREATE_CLINIC', 'tenant', (string) $newTenantId,
-            "Création clinique {$name} ({$status})",
+            "Création cabinet {$name} ({$specialtyCode} - {$status})",
             $request->ip() ?? '127.0.0.1'
         );
 
         return response()->json([
             'success' => true,
+            'message' => 'Cabinet créé avec succès.',
             'tenant_id' => $newTenantId,
             'saas_console' => self::buildSaasOwnerPayload($pdo),
         ], 201);
+    }
+
+    public function saasUpdateClinic(Request $request, int $tenantId): JsonResponse
+    {
+        $ctx = CliniqoAuthService::requirePermission($request, 'saas.admin');
+        $pdo = CliniqoDatabase::connection();
+
+        $st = $pdo->prepare('SELECT * FROM tenants WHERE id = ? LIMIT 1');
+        $st->execute([$tenantId]);
+        $t = $st->fetch();
+        if (!$t) {
+            return response()->json(['success' => false, 'message' => 'Cabinet introuvable.'], 404);
+        }
+
+        $name = trim((string) $request->input('name', $t['name']));
+        $responsibleDoctor = trim((string) $request->input('responsible_doctor', $t['responsible_doctor'] ?? ''));
+        $specialtyCode = trim((string) $request->input('specialty_code', $t['specialty_code'] ?? 'general_practice'));
+        $city = trim((string) $request->input('city', $t['city']));
+        $address = trim((string) $request->input('address', $t['address'] ?? ''));
+        $email = trim((string) $request->input('email', $t['email']));
+        $phone = trim((string) $request->input('phone', $t['phone'] ?? ''));
+        $status = trim((string) $request->input('status', $t['status'] ?? 'active'));
+
+        $pdo->prepare('UPDATE tenants SET name=?, responsible_doctor=?, specialty_code=?, city=?, address=?, email=?, phone=?, status=? WHERE id=?')
+            ->execute([$name, $responsibleDoctor, $specialtyCode, $city, $address, $email, $phone, $status, $tenantId]);
+
+        CliniqoAuthService::audit(
+            null, null, (int) $ctx['user']['id'], $ctx['user']['name'], 'saas_owner',
+            'SAAS_UPDATE_CLINIC', 'tenant', (string) $tenantId,
+            "Mise à jour coordonnées cabinet {$name}",
+            $request->ip() ?? '127.0.0.1'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cabinet mis à jour avec succès.',
+            'saas_console' => self::buildSaasOwnerPayload($pdo),
+        ]);
+    }
+
+    public function saasToggleSuspendClinic(Request $request, int $tenantId): JsonResponse
+    {
+        $ctx = CliniqoAuthService::requirePermission($request, 'saas.admin');
+        $pdo = CliniqoDatabase::connection();
+
+        $st = $pdo->prepare('SELECT status FROM tenants WHERE id = ? LIMIT 1');
+        $st->execute([$tenantId]);
+        $t = $st->fetch();
+        if (!$t) {
+            return response()->json(['success' => false, 'message' => 'Cabinet introuvable.'], 404);
+        }
+
+        $newStatus = ($t['status'] === 'suspended') ? 'active' : 'suspended';
+        $subStatus = ($newStatus === 'suspended') ? 'suspended' : 'active';
+
+        $pdo->prepare('UPDATE tenants SET status = ? WHERE id = ?')->execute([$newStatus, $tenantId]);
+        $pdo->prepare('UPDATE subscriptions SET status = ? WHERE tenant_id = ?')->execute([$subStatus, $tenantId]);
+
+        CliniqoAuthService::audit(
+            null, null, (int) $ctx['user']['id'], $ctx['user']['name'], 'saas_owner',
+            'SAAS_TOGGLE_SUSPEND', 'tenant', (string) $tenantId,
+            "Statut cabinet basculé vers {$newStatus}",
+            $request->ip() ?? '127.0.0.1'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "Cabinet désormais {$newStatus}.",
+            'saas_console' => self::buildSaasOwnerPayload($pdo),
+        ]);
+    }
+
+    public function saasResetAdminPassword(Request $request, int $tenantId): JsonResponse
+    {
+        $ctx = CliniqoAuthService::requirePermission($request, 'saas.admin');
+        $pdo = CliniqoDatabase::connection();
+
+        $newPassword = trim((string) $request->input('password', 'MediCab2026!'));
+        if (strlen($newPassword) < 6) {
+            return response()->json(['success' => false, 'message' => 'Mot de passe trop court (min 6 caractères).'], 422);
+        }
+
+        $pwHash = password_hash($newPassword, PASSWORD_BCRYPT);
+
+        $st = $pdo->prepare('UPDATE users SET password_hash = ? WHERE tenant_id = ? AND role = "admin_clinique"');
+        $st->execute([$pwHash, $tenantId]);
+
+        CliniqoAuthService::audit(
+            null, null, (int) $ctx['user']['id'], $ctx['user']['name'], 'saas_owner',
+            'SAAS_RESET_ADMIN_PW', 'tenant', (string) $tenantId,
+            "Réinitialisation mot de passe administrateur",
+            $request->ip() ?? '127.0.0.1'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mot de passe administrateur réinitialisé avec succès.',
+            'saas_console' => self::buildSaasOwnerPayload($pdo),
+        ]);
+    }
+
+    public function saasRecordSubscriptionPayment(Request $request, int $tenantId): JsonResponse
+    {
+        $ctx = CliniqoAuthService::requirePermission($request, 'saas.admin');
+        $pdo = CliniqoDatabase::connection();
+
+        $st = $pdo->prepare('SELECT * FROM subscriptions WHERE tenant_id = ? LIMIT 1');
+        $st->execute([$tenantId]);
+        $sub = $st->fetch();
+        if (!$sub) {
+            return response()->json(['success' => false, 'message' => 'Abonnement introuvable.'], 404);
+        }
+
+        $planId = (int) $request->input('plan_id', $sub['plan_id']);
+        $amount = max(0.0, (float) $request->input('amount_mad', 0));
+        $period = trim((string) $request->input('billing_period', 'monthly')); // 'monthly' or 'annual'
+        $method = trim((string) $request->input('payment_method', 'virement'));
+        $ref = trim((string) $request->input('payment_reference', 'VIR-' . date('Ymd') . '-' . rand(100, 999)));
+        $paymentDate = trim((string) $request->input('payment_date', CliniqoDatabase::TODAY));
+
+        $periodDays = ($period === 'annual') ? 365 : 30;
+        $baseDate = max(CliniqoDatabase::TODAY, (string) ($sub['expires_at'] ?? CliniqoDatabase::TODAY));
+        $newExpiry = date('Y-m-d', strtotime("{$baseDate} +{$periodDays} days"));
+
+        $pdo->prepare('
+            INSERT INTO subscription_payments (tenant_id, plan_id, amount_mad, billing_period, payment_method, payment_reference, payment_date, period_start, period_end, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "completed")
+        ')->execute([
+            $tenantId, $planId, $amount, $period, $method, $ref, $paymentDate, $baseDate, $newExpiry
+        ]);
+
+        $pdo->prepare('
+            UPDATE subscriptions
+            SET plan_id=?, status="active", is_trial=0, expires_at=?, last_payment_date=?, last_payment_amount=?, payment_method=?
+            WHERE tenant_id=?
+        ')->execute([
+            $planId, $newExpiry, $paymentDate, $amount, $method, $tenantId
+        ]);
+
+        CliniqoAuthService::pushNotification(
+            $tenantId, null, 'subscription', 'info',
+            'Paiement d\'abonnement validé',
+            "Paiement de {$amount} MAD enregistré. Abonnement actif jusqu'au {$newExpiry}.",
+            'overview', 'admin_clinique'
+        );
+
+        CliniqoAuthService::audit(
+            null, null, (int) $ctx['user']['id'], $ctx['user']['name'], 'saas_owner',
+            'SAAS_RECORD_PAYMENT', 'subscription', "TENANT-{$tenantId}",
+            "Paiement {$amount} MAD ({$period}) • Réf: {$ref}",
+            $request->ip() ?? '127.0.0.1'
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Paiement d\'abonnement enregistré avec succès.',
+            'saas_console' => self::buildSaasOwnerPayload($pdo),
+        ]);
     }
 
     public function saasUpdateSubscription(Request $request, int $tenantId): JsonResponse

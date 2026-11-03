@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Cliniqo Cloud | Tableau de Bord Médical &amp; Pilotage Clinique</title>
-  <meta name="description" content="Espace SaaS Cliniqo Medical : tableau de bord clinique, dossiers médicaux électroniques (DME), laboratoire, facturation MAD et télétransmission CNSS/AMO."/>
+  <title>MediCab | Logiciel SaaS pour Cabinets Médicaux au Maroc</title>
+  <meta name="description" content="Espace SaaS MediCab : solution complète pour Cabinets Médicaux au Maroc (Médecine Générale, Dentisterie, Spécialités). Dossiers médicaux électroniques (DME), Odontogramme FDI, laboratoire, facturation MAD et télétransmission CNSS/AMO."/>
 
   <!-- Official Green Cliniqo Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='36' y='8' width='28' height='84' rx='14' fill='%23005131'/%3E%3Crect x='8' y='36' width='36' height='28' rx='14' fill='%23005131'/%3E%3Crect x='44' y='36' width='48' height='28' rx='14' fill='%2310B981'/%3E%3Ccircle cx='50' cy='50' r='14' fill='%23003820' fill-opacity='0.25'/%3E%3Cpath d='M 60 41.5 C 57.5 39 53.5 38 49 38 C 42 38 37 43 37 50 C 37 57 42 62 49 62 C 53.8 62 57.6 61 60 58.5' stroke='%23FFFFFF' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"/>
@@ -148,14 +148,14 @@
             </svg>
           </div>
           <div class="leading-none">
-            <span class="text-[17px] font-extrabold tracking-tight text-on-surface group-hover:text-primary transition-colors">Cliniqo</span>
+            <span class="text-[17px] font-extrabold tracking-tight text-on-surface group-hover:text-primary transition-colors">MediCab</span>
             <span class="hidden xl:inline-block ml-1 text-[8.5px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">SaaS</span>
           </div>
         </a>
 
         <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest border border-outline-variant/35 hover:border-primary/40 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-pill transition-all" title="Détails du Cabinet Médical">
           <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-pulse"></span>
-          <span id="active-branch-name" class="font-bold text-on-surface">Cabinet Médical Cliniqo</span>
+          <span id="active-branch-name" class="font-bold text-on-surface">Cabinet Médical MediCab</span>
           <span id="active-plan-badge" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Solo</span>
           <span class="material-symbols-outlined text-[13px] text-outline">info</span>
         </button>
@@ -166,7 +166,7 @@
               <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-primary">Cabinet Médical Privé</span>
               <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary text-white">Mono-Cabinet</span>
             </div>
-            <h4 class="text-xs font-extrabold text-on-surface">Cabinet Médical Cliniqo</h4>
+            <h4 class="text-xs font-extrabold text-on-surface">Cabinet Médical MediCab</h4>
             <p class="text-[10.5px] text-outline leading-tight">142 Boulevard Zerktouni, Quartier Maarif, 20100 Casablanca</p>
             <div class="flex items-center gap-1.5 pt-1 text-[10px] font-semibold text-primary">
               <span class="material-symbols-outlined text-[13px] text-brand-soft-green">verified</span>
@@ -771,6 +771,14 @@
                   class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
             Documents &amp; Modèles PDF
           </button>
+          <button id="fin-pill-quotes" onclick="switchFinanceSubTab('quotes')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Devis &amp; Devis Dentaires
+          </button>
+          <button id="fin-pill-caisse" onclick="switchFinanceSubTab('caisse')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Session Caisse &amp; Clôture
+          </button>
         </div>
 
         <div class="flex items-center gap-2">
@@ -913,6 +921,105 @@
         </div>
 
         <div id="documents-list-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div>
+      <!-- SOUS-PANEL 5 : DEVIS & DEVIS DENTAIRES (Conversion 1-Clic en Facture) -->
+      <div id="fin-sub-quotes" class="hidden space-y-3">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-extrabold text-on-surface">Devis Médicaux &amp; Plans Financiers de Soins</h3>
+              <span id="quotes-count-badge" class="px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">0 devis</span>
+            </div>
+            <p class="text-[10.5px] text-outline mt-0.5">Émettez des devis transparents et convertissez-les en facture immédiatement en 1 clic.</p>
+          </div>
+          <button onclick="openModal('quote-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[15px]">request_quote</span>
+            <span>+ Créer un Devis</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Total Devis Émis</span>
+            <div id="quote-stat-total" class="text-xl font-extrabold text-on-surface mt-1">0,00 MAD</div>
+            <span class="text-[10px] text-outline">Propositions soumises aux patients</span>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Devis Acceptés</span>
+            <div id="quote-stat-accepted" class="text-xl font-extrabold text-primary mt-1">0</div>
+            <span class="text-[10px] text-outline">Prêts pour réalisation des soins</span>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Convertis en Factures</span>
+            <div id="quote-stat-converted" class="text-xl font-extrabold text-brand-strong-green mt-1">0</div>
+            <span class="text-[10px] text-outline">Facturés et intégrés à la comptabilité</span>
+          </div>
+        </div>
+
+        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
+                <th class="py-2 pr-2">N° Devis</th>
+                <th class="py-2 px-2">Patient &amp; Praticien</th>
+                <th class="py-2 px-2">Montant Brut</th>
+                <th class="py-2 px-2">Remise</th>
+                <th class="py-2 px-2">Net à Payer (MAD)</th>
+                <th class="py-2 px-2">Statut</th>
+                <th class="py-2 pl-2 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="quotes-tbody" class="divide-y divide-surface-container/60 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SOUS-PANEL 6 : CLÔTURE DE CAISSE JOURNALIÈRE (Z de Caisse) -->
+      <div id="fin-sub-caisse" class="hidden space-y-3">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+              <h3 class="text-sm font-extrabold text-on-surface">Gestion &amp; Clôture Quotidienne du Tiroir-Caisse</h3>
+              <span id="caisse-session-badge" class="px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">Session Ouverte</span>
+            </div>
+            <p class="text-[10.5px] text-outline mt-0.5">Comptage physique des espèces, calcul automatique des écarts et édition du procès-verbal de clôture.</p>
+          </div>
+          <button onclick="openModal('close-caisse-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[15px]">point_of_sale</span>
+            <span>Clôturer la Caisse Journalière</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Fond Initial de Caisse</span>
+            <div id="caisse-opening" class="text-xl font-extrabold text-on-surface mt-1">0,00 MAD</div>
+            <span class="text-[10px] text-outline">Solde de départ le matin</span>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Encaissements Espèces (Jour)</span>
+            <div id="caisse-cash-in" class="text-xl font-extrabold text-primary mt-1">+0,00 MAD</div>
+            <span class="text-[10px] text-outline">Règlements reçus en liquide</span>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+            <span class="text-[11px] font-semibold text-outline">Décaissements / Charges</span>
+            <div id="caisse-cash-out" class="text-xl font-extrabold text-error mt-1">-0,00 MAD</div>
+            <span class="text-[10px] text-outline">Sorties justifiées de la caisse</span>
+          </div>
+          <div class="bento-card rounded-2xl p-3.5 shadow-bento bg-secondary-container/20 border border-primary/20">
+            <span class="text-[11px] font-bold text-primary">Solde Théorique Attendu</span>
+            <div id="caisse-expected" class="text-xl font-extrabold text-primary mt-1">0,00 MAD</div>
+            <span class="text-[10px] text-primary">Montant attendu dans le tiroir</span>
+          </div>
+        </div>
+
+        <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2">
+          <h4 class="text-xs font-extrabold text-on-surface">Dernier Procès-Verbal de Clôture Enregistré</h4>
+          <div id="caisse-history-content" class="text-xs text-outline space-y-1">
+            <p>Session active. Clôturez la session pour consigner le Z de caisse et archiver l'historique.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1120,22 +1227,34 @@
 
       <!-- SECTION 1 : GESTION DES ABONNEMENTS & CLINIQUES -->
       <div id="owner-sec-subs" class="space-y-3.5">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
-            <span class="text-[11px] font-semibold text-outline">Cliniques Inscrites</span>
-            <div id="saas-stat-clinics" class="text-xl font-extrabold text-on-surface mt-0.5">1</div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+          <div class="bento-card rounded-2xl p-3 shadow-bento">
+            <span class="text-[10px] font-semibold text-outline block">Cabinets Inscrits</span>
+            <div id="saas-stat-clinics" class="text-lg font-extrabold text-on-surface mt-0.5">1</div>
           </div>
-          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
-            <span class="text-[11px] font-semibold text-outline">Abonnements Actifs</span>
-            <div id="saas-stat-active-subs" class="text-xl font-extrabold text-primary mt-0.5">1</div>
+          <div class="bento-card rounded-2xl p-3 shadow-bento">
+            <span class="text-[10px] font-semibold text-outline block">Abonnements Actifs</span>
+            <div id="saas-stat-active-subs" class="text-lg font-extrabold text-primary mt-0.5">1</div>
           </div>
-          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
-            <span class="text-[11px] font-semibold text-outline">Essais 30j en Cours</span>
-            <div id="saas-stat-trials" class="text-xl font-extrabold text-on-surface mt-0.5">0</div>
+          <div class="bento-card rounded-2xl p-3 shadow-bento">
+            <span class="text-[10px] font-semibold text-outline block">Essais 30j en Cours</span>
+            <div id="saas-stat-trials" class="text-lg font-extrabold text-on-surface mt-0.5">0</div>
           </div>
-          <div class="bento-card rounded-2xl p-3.5 shadow-bento">
-            <span class="text-[11px] font-semibold text-outline">MRR Global (MAD/mois)</span>
-            <div id="saas-stat-mrr" class="text-xl font-extrabold text-primary mt-0.5">990 MAD</div>
+          <div class="bento-card rounded-2xl p-3 shadow-bento">
+            <span class="text-[10px] font-semibold text-outline block">Expirant Bientôt (≤7j)</span>
+            <div id="saas-stat-expiring" class="text-lg font-extrabold text-amber-600 mt-0.5">0</div>
+          </div>
+          <div class="bento-card rounded-2xl p-3 shadow-bento">
+            <span class="text-[10px] font-semibold text-outline block">Cabinets Suspendus</span>
+            <div id="saas-stat-suspended" class="text-lg font-extrabold text-error mt-0.5">0</div>
+          </div>
+          <div class="bento-card rounded-2xl p-3 shadow-bento">
+            <span class="text-[10px] font-semibold text-outline block">MRR Mensuel MAD</span>
+            <div id="saas-stat-mrr" class="text-lg font-extrabold text-primary mt-0.5">990 MAD</div>
+          </div>
+          <div class="bento-card rounded-2xl p-3 shadow-bento">
+            <span class="text-[10px] font-semibold text-outline block">ARR Annuel MAD</span>
+            <div id="saas-stat-arr" class="text-lg font-extrabold text-primary mt-0.5">11 880 MAD</div>
           </div>
         </div>
 
@@ -1159,6 +1278,36 @@
               </tr>
             </thead>
             <tbody id="saas-clinics-tbody" class="divide-y divide-surface-container/60"></tbody>
+          </table>
+        </div>
+
+        <!-- HISTORIQUE DES PAIEMENTS D'ABONNEMENTS -->
+        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-bold text-on-surface">Historique des Règlements d'Abonnement Plateforme</h3>
+              <p class="text-[10.5px] text-outline">Flux d'encaissements SaaS réels des abonnements cabinets.</p>
+            </div>
+            <span class="text-[10px] font-bold text-primary flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px]">receipt_long</span>
+              <span>50 Derniers Règlements</span>
+            </span>
+          </div>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                <th class="py-2 pr-2">Référence</th>
+                <th class="py-2 px-2">Cabinet Médical</th>
+                <th class="py-2 px-2">Forfait</th>
+                <th class="py-2 px-2">Période</th>
+                <th class="py-2 px-2">Mode Règlement</th>
+                <th class="py-2 px-2 font-mono">Montant MAD</th>
+                <th class="py-2 pl-2 text-right">Date Règlement</th>
+              </tr>
+            </thead>
+            <tbody id="saas-payments-tbody" class="divide-y divide-surface-container/60">
+              <tr><td colspan="7" class="py-6 text-center text-outline">Aucun paiement enregistré pour le moment.</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -1239,10 +1388,11 @@
           </button>
         </div>
 
-        <div class="grid grid-cols-3 bg-surface-container-low p-1 rounded-xl text-[11px] font-bold">
-          <button id="dme-tab-vitals" onclick="switchDmeTab('vitals')" class="py-1.5 rounded-lg bg-white text-primary shadow-2xs">Constantes &amp; Note</button>
-          <button id="dme-tab-history" onclick="switchDmeTab('history')" class="py-1.5 rounded-lg text-outline hover:text-on-surface">Historique CIM-11</button>
-          <button id="dme-tab-billing" onclick="switchDmeTab('billing')" class="py-1.5 rounded-lg text-outline hover:text-on-surface">Bilans &amp; Factures</button>
+        <div class="grid grid-cols-2 sm:grid-cols-4 bg-surface-container-low p-1 rounded-xl text-[10.5px] font-bold gap-1">
+          <button id="dme-tab-vitals" onclick="switchDmeTab('vitals')" class="py-1.5 px-1.5 rounded-lg bg-white text-primary shadow-2xs">Constantes</button>
+          <button id="dme-tab-dental" onclick="switchDmeTab('dental')" class="py-1.5 px-1.5 rounded-lg text-outline hover:text-on-surface">Odontogramme FDI</button>
+          <button id="dme-tab-family" onclick="switchDmeTab('family')" class="py-1.5 px-1.5 rounded-lg text-outline hover:text-on-surface">Famille</button>
+          <button id="dme-tab-history" onclick="switchDmeTab('history')" class="py-1.5 px-1.5 rounded-lg text-outline hover:text-on-surface">Historique</button>
         </div>
 
         <div id="dme-panel-vitals" class="space-y-3">
@@ -1295,6 +1445,118 @@
           </div>
         </div>
 
+                <!-- PANNEAU DENTAIRE : ODONTOGRAMME FDI INTERACTIF & PLANS DE SOINS -->
+        <div id="dme-panel-dental" class="hidden space-y-3">
+          <div class="p-3 rounded-2xl bg-surface-container-low space-y-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-xs font-extrabold text-on-surface">Odontogramme FDI Interactif</span>
+                <p class="text-[10px] text-outline">Cliquez sur une dent pour modifier son statut ou ajouter un soin.</p>
+              </div>
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">Notation FDI (11-48 / 51-85)</span>
+            </div>
+
+            <!-- Légende Clinique -->
+            <div class="flex flex-wrap gap-1.5 text-[9.5px] font-semibold pt-1">
+              <span class="px-1.5 py-0.5 rounded bg-white text-primary border border-primary/20">Saine</span>
+              <span class="px-1.5 py-0.5 rounded bg-error-container text-error">Carie</span>
+              <span class="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">Obturée</span>
+              <span class="px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">Dévitalisée</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">Couronne</span>
+              <span class="px-1.5 py-0.5 rounded bg-gray-200 text-gray-700">Absente</span>
+              <span class="px-1.5 py-0.5 rounded bg-teal-100 text-teal-800">Implant</span>
+            </div>
+
+            <!-- Grille Odontogramme SVG/HTML Dynamique -->
+            <div id="dental-odontogram-container" class="space-y-2 pt-2"><div id="fdi-odontogram-grid"></div></div>
+
+            <!-- Éditeur rapide de la dent sélectionnée -->
+            <div id="dental-tooth-editor" class="p-2.5 rounded-xl bg-white border border-outline-variant/30 space-y-2 text-xs">
+              <div class="flex items-center justify-between">
+                <strong id="dental-selected-tooth-label" class="text-primary font-bold">Sélectionnez une dent</strong>
+                <span id="dental-selected-condition-badge" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">—</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[9.5px] font-bold text-outline uppercase mb-0.5">Statut Clinique</label>
+                  <select id="dental-condition-select" class="w-full p-1.5 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 focus:outline-none">
+                    <option value="healthy">Saine</option>
+                    <option value="caries">Carie</option>
+                    <option value="restored">Obturée / Plombage</option>
+                    <option value="root_canal">Dévitalisée (Endo)</option>
+                    <option value="crown">Couronne Prothétique</option>
+                    <option value="missing">Absente / Extraite</option>
+                    <option value="implant">Implant Ostéo-intégré</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[9.5px] font-bold text-outline uppercase mb-0.5">Surfaces</label>
+                  <input id="dental-surface-input" type="text" placeholder="MODBL" class="w-full p-1.5 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 focus:outline-none uppercase"/>
+                </div>
+              </div>
+              <div class="flex items-center justify-between pt-1">
+                <input id="dental-notes-input" type="text" placeholder="Notes ou observation..." class="flex-1 mr-2 p-1.5 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 focus:outline-none"/>
+                <button type="button" onclick="saveSelectedToothCondition()" class="px-3 py-1.5 rounded-lg bg-primary text-white font-bold text-xs hover:bg-primary-hover shadow-2xs">
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plans de Traitement Dentaires -->
+          <div class="p-3 rounded-2xl bg-surface-container-low space-y-2">
+            <div class="flex items-center justify-between">
+              <strong class="text-xs font-extrabold text-on-surface">Plan de Traitement &amp; Soins Programmés</strong>
+              <button type="button" onclick="openAddTreatmentPlanForm()" class="text-[10px] font-bold text-primary hover:underline">+ Ajouter Acte</button>
+            </div>
+            
+            <div id="dental-add-plan-box" class="hidden p-2 rounded-xl bg-white border border-outline-variant/30 space-y-1.5 text-xs">
+              <div class="grid grid-cols-3 gap-1.5">
+                <input id="new-plan-tooth" type="number" placeholder="Dent N°" min="11" max="85" class="p-1 rounded bg-surface-container-low text-xs"/>
+                <input id="new-plan-procedure" type="text" placeholder="Acte (ex: Composite)" class="p-1 rounded bg-surface-container-low text-xs col-span-2"/>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <input id="new-plan-cost" type="number" placeholder="Coût MAD" class="p-1 rounded bg-surface-container-low text-xs w-28"/>
+                <button type="button" onclick="submitDentalTreatmentPlan()" class="px-2.5 py-1 rounded bg-primary text-white text-[11px] font-bold">Ajouter</button>
+                <button type="button" onclick="openAddTreatmentPlanForm(false)" class="text-outline text-xs">Annuler</button>
+              </div>
+            </div>
+
+            <div id="dental-plans-list" class="space-y-1 text-xs max-h-40 overflow-y-auto"></div>
+          </div>
+        </div>
+
+        <!-- PANNEAU LIEN FAMILIAL : AYANTS DROIT & DOSSIERS LIÉS -->
+        <div id="dme-panel-family" class="hidden space-y-3">
+          <div class="p-3 rounded-2xl bg-surface-container-low space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <strong class="text-xs font-extrabold text-on-surface">Cercle Familial &amp; Ayants Droit</strong>
+                <p class="text-[10px] text-outline">Gérez les liens de parenté pour regrouper les dossiers familiaux.</p>
+              </div>
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">Lien Multi-Dossiers</span>
+            </div>
+
+            <div id="family-members-list" class="space-y-1.5 text-xs"></div>
+
+            <div class="pt-2 border-t border-outline-variant/30 space-y-1.5">
+              <span class="text-[10px] font-bold text-outline uppercase block">Lier un Membre du Cabinet</span>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <select id="family-related-patient-select" class="w-full p-1.5 rounded-lg bg-white border border-outline-variant/30 text-xs focus:outline-none"></select>
+                <select id="family-relation-type" class="w-full p-1.5 rounded-lg bg-white border border-outline-variant/30 text-xs focus:outline-none">
+                  <option value="conjoint">Conjoint(e)</option>
+                  <option value="enfant">Enfant</option>
+                  <option value="parent">Père / Mère</option>
+                  <option value="tuteur">Tuteur / Tuteur Légal</option>
+                  <option value="autre">Autre Parenté</option>
+                </select>
+              </div>
+              <button type="button" onclick="submitFamilyLink()" class="w-full py-1.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-2xs">
+                + Enregistrer le Lien Familial
+              </button>
+            </div>
+          </div>
+        </div>
         <div id="dme-panel-history" class="hidden space-y-2"></div>
         <div id="dme-panel-billing" class="hidden space-y-2"></div>
       </div>
@@ -1313,6 +1575,208 @@
   <!-- ========================================================================= -->
   <!-- MODALES EN FRANÇAIS : PATIENT, LABORATOIRE, FACTURE, ENCAISSEMENT, REÇU -->
   <!-- ========================================================================= -->
+  <!-- Modale Nouveau Devis -->
+  <div id="quote-modal" onclick="closeModal('quote-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-lg bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <h3 class="text-base font-extrabold text-on-surface">Créer un Devis Médical ou Dentaire</h3>
+        <button onclick="closeModal('quote-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitNewQuote(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Patient *</label>
+            <select id="quote-patient-select" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"></select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Praticien *</label>
+            <select id="quote-doctor-select" required class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"></select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Désignation du Traitement / Acte Principal *</label>
+          <input id="quote-title-input" required type="text" placeholder="Ex : Soins d'implants & couronnes céramiques" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Montant Brut Estimé (MAD) *</label>
+            <input id="quote-total-input" required type="number" step="0.01" min="1" placeholder="Ex : 4500" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Remise Accordée (MAD)</label>
+            <input id="quote-discount-input" type="number" step="0.01" min="0" value="0" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Validité du Devis</label>
+          <input id="quote-validity-input" type="date" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Notes et Conditions Cliniques</label>
+          <textarea id="quote-notes-input" rows="2" placeholder="Échéancier de paiement proposé, étapes de traitement..." class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-surface-container">
+          <button type="button" onclick="closeModal('quote-modal')" class="px-4 py-2 rounded-full bg-surface-container text-on-surface font-bold">Annuler</button>
+          <button type="submit" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow">Émettre le Devis</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale Clôture de Caisse Journalière -->
+  <div id="close-caisse-modal" onclick="closeModal('close-caisse-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <h3 class="text-base font-extrabold text-on-surface">Clôturer la Caisse Quotidienne (Z de Caisse)</h3>
+        <button onclick="closeModal('close-caisse-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitCloseCashSession(event)" class="space-y-3 text-xs">
+        <div class="p-3 rounded-xl bg-surface-container-low space-y-1.5">
+          <div class="flex justify-between">
+            <span class="text-outline">Fond Initial de Caisse :</span>
+            <strong id="modal-caisse-opening" class="text-on-surface">0,00 MAD</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-outline">Encaissements Espèces du Jour :</span>
+            <strong id="modal-caisse-in" class="text-primary">+0,00 MAD</strong>
+          </div>
+          <div class="flex justify-between pt-1 border-t border-outline-variant/20 font-bold">
+            <span class="text-on-surface">Solde Théorique Attendu :</span>
+            <strong id="modal-caisse-expected" class="text-primary text-sm">0,00 MAD</strong>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Montant Réel Physique Compté en Espèces (MAD) *</label>
+          <input id="caisse-counted-input" required type="number" step="0.01" min="0" oninput="calculateCaisseDifference()" placeholder="Ex : 2400.00" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 font-mono text-sm font-bold text-on-surface focus:outline-none focus:border-primary"/>
+        </div>
+
+        <div id="caisse-diff-card" class="p-3 rounded-xl bg-surface-container-low flex items-center justify-between">
+          <span class="font-bold text-on-surface">Écart de Caisse :</span>
+          <span id="caisse-diff-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-secondary-container text-primary">0,00 MAD (Équilibrée)</span>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-surface-container">
+          <button type="button" onclick="closeModal('close-caisse-modal')" class="px-4 py-2 rounded-full bg-surface-container text-on-surface font-bold">Annuler</button>
+          <button type="submit" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow">Valider &amp; Clôturer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale Enregistrement Paiement Abonnement SaaS (Pour Owner) -->
+  <div id="saas-payment-modal" onclick="closeModal('saas-payment-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <h3 class="text-base font-extrabold text-on-surface">Enregistrer un Règlement d'Abonnement</h3>
+        <button onclick="closeModal('saas-payment-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitSaasPayment(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="saas-pay-tenant-id"/>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Cabinet Médical Client</label>
+          <input type="text" id="saas-pay-tenant-name" disabled class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-bold"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Montant Réglé (MAD) *</label>
+            <input id="saas-pay-amount" required type="number" step="0.01" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Période Facturée *</label>
+            <select id="saas-pay-period" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary">
+              <option value="monthly">Mensuel (30 jours)</option>
+              <option value="annual">Annuel (365 jours)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Moyen de Règlement</label>
+            <select id="saas-pay-method" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary">
+              <option value="Virement Bancaire">Virement Bancaire</option>
+              <option value="Chèque">Chèque</option>
+              <option value="Carte Bancaire CMI">Carte Bancaire CMI</option>
+              <option value="Espèces">Espèces</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Référence / Bordereau</label>
+            <input id="saas-pay-ref" type="text" placeholder="Ex: VIR-2026-99" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Date du Règlement</label>
+          <input id="saas-pay-date" type="date" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-surface-container">
+          <button type="button" onclick="closeModal('saas-payment-modal')" class="px-4 py-2 rounded-full bg-surface-container text-on-surface font-bold">Annuler</button>
+          <button type="submit" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow">Valider l'Encaissement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modale Modification Coordonnées Cabinet (Pour Owner) -->
+  <div id="edit-cabinet-modal" onclick="closeModal('edit-cabinet-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
+      <div class="flex items-center justify-between mb-3.5">
+        <h3 class="text-base font-extrabold text-on-surface">Modifier les Paramètres du Cabinet</h3>
+        <button onclick="closeModal('edit-cabinet-modal')" class="w-7 h-7 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <form onsubmit="submitEditCabinet(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="edit-cab-id"/>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Raison Sociale / Nom du Cabinet *</label>
+          <input id="edit-cab-name" required type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Médecin Responsable *</label>
+            <input id="edit-cab-doctor" required type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Spécialité Principale *</label>
+            <select id="edit-cab-specialty" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary">
+              <option value="general_practice">Médecine Générale</option>
+              <option value="dentistry">Dentisterie</option>
+              <option value="pediatrics">Pédiatrie</option>
+              <option value="cardiology">Cardiologie</option>
+              <option value="dermatology">Dermatologie</option>
+              <option value="gynecology">Gynécologie</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Ville</label>
+            <input id="edit-cab-city" type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface-variant mb-1">Téléphone</label>
+            <input id="edit-cab-phone" type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-on-surface-variant mb-1">Adresse Complète</label>
+          <input id="edit-cab-address" type="text" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:outline-none focus:border-primary"/>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-surface-container">
+          <button type="button" onclick="closeModal('edit-cabinet-modal')" class="px-4 py-2 rounded-full bg-surface-container text-on-surface font-bold">Annuler</button>
+          <button type="submit" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white font-bold shadow-emeraldGlow">Enregistrer Modifications</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Modale Nouveau Patient -->
   <div id="patient-modal" onclick="closeModal('patient-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
     <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
@@ -1565,7 +2029,7 @@
           </div>
           <div>
             <strong class="text-sm text-on-surface block">Cliniqo Cloud Médical</strong>
-            <span id="print-clinic-sub" class="text-[10px] text-outline">Cabinet Médical Cliniqo • Maarif</span>
+            <span id="print-clinic-sub" class="text-[10px] text-outline">Cabinet Médical MediCab • Maarif</span>
           </div>
         </div>
         <span id="print-doc-badge" class="px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">REÇU OFFICIEL</span>
@@ -2236,13 +2700,35 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-semibold text-on-surface-variant mb-1">Ville</label>
+            <label class="block font-semibold text-on-surface-variant mb-1">Médecin Responsable *</label>
+            <input id="saas-new-clinic-doctor" type="text" required placeholder="Ex: Dr. Amine Tazi" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+          </div>
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Spécialité Médicale *</label>
+            <select id="saas-new-clinic-specialty" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-semibold">
+              <option value="general_practice">Médecine Générale</option>
+              <option value="dentistry">Dentisterie / Chirurgie Dentaire</option>
+              <option value="pediatrics">Pédiatrie</option>
+              <option value="cardiology">Cardiologie</option>
+              <option value="dermatology">Dermatologie</option>
+              <option value="gynecology">Gynécologie-Obstétrique</option>
+              <option value="ophthalmology">Ophtalmologie</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-on-surface-variant mb-1">Ville *</label>
             <input id="saas-new-clinic-city" type="text" required placeholder="Ex: Marrakech" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
           </div>
           <div>
-            <label class="block font-semibold text-on-surface-variant mb-1">Téléphone</label>
+            <label class="block font-semibold text-on-surface-variant mb-1">Téléphone *</label>
             <input id="saas-new-clinic-phone" type="text" required placeholder="+212 524 00 00 00" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
           </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Adresse Complète du Cabinet</label>
+          <input id="saas-new-clinic-address" type="text" placeholder="Ex: 45 Avenue Mohammed V, Guéliz" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>

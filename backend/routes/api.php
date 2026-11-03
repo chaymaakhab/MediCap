@@ -79,6 +79,21 @@ Route::prefix('v1')->middleware(['tenant.isolate'])->group(function () {
     Route::post('/invoices/{id}/refunds', [SaasWorkspaceController::class, 'refundInvoicePayment']);
     Route::patch('/invoices/{id}/cnss', [SaasWorkspaceController::class, 'advanceCnssClaim']);
     Route::get('/cash-sessions/current', [InvoicingController::class, 'getCurrentCashSession']);
+    Route::post('/cash-sessions/close', [SaasWorkspaceController::class, 'closeCashSession']);
+
+    // 6b. Devis Médicaux & Dentaires (Conversion en Facture)
+    Route::get('/quotes', [SaasWorkspaceController::class, 'listQuotes']);
+    Route::post('/quotes', [SaasWorkspaceController::class, 'createQuote']);
+    Route::post('/quotes/{id}/convert', [SaasWorkspaceController::class, 'convertQuoteToInvoice']);
+
+    // 6c. Dentisterie & Odontogramme Interactif
+    Route::post('/dental/teeth', [SaasWorkspaceController::class, 'saveDentalTooth']);
+    Route::get('/dental/plans', [SaasWorkspaceController::class, 'listDentalPlans']);
+    Route::post('/dental/plans', [SaasWorkspaceController::class, 'createDentalPlan']);
+    Route::patch('/dental/plans/{id}', [SaasWorkspaceController::class, 'updateDentalPlan']);
+
+    // 6d. Liens Familiaux
+    Route::post('/patients/{id}/family', [SaasWorkspaceController::class, 'addFamilyLink']);
 
     // 7. Dépenses & Stock Médical Optionnel (Section 3H)
     Route::get('/expenses', [SaasWorkspaceController::class, 'listExpenses']);
@@ -112,9 +127,13 @@ Route::prefix('v1')->middleware(['tenant.isolate'])->group(function () {
     Route::delete('/holidays/{id}', [ReportsAndAdminController::class, 'deleteHoliday']);
     Route::post('/users', [ReportsAndAdminController::class, 'createClinicUser']);
 
-    // 12. Console Propriétaire SaaS — Abonnements, Forfaits & Essais 30j (Section 3C)
+    // 12. Console Propriétaire SaaS MediCab (Section 2 — Space One)
     Route::get('/saas/overview', [ReportsAndAdminController::class, 'saasOverview']);
     Route::post('/saas/clinics', [ReportsAndAdminController::class, 'saasCreateClinic']);
+    Route::put('/saas/clinics/{tenantId}', [ReportsAndAdminController::class, 'saasUpdateClinic']);
+    Route::post('/saas/clinics/{tenantId}/toggle-suspend', [ReportsAndAdminController::class, 'saasToggleSuspendClinic']);
+    Route::post('/saas/clinics/{tenantId}/reset-admin', [ReportsAndAdminController::class, 'saasResetAdminPassword']);
+    Route::post('/saas/clinics/{tenantId}/payments', [ReportsAndAdminController::class, 'saasRecordSubscriptionPayment']);
     Route::patch('/saas/subscriptions/{tenantId}', [ReportsAndAdminController::class, 'saasUpdateSubscription']);
     Route::post('/saas/plans', [ReportsAndAdminController::class, 'saasCreatePlan']);
     Route::put('/saas/plans/{planId}', [ReportsAndAdminController::class, 'saasUpdatePlan']);

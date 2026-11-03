@@ -304,6 +304,11 @@ function applyBackendState(st) {
   saas.expenses = st.expenses || [];
   saas.inventory = st.inventory || [];
   saas.documents = st.documents || [];
+  saas.quotes = st.quotes || [];
+  saas.familyLinks = st.family_links || [];
+  saas.dentalTeethChart = st.dental_teeth_chart || [];
+  saas.dentalTreatmentPlans = st.dental_treatment_plans || [];
+  saas.cashSession = st.cash_session || null;
   saas.services = st.services || [];
   saas.holidays = st.holidays || [];
   saas.notifications = st.notifications || [];
@@ -842,6 +847,11 @@ function handlePrimaryCta() {
     } else if (saas.financeSubTab === 'documents') {
       populatePatientSelects();
       openModal('document-modal');
+    } else if (saas.financeSubTab === 'quotes') {
+      populatePatientSelects();
+      openModal('quote-modal');
+    } else if (saas.financeSubTab === 'caisse') {
+      openModal('close-caisse-modal');
     } else {
       if (!can('finance.write')) {
         showRoleAccessDenied({
@@ -1396,7 +1406,7 @@ async function submitNewPatient(ev) {
 
 async function openDmeDrawer(patientId) {
   const res = await apiCall(`/patients/${patientId}/dme`, 'GET');
-  const dme = res.dme || {};
+  const dme = res.dme || res || {};
   const p = dme.patient || saas.patients.find(x => x.id === patientId);
   if (!p) return;
 
@@ -1449,6 +1459,11 @@ async function openDmeDrawer(patientId) {
     </div>
   `;
 
+  // Load dental and family data from DME response
+  if (dme.dental_teeth)        saas.dentalTeethChart      = dme.dental_teeth;
+  if (dme.dental_plans)        saas.dentalTreatmentPlans  = dme.dental_plans;
+  if (dme.family_links)        saas.activeDmeFamilyLinks  = dme.family_links;
+
   switchDmeTab('vitals');
   document.getElementById('dme-drawer-backdrop')?.classList.remove('hidden');
 }
@@ -1458,15 +1473,17 @@ function closeDmeDrawer() {
 }
 
 function switchDmeTab(tab) {
-  ['vitals', 'history', 'billing'].forEach(t => {
+  ['vitals', 'dental', 'family', 'history', 'billing'].forEach(t => {
     document.getElementById(`dme-panel-${t}`)?.classList.toggle('hidden', t !== tab);
     const btn = document.getElementById(`dme-tab-${t}`);
     if (btn) {
       btn.className = t === tab
-        ? 'py-1.5 rounded-lg bg-white text-primary shadow-2xs'
-        : 'py-1.5 rounded-lg text-outline hover:text-on-surface';
+        ? 'py-1.5 px-1.5 rounded-lg bg-white text-primary shadow-2xs font-bold text-xs'
+        : 'py-1.5 px-1.5 rounded-lg text-outline hover:text-on-surface text-xs';
     }
   });
+  if (tab === 'dental') renderDentalOdontogram();
+  if (tab === 'family') renderFamilyPanel();
 }
 
 async function sealClinicalEncounter() {
@@ -1593,7 +1610,7 @@ async function submitNewLabOrder(ev) {
 // ============================================================================
 function populatePatientSelects() {
   const opts = saas.patients.map(p => `<option value="${p.id}">${escHtml(p.first)} ${escHtml(p.last)} (#${escHtml(p.code)})</option>`).join('');
-  ['lab-patient-select', 'inv-patient-select', 'docgen-patient-select'].forEach(id => {
+  ['lab-patient-select', 'inv-patient-select', 'docgen-patient-select', 'quote-patient-select'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = opts;
   });
@@ -1603,8 +1620,14 @@ function openModal(id) {
   if (id === 'settings-modal' && typeof loadSettingsModalData === 'function') {
     loadSettingsModalData();
   }
-  if (['lab-modal', 'invoice-modal', 'document-modal'].includes(id)) {
+  if (['lab-modal', 'invoice-modal', 'document-modal', 'quote-modal'].includes(id)) {
     populatePatientSelects();
+  }
+  if (id === 'quote-modal') {
+    const drSel = document.getElementById('quote-doctor-select');
+    if (drSel) {
+      drSel.innerHTML = saas.doctors.map(d => `<option value="${d.name}">${escHtml(d.name)} \u2014 ${escHtml(d.specialty)}</option>`).join('');
+    }
   }
   document.getElementById(id)?.classList.remove('hidden');
   if (id === 'search-modal') {
@@ -1653,6 +1676,222 @@ function renderGlobalSearch(query) {
   `).join('') || `<div class="p-3 text-center text-outline">Aucun résultat trouvé.</div>`;
 }
 
+// =============================================================================
+// ODONTOGRAMME FDI INTERACTIF
+// =============================================================================
+var FDI_CONDITIONS = {
+  'healthy':    { label: 'Sain',       color: '#176B45' },
+  'caries':     { label: 'Carie',      color: '#e53935' },
+  'filled':     { label: 'Obturation', color: '#1976d2' },
+  'missing':    { label: 'Absent',     color: '#9e9e9e' },
+  'crown':      { label: 'Couronne',   color: '#f57f17' },
+  'implant':    { label: 'Implant',    color: '#6a1b9a' },
+  'fracture':   { label: 'Fracture',   color: '#bf360c' },
+  'extraction': { label: 'Extraction', color: '#c62828' }
+};
+
+var _selectedTooth = null;
+
+function renderDentalOdontogram() {
+  var container = document.getElementById('fdi-odontogram-grid') || document.getElementById('dental-odontogram-container');
+  if (!container) return;
+  var chart    = saas.dentalTeethChart || [];
+  var chartMap = {};
+  chart.forEach(function(t) { chartMap[t.tooth_number] = t; });
+
+  var rowsConfig = [
+    [18,17,16,15,14,13,12,11], [21,22,23,24,25,26,27,28],
+    [48,47,46,45,44,43,42,41], [31,32,33,34,35,36,37,38],
+    [55,54,53,52,51],           [61,62,63,64,65],
+    [85,84,83,82,81],           [71,72,73,74,75]
+  ];
+
+  function toothDiv(tn) {
+    var entry = chartMap[tn];
+    var cond  = entry ? (entry.condition || 'healthy') : 'healthy';
+    var info  = FDI_CONDITIONS[cond] || FDI_CONDITIONS['healthy'];
+    var isSel = (_selectedTooth === tn);
+    var ttip  = (entry && entry.notes) ? (' title="' + escHtml(entry.notes) + '"') : '';
+    return '<div onclick="selectFdiTooth(' + tn + ')"' + ttip + ' id="fdi-tooth-' + tn + '"' +
+      ' style="border-color:' + info.color + ';background:' + (isSel ? info.color + '22' : 'transparent') + ';' + (isSel ? 'outline:2px solid ' + info.color + ';' : '') + '"' +
+      ' class="fdi-tooth flex flex-col items-center cursor-pointer rounded-lg border-2 p-0.5 hover:bg-surface-container transition-all select-none w-8">' +
+      '<span class="text-[7.5px] font-mono font-bold" style="color:' + info.color + '">' + tn + '</span>' +
+      '<div class="w-4 h-4 rounded-full border-2 mt-0.5" style="background:' + info.color + ';opacity:0.7"></div>' +
+      '<span class="text-[7px] text-outline mt-0.5 truncate max-w-full">' + info.label + '</span>' +
+      '</div>';
+  }
+
+  function rowHtml(teeth) { return teeth.map(toothDiv).join(''); }
+  var sep = '<div class="w-px bg-outline-variant/50 mx-1"></div>';
+  var midLine = '<div class="border-t border-dashed border-outline-variant/40 my-1"></div>';
+
+  container.innerHTML = '<div class="space-y-2 overflow-x-auto">' +
+    '<div class="flex justify-center gap-0.5 flex-wrap min-w-max">' + rowHtml(rowsConfig[0]) + sep + rowHtml(rowsConfig[1]) + '</div>' +
+    midLine +
+    '<div class="flex justify-center gap-0.5 flex-wrap min-w-max">' + rowHtml(rowsConfig[2]) + sep + rowHtml(rowsConfig[3]) + '</div>' +
+    '<p class="text-[9px] text-outline text-center font-semibold mt-2">Denture Temporaire (Enfant)</p>' +
+    '<div class="flex justify-center gap-0.5 flex-wrap min-w-max">' + rowHtml(rowsConfig[4]) + sep + rowHtml(rowsConfig[5]) + '</div>' +
+    '<div class="flex justify-center gap-0.5 flex-wrap min-w-max">' + rowHtml(rowsConfig[6]) + sep + rowHtml(rowsConfig[7]) + '</div>' +
+    '</div>';
+
+  renderDentalTreatmentPlansList();
+}
+
+window.selectFdiTooth = function(toothNumber) {
+  _selectedTooth = toothNumber;
+  var numEl   = document.getElementById('dental-selected-tooth-label') || document.getElementById('selected-tooth-number');
+  var badgeEl = document.getElementById('dental-selected-condition-badge');
+  var condEl  = document.getElementById('dental-condition-select') || document.getElementById('tooth-condition-select');
+  var surfEl  = document.getElementById('dental-surface-input') || document.getElementById('tooth-surface-input');
+  var notesEl = document.getElementById('dental-notes-input') || document.getElementById('tooth-notes-input');
+
+  if (numEl) numEl.textContent = 'Dent N° ' + toothNumber;
+  var existing = (saas.dentalTeethChart || []).find(function(t) { return Number(t.tooth_number) === Number(toothNumber); });
+  var cond = existing ? (existing.condition || 'healthy') : 'healthy';
+  if (condEl)  condEl.value  = cond;
+  if (surfEl)  surfEl.value  = existing ? (existing.surface || '') : '';
+  if (notesEl) notesEl.value = existing ? (existing.notes || '')   : '';
+  if (badgeEl) {
+    var info = FDI_CONDITIONS[cond] || FDI_CONDITIONS['healthy'];
+    badgeEl.textContent = info.label;
+    badgeEl.style.color = info.color;
+  }
+  renderDentalOdontogram();
+};
+
+window.saveSelectedToothCondition = async function() {
+  if (!_selectedTooth || !saas.activePatientId) {
+    showToast('Veuillez d\'abord cliquer sur une dent pour la sélectionner.', 'error');
+    return;
+  }
+  var condEl  = document.getElementById('dental-condition-select') || document.getElementById('tooth-condition-select');
+  var surfEl  = document.getElementById('dental-surface-input') || document.getElementById('tooth-surface-input');
+  var notesEl = document.getElementById('dental-notes-input') || document.getElementById('tooth-notes-input');
+
+  var payload = {
+    patient_id:   saas.activePatientId,
+    tooth_number: _selectedTooth,
+    condition:    condEl?.value || 'healthy',
+    surface:      (surfEl?.value || '').trim(),
+    notes:        (notesEl?.value || '').trim()
+  };
+  var res = await apiCall('/dental/teeth', 'POST', payload);
+  if (res.data?.dental_teeth) saas.dentalTeethChart = res.data.dental_teeth;
+  else if (res.dental_teeth)  saas.dentalTeethChart = res.dental_teeth;
+  renderDentalOdontogram();
+  showToast('Dent ' + _selectedTooth + ' mise à jour avec succès');
+};
+
+window.openAddTreatmentPlanForm = function(show) {
+  var box = document.getElementById('dental-add-plan-box') || document.getElementById('add-plan-box');
+  if (!box) return;
+  if (show === undefined) {
+    box.classList.toggle('hidden');
+  } else {
+    box.classList.toggle('hidden', !show);
+  }
+  if (!box.classList.contains('hidden') && _selectedTooth) {
+    var toothInput = document.getElementById('new-plan-tooth') || document.getElementById('plan-teeth-input');
+    if (toothInput && !toothInput.value) toothInput.value = _selectedTooth;
+  }
+};
+
+window.submitDentalTreatmentPlan = async function(ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  if (!saas.activePatientId) return;
+
+  var tooth = (document.getElementById('new-plan-tooth')?.value || document.getElementById('plan-teeth-input')?.value || '').trim();
+  var title = (document.getElementById('new-plan-procedure')?.value || document.getElementById('plan-title-input')?.value || '').trim();
+  var cost  = Number(document.getElementById('new-plan-cost')?.value || document.getElementById('plan-cost-input')?.value || 0);
+  var desc  = (document.getElementById('plan-desc-input')?.value || '').trim();
+
+  if (!title) {
+    showToast('Veuillez renseigner l\'acte dentaire prévu.', 'error');
+    return;
+  }
+
+  var payload = {
+    patient_id:  saas.activePatientId,
+    title:       title,
+    description: desc || (tooth ? 'Dent N° ' + tooth : ''),
+    cost_mad:    cost,
+    tooth_refs:  tooth
+  };
+
+  var res = await apiCall('/dental/plans', 'POST', payload);
+  if (res.data?.dental_plans) saas.dentalTreatmentPlans = res.data.dental_plans;
+  else if (res.dental_plans)  saas.dentalTreatmentPlans = res.dental_plans;
+  window.openAddTreatmentPlanForm(false);
+  
+  // Clear inputs
+  var elP = document.getElementById('new-plan-procedure'); if (elP) elP.value = '';
+  var elC = document.getElementById('new-plan-cost'); if (elC) elC.value = '';
+  var elT = document.getElementById('new-plan-tooth'); if (elT) elT.value = '';
+  
+  renderDentalTreatmentPlansList();
+  showToast('Acte dentaire ajouté au plan de soins');
+};
+
+function renderDentalTreatmentPlansList() {
+  var listEl = document.getElementById('dental-plans-list');
+  if (!listEl) return;
+  var plans = saas.dentalTreatmentPlans || [];
+  if (plans.length === 0) {
+    listEl.innerHTML = '<p class="text-xs text-outline text-center py-3">Aucun plan de traitement.</p>';
+    return;
+  }
+  listEl.innerHTML = plans.map(function(p) {
+    return '<div class="p-2.5 rounded-xl bg-surface-container-low/80 border border-outline-variant/30 text-xs">' +
+      '<div class="flex items-start justify-between gap-2">' +
+      '<strong class="font-bold text-on-surface">' + escHtml(p.title || '') + '</strong>' +
+      '<span class="font-mono font-bold text-primary whitespace-nowrap">' + fmtMoney(p.cost_mad || 0) + ' MAD</span></div>' +
+      (p.tooth_refs ? '<p class="text-[10px] text-outline mt-0.5">Dents : ' + escHtml(p.tooth_refs) + '</p>' : '') +
+      (p.description ? '<p class="text-[11px] text-on-surface-variant mt-0.5 line-clamp-2">' + escHtml(p.description) + '</p>' : '') +
+      '<span class="text-[10px] text-outline">' + escHtml((p.created_at || '').slice(0,10)) + '</span></div>';
+  }).join('');
+}
+
+// =============================================================================
+// LIENS FAMILIAUX
+// =============================================================================
+function renderFamilyPanel() {
+  var listEl = document.getElementById('family-members-list');
+  var selEl  = document.getElementById('family-related-patient-select');
+  if (selEl) {
+    selEl.innerHTML = saas.patients
+      .filter(function(p) { return p.id !== saas.activePatientId; })
+      .map(function(p) { return '<option value="' + p.id + '">' + escHtml(p.first) + ' ' + escHtml(p.last) + ' (#' + escHtml(p.code) + ')</option>'; })
+      .join('');
+  }
+  if (!listEl) return;
+  var links = saas.activeDmeFamilyLinks || [];
+  if (links.length === 0) {
+    listEl.innerHTML = '<p class="text-xs text-outline text-center py-3">Aucun lien familial enregistre.</p>';
+    return;
+  }
+  listEl.innerHTML = links.map(function(l) {
+    return '<div class="flex items-center justify-between p-2.5 rounded-xl bg-surface-container-low/80 text-xs">' +
+      '<div><strong class="font-bold text-on-surface">' + escHtml(String(l.related_name || l.related_patient_id || '')) + '</strong>' +
+      '<span class="text-[10px] text-outline block">' + escHtml(l.relation_type || '') + '</span></div>' +
+      '<button onclick="openDmeDrawer(' + l.related_patient_id + ')" class="px-2.5 py-1 rounded-full bg-secondary-container text-primary text-[10px] font-bold hover:bg-primary hover:text-white transition-colors">Voir DME</button>' +
+      '</div>';
+  }).join('');
+}
+
+window.submitFamilyLink = async function(ev) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  if (!saas.activePatientId) return;
+  var relatedId = Number(document.getElementById('family-related-patient-select')?.value || 0);
+  var relType   = (document.getElementById('family-relation-type') || document.getElementById('family-relation-select'))?.value || 'conjoint';
+  if (!relatedId) { showToast('Sélectionnez un membre de la patientèle', 'error'); return; }
+  var res = await apiCall('/patients/' + saas.activePatientId + '/family', 'POST', { related_patient_id: relatedId, relation_type: relType });
+  if (res.data?.family_links) saas.activeDmeFamilyLinks = res.data.family_links;
+  else if (res.family_links)  saas.activeDmeFamilyLinks = res.family_links;
+  renderFamilyPanel();
+  showToast('Lien familial enregistré avec succès');
+};
+
+// =============================================================================
 function renderAll() {
   document.getElementById('view-saas-owner')?.classList.add('hidden');
   document.querySelectorAll('.saas-view').forEach(v => v.classList.add('hidden'));
@@ -1699,6 +1938,7 @@ window.setDeptFilter = setDeptFilter;
 window.jumpToDepartment = jumpToDepartment;
 window.renderPatientsView = renderPatientsView;
 window.openDmeDrawer = openDmeDrawer;
+window.switchDmeTab = switchDmeTab;
 window.closeDmeDrawer = closeDmeDrawer;
 window.openModal = openModal;
 window.closeModal = closeModal;
