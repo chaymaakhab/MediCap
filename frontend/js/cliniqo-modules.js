@@ -68,13 +68,15 @@
     if (remEl) remEl.textContent = fmtMoney(remainingSum);
     if (cnssEl) cnssEl.textContent = fmtMoney(cnssSum);
 
-    // Render all subtabs
-    renderInvoicesTable();
-    renderExpensesSubpanel();
-    renderStockSubpanel();
-    renderDocumentsSubpanel();
-    renderQuotesSubpanel();
-    renderCaisseSubpanel();
+    // Render only the visible sub-panel (the others are rendered when they become active)
+    switch (saas.financeSubTab) {
+      case 'expenses':  renderExpensesSubpanel(); break;
+      case 'stock':     renderStockSubpanel(); break;
+      case 'documents': renderDocumentsSubpanel(); break;
+      case 'quotes':    renderQuotesSubpanel(); break;
+      case 'caisse':    renderCaisseSubpanel(); break;
+      default:          renderInvoicesTable();
+    }
   };
 
   function renderInvoicesTable() {
@@ -654,9 +656,13 @@
       url += `&date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
     }
 
+    // Show the last report instantly, then refresh it in the background
+    if (saas.lastReport && saas.lastReportUrl === url) renderReportsView(saas.lastReport);
+
     try {
       const res = await apiCall(url, 'GET');
       saas.lastReport = res.report;
+      saas.lastReportUrl = url;
       renderReportsView(res.report);
     } catch (_) {}
   };

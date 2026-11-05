@@ -231,19 +231,19 @@
               <span class="material-symbols-outlined text-[13px] text-outline transition-transform duration-200 group-hover:rotate-180">expand_more</span>
             </button>
             <div class="absolute top-full left-1/2 -translate-x-1/2 pt-1.5 w-52 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
-              <div class="bg-surface-container-lowest/98 backdrop-blur-xl border border-outline-variant/35 rounded-2xl shadow-xl p-1.5 space-y-0.5 text-left">
-                <button onclick="switchTab('stock'); if(typeof switchFinanceSubTab==='function') switchFinanceSubTab('stock');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+              <div class="bg-surface-container-lowest border border-outline-variant/35 rounded-2xl shadow-xl p-1.5 space-y-0.5 text-left">
+                <button onclick="switchTab('stock','stock');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
                   <span class="material-symbols-outlined text-[15px] text-primary">inventory_2</span>
                   <div class="flex-1 flex items-center justify-between">
                     <span>Stock Médical</span>
                     <span id="dropdown-stock-alert" class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">12 art.</span>
                   </div>
                 </button>
-                <button onclick="switchTab('stock'); if(typeof switchFinanceSubTab==='function') switchFinanceSubTab('expenses');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                <button onclick="switchTab('stock','expenses');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
                   <span class="material-symbols-outlined text-[15px] text-primary">receipt_long</span>
                   <span>Dépenses &amp; Charges</span>
                 </button>
-                <button onclick="switchTab('stock'); if(typeof switchFinanceSubTab==='function') switchFinanceSubTab('documents');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
+                <button onclick="switchTab('stock','documents');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
                   <span class="material-symbols-outlined text-[15px] text-primary">description</span>
                   <span>Pièces &amp; Documents</span>
                 </button>
@@ -263,7 +263,7 @@
               <span class="material-symbols-outlined text-[13px] text-outline transition-transform duration-200 group-hover:rotate-180">expand_more</span>
             </button>
             <div class="absolute top-full right-0 pt-1.5 w-56 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
-              <div class="bg-surface-container-lowest/98 backdrop-blur-xl border border-outline-variant/35 rounded-2xl shadow-xl p-1.5 space-y-0.5 text-left">
+              <div class="bg-surface-container-lowest border border-outline-variant/35 rounded-2xl shadow-xl p-1.5 space-y-0.5 text-left">
                 <button onclick="openSettingsWithTab('general')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
                   <span class="material-symbols-outlined text-[15px] text-primary">apartment</span>
                   <span>Établissement &amp; Infos</span>

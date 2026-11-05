@@ -796,7 +796,7 @@ async function openNotifTarget(id, tab) {
   await markNotifRead(id);
 }
 
-function switchTab(tab) {
+function switchTab(tab, subTab) {
   const role = saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
   const roleCfg = ROLE_SPACES_CONFIG[role] || ROLE_SPACES_CONFIG.owner;
   const isOwner = (role === 'owner' || role === 'saas_owner');
@@ -874,11 +874,12 @@ function switchTab(tab) {
   } else if (tab === 'labs') {
     renderLabsView();
   } else if (tab === 'finance') {
-    if (typeof renderFinanceHub === 'function') renderFinanceHub();
+    // switchFinanceSubTab already calls renderFinanceHub once
     if (typeof switchFinanceSubTab === 'function') switchFinanceSubTab('invoices');
+    else if (typeof renderFinanceHub === 'function') renderFinanceHub();
   } else if (tab === 'stock') {
-    if (typeof renderFinanceHub === 'function') renderFinanceHub();
-    if (typeof switchFinanceSubTab === 'function') switchFinanceSubTab('stock');
+    if (typeof switchFinanceSubTab === 'function') switchFinanceSubTab(subTab || 'stock');
+    else if (typeof renderFinanceHub === 'function') renderFinanceHub();
   } else if (tab === 'reports' && typeof loadReportsSummary === 'function') {
     loadReportsSummary();
   } else if (tab === 'saas-owner') {
