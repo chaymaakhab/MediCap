@@ -85,7 +85,7 @@ class PatientPortalController
         $pid = (int) $pCtx['patient_id'];
         $tid = (int) $pCtx['tenant_id'];
         $p = $pCtx['patient'];
-        $today = CliniqoDatabase::TODAY;
+        $today = CliniqoDatabase::today();
 
         $stTenant = $pdo->prepare('SELECT id, name, short_name, city, address, phone, email, ice, inpe, logo_url, currency, doc_header_note, doc_footer_note FROM tenants WHERE id = ? LIMIT 1');
         $stTenant->execute([$tid]);
@@ -225,7 +225,7 @@ class PatientPortalController
         $time = trim((string) $request->input('time', '10:00'));
         $reason = trim((string) $request->input('reason', 'Consultation demandée via Portail Patient'));
 
-        if ($doctorId <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || $date < CliniqoDatabase::TODAY) {
+        if ($doctorId <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || $date < CliniqoDatabase::today()) {
             return response()->json(['success' => false, 'message' => 'Veuillez sélectionner un praticien et une date à venir valide.'], 422);
         }
 
@@ -264,7 +264,7 @@ class PatientPortalController
                 $tid, (int) $doc['branch_id'], $pid, $doc['name'], 'appointment_confirmation', $confRef,
                 "Confirmation de Rendez-vous — {$date} à {$time}",
                 "Rendez-vous confirmé via le Portail Patient avec {$doc['name']} ({$doc['specialty']}) en {$doc['room']} le {$date} à {$time}.",
-                (float) $doc['fee_mad'], CliniqoDatabase::TODAY, 'Portail Patient',
+                (float) $doc['fee_mad'], CliniqoDatabase::today(), 'Portail Patient',
             ]);
 
         CliniqoAuthService::pushNotification(

@@ -3,7 +3,13 @@
  */
 let API_BASE = (window.CLINIQO_API_URL) 
   || (typeof location !== 'undefined' && location.port === '8000' ? 'http://127.0.0.1:8000/api/v1' : 'http://127.0.0.1:8001/api/v1');
-const TODAY_ISO = '2026-10-29';
+const todayParts = Object.fromEntries(new Intl.DateTimeFormat('en', {
+  timeZone: 'Africa/Casablanca',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit'
+}).formatToParts(new Date()).map(({ type, value }) => [type, value]));
+const TODAY_ISO = `${todayParts.year}-${todayParts.month}-${todayParts.day}`;
 
 function normalizeAppRole(role) {
   const aliases = {
@@ -474,6 +480,22 @@ window.addEventListener('hashchange', () => {
 // NAVIGATION, HEADER, GRAND CENTRAL CENTRE & BRANCH SWITCHER, NOTIFICATIONS
 // ============================================================================
 function renderHeaderAndBranches() {
+  const dateLabel = document.getElementById('today-date-label');
+  if (dateLabel) {
+    dateLabel.textContent = new Intl.DateTimeFormat('fr-FR', {
+      timeZone: 'Africa/Casablanca',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(new Date()).replace(/\//g, '-');
+  }
+  const reportStart = document.getElementById('rpt-date-from');
+  if (reportStart && !reportStart.value) reportStart.value = `${TODAY_ISO.slice(0, 7)}-01`;
+  const reportEnd = document.getElementById('rpt-date-to');
+  if (reportEnd && !reportEnd.value) reportEnd.value = TODAY_ISO;
+  const expenseDate = document.getElementById('exp-date');
+  if (expenseDate && !expenseDate.value) expenseDate.value = TODAY_ISO;
+
   const userNameEl = document.getElementById('header-user-name');
   const dutyLabelEl = document.getElementById('duty-label');
   const avatarEl = document.getElementById('header-user-avatar');
@@ -1351,27 +1373,57 @@ function jumpToDepartment(dept) {
 function renderOverviewTodayQueue() {
   const wrap = document.getElementById('overview-live-queue');
   if (!wrap) return;
-  const todays = saas.appointments.filter(a => a.date === TODAY_ISO);
+  const dateLabel = document.getElementById('overview-today-label');
+  if (dateLabel) {
+    dateLabel.textContent = `Prochains rendez-vous d’aujourd’hui (${new Intl.DateTimeFormat('fr-FR', {
+      timeZone: 'Africa/Casablanca',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(new Date())})`;
+  }
+
+  const todays = saas.appointments
+    .filter(a => a.date === TODAY_ISO && !['cancelled', 'no_show', 'completed'].includes(a.status))
+    .map(a => ({
+      appointment: a,
+      urgent: [a.priority, a.severity, a.channel, a.source]
+        .some(value => /^(urgent|urgente|urgence( prioritaire)?|stat|emergency|high priority)$/i.test(String(value || '').trim()))
+    }))
+    .sort((a, b) => Number(b.urgent) - Number(a.urgent)
+      || String(a.appointment.time || '').localeCompare(String(b.appointment.time || '')));
+
   if (todays.length === 0) {
-    wrap.innerHTML = `<div class="col-span-3 p-4 rounded-xl bg-surface-container-low text-center text-xs text-outline">Aucun rendez-vous programmé aujourd’hui (${TODAY_ISO}) sur cette sélection.</div>`;
+    const pastAppointments = saas.appointments.filter(a => a.date < TODAY_ISO && a.status !== 'cancelled');
+    const latestPastDate = pastAppointments
+      .map(a => a.date)
+      .filter(Boolean)
+      .sort()
+      .at(-1);
+    const pastLink = latestPastDate
+      ? `<div class="mt-2"><a href="rendez-vous.html?date=${encodeURIComponent(latestPastDate)}&sheet=1" class="inline-flex items-center gap-1 font-bold text-primary hover:underline">Afficher les ${pastAppointments.length} rendez-vous enregistrés à une date précédente <span class="material-symbols-outlined text-[14px]">arrow_forward</span></a></div>`
+      : '';
+    wrap.innerHTML = `<div class="col-span-full p-4 rounded-xl bg-surface-container-low text-center text-xs text-outline">Aucun rendez-vous programmé aujourd’hui (${TODAY_ISO}) sur cette sélection.${pastLink}</div>`;
     return;
   }
 
   const statusMeta = {
     confirmed: { label: 'Confirmé', cls: 'bg-surface-container-low text-on-surface-variant', next: 'waiting', nextLbl: 'Enregistrer arrivée' },
     waiting: { label: 'Salle d’attente', cls: 'bg-secondary-container text-primary', next: 'in_progress', nextLbl: 'Démarrer consultation' },
+    arrived: { label: 'Salle d’attente', cls: 'bg-secondary-container text-primary', next: 'in_progress', nextLbl: 'Démarrer consultation' },
     in_progress: { label: 'En consultation', cls: 'bg-primary text-white', next: 'completed', nextLbl: 'Terminer & Facturer' },
+    in_consultation: { label: 'En consultation', cls: 'bg-primary text-white', next: 'completed', nextLbl: 'Terminer & Facturer' },
     completed: { label: 'Consulté', cls: 'bg-primary/15 text-primary', next: null, nextLbl: null },
     cancelled: { label: 'Annulé', cls: 'bg-error-container text-error', next: null, nextLbl: null },
     no_show: { label: 'Absent (No-show)', cls: 'bg-error-container/70 text-error', next: null, nextLbl: null }
   };
 
-  wrap.innerHTML = todays.slice(0, 6).map(a => {
+  const renderAppointment = ({ appointment: a, urgent }) => {
     const p = saas.patients.find(x => x.id === a.patient_id);
     const pName = p ? `${p.first} ${p.last}` : `Patient #${a.patient_id}`;
     const sm = statusMeta[a.status] || statusMeta.confirmed;
     return `
-      <div class="p-3 rounded-xl bg-surface-container-low/75 border border-outline-variant/30 flex flex-col justify-between gap-2">
+      <div class="p-3 rounded-xl ${urgent ? 'bg-error-container/40 border border-error/40' : 'bg-surface-container-low/75 border border-outline-variant/30'} flex flex-col justify-between gap-2">
         <div class="flex items-start justify-between gap-2">
           <div>
             <div class="flex items-center gap-1.5">
@@ -1381,7 +1433,10 @@ function renderOverviewTodayQueue() {
             <span class="text-[10.5px] text-outline block">${escHtml(a.doctor)} • ${escHtml(a.room)}</span>
             <span class="text-[10px] text-on-surface-variant block truncate">${escHtml(a.service_name || a.reason)}</span>
           </div>
-          <span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold shrink-0 ${sm.cls}">${sm.label}</span>
+          <div class="flex flex-col items-end gap-1 shrink-0">
+            ${urgent ? '<span class="px-2 py-0.5 rounded-full text-[9.5px] font-extrabold bg-error text-white">URGENCE</span>' : ''}
+            <span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold ${sm.cls}">${sm.label}</span>
+          </div>
         </div>
         <div class="flex items-center justify-between pt-1 border-t border-outline-variant/20 text-[10.5px]">
           <button onclick="CliniqoPdf.printAppointmentConfirmation(saas.tenant, ${JSON.stringify(a).replace(/"/g, '&quot;')}, '${escHtml(pName)}', saas.currency)"
@@ -1393,7 +1448,17 @@ function renderOverviewTodayQueue() {
         </div>
       </div>
     `;
-  }).join('');
+  };
+  const urgentAppointments = todays.filter(item => item.urgent);
+  const regularAppointments = todays.filter(item => !item.urgent);
+  wrap.innerHTML = [
+    urgentAppointments.length
+      ? `<div class="col-span-full flex items-center gap-2 text-[11px] font-extrabold text-error"><span class="material-symbols-outlined text-[15px]">emergency</span>Urgences — à traiter en priorité (${urgentAppointments.length})</div>${urgentAppointments.map(renderAppointment).join('')}`
+      : '',
+    regularAppointments.length
+      ? `${urgentAppointments.length ? '<div class="col-span-full pt-1 text-[11px] font-bold text-on-surface-variant">Autres rendez-vous du jour</div>' : ''}${regularAppointments.slice(0, Math.max(0, 6 - urgentAppointments.length)).map(renderAppointment).join('')}`
+      : ''
+  ].join('');
 }
 
 async function advanceAptStatus(id, status) {

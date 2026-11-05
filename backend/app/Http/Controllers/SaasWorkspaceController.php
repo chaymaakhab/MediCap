@@ -15,7 +15,7 @@ class SaasWorkspaceController
     public static function buildWorkspaceState(array $ctx): array
     {
         $pdo = CliniqoDatabase::connection();
-        $today = CliniqoDatabase::TODAY;
+        $today = CliniqoDatabase::today();
 
         // If SaaS Platform Owner is logged in, return platform-owner state with ZERO medical records!
         if (in_array(($ctx['role'] ?? ''), ['owner', 'saas_owner'], true)) {
@@ -201,6 +201,7 @@ class SaasWorkspaceController
             'seen_at' => $a['seen_at'],
             'fee_mad' => (float) $a['fee_mad'],
             'reason' => $a['reason'],
+            'priority' => $a['priority'] ?? 'routine',
             'source' => $a['source'],
         ], $stApts->fetchAll());
 
@@ -1000,13 +1001,17 @@ class SaasWorkspaceController
 
         $pdo = CliniqoDatabase::connection();
         $patientId = (int) $request->input('patient_id', 0);
-        $date = trim((string) $request->input('date', CliniqoDatabase::TODAY));
+        $date = trim((string) $request->input('date', CliniqoDatabase::today()));
         $time = trim((string) $request->input('time', '09:30'));
         $doctorName = trim((string) $request->input('doctor', ''));
         $room = trim((string) $request->input('room', ''));
         $status = trim((string) $request->input('status', 'confirmed'));
         $fee = max(0.0, (float) $request->input('fee_mad', 600));
         $reason = trim((string) $request->input('reason', 'Consultation médicale'));
+        $priority = strtolower(trim((string) $request->input('priority', 'routine')));
+        if (!in_array($priority, ['routine', 'urgent'], true)) {
+            return response()->json(['success' => false, 'message' => 'Priorité de rendez-vous invalide.'], 422);
+        }
         $serviceName = trim((string) $request->input('service_name', 'Consultation Spécialisée'));
 
         if ($patientId <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !preg_match('/^\d{2}:\d{2}$/', $time)) {
@@ -1080,13 +1085,13 @@ class SaasWorkspaceController
         $seenAt = in_array($status, ['in_progress', 'completed'], true) ? $time : null;
 
         $stIns = $pdo->prepare('
-            INSERT INTO appointments (tenant_id, branch_id, patient_id, doctor_id, doctor, specialty, service_name, room, date, time, duration_min, status, checked_in_at, seen_at, fee_mad, reason, source, created_by_user_id)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            INSERT INTO appointments (tenant_id, branch_id, patient_id, doctor_id, doctor, specialty, service_name, room, date, time, duration_min, status, checked_in_at, seen_at, fee_mad, reason, priority, source, created_by_user_id)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ');
         $stIns->execute([
             $tenantId, $branchId, $patientId, $doctorId, $doctorName, $specialty, $serviceName, $room,
             $date, $time, (int) ($doc['duration_min'] ?? 30), $status, $checkedInAt, $seenAt,
-            $fee > 0 ? $fee : (float) ($doc['fee_mad'] ?? 600), $reason, 'clinic', (int) $ctx['user']['id'],
+            $fee > 0 ? $fee : (float) ($doc['fee_mad'] ?? 600), $reason, $priority, 'clinic', (int) $ctx['user']['id'],
         ]);
         $aptId = (int) $pdo->lastInsertId();
 
@@ -1097,7 +1102,7 @@ class SaasWorkspaceController
                 $tenantId, $branchId, $patientId, $doctorName, 'appointment_confirmation', $confRef,
                 "Confirmation de Rendez-vous — {$date} à {$time}",
                 "Rendez-vous confirmé pour {$pat['first']} {$pat['last']} ({$pat['code']}) avec {$doctorName} ({$specialty}) en {$room} le {$date} à {$time}.",
-                $fee, CliniqoDatabase::TODAY, $ctx['user']['name'],
+                $fee, CliniqoDatabase::today(), $ctx['user']['name'],
             ]);
 
         CliniqoAuthService::pushNotification(
@@ -1146,6 +1151,10 @@ class SaasWorkspaceController
         $cancelReason = trim((string) $request->input('cancellation_reason', $apt['cancellation_reason']));
         $fee = (float) $request->input('fee_mad', $apt['fee_mad']);
         $reason = trim((string) $request->input('reason', $apt['reason']));
+        $priority = strtolower(trim((string) $request->input('priority', $apt['priority'] ?? 'routine')));
+        if (!in_array($priority, ['routine', 'urgent'], true)) {
+            return response()->json(['success' => false, 'message' => 'Priorité de rendez-vous invalide.'], 422);
+        }
 
         if (!in_array($status, ['cancelled', 'no_show'], true)) {
             $stConf = $pdo->prepare("
@@ -1175,9 +1184,9 @@ class SaasWorkspaceController
 
         $pdo->prepare('
             UPDATE appointments
-            SET patient_id=?, doctor=?, specialty=?, room=?, date=?, time=?, status=?, cancellation_reason=?, checked_in_at=?, seen_at=?, fee_mad=?, reason=?
+            SET patient_id=?, doctor=?, specialty=?, room=?, date=?, time=?, status=?, cancellation_reason=?, checked_in_at=?, seen_at=?, fee_mad=?, reason=?, priority=?
             WHERE id=? AND tenant_id=?
-        ')->execute([$patientId, $doctorName, $specialty, $room, $date, $time, $status, $cancelReason, $checkedInAt, $seenAt, $fee, $reason, $id, $tenantId]);
+        ')->execute([$patientId, $doctorName, $specialty, $room, $date, $time, $status, $cancelReason, $checkedInAt, $seenAt, $fee, $reason, $priority, $id, $tenantId]);
 
         if ($date !== $apt['date'] || $time !== $apt['time'] || $status !== $apt['status']) {
             CliniqoAuthService::pushNotification(
@@ -1254,7 +1263,7 @@ class SaasWorkspaceController
                     $tenantId, (int) $apt['branch_id'], $invNum, (int) $apt['patient_id'],
                     trim(($pat['first'] ?? '') . ' ' . ($pat['last'] ?? '')),
                     $id, $apt['doctor'], $apt['specialty'], $apt['service_name'] ?: ('Consultation ' . $apt['specialty']),
-                    CliniqoDatabase::TODAY, $fee, 'En attente', 'unpaid', $cnssOrg, $cnssEst, 'Dossier prêt',
+                    CliniqoDatabase::today(), $fee, 'En attente', 'unpaid', $cnssOrg, $cnssEst, 'Dossier prêt',
                 ]);
             }
         }
@@ -1421,7 +1430,7 @@ class SaasWorkspaceController
         ')->execute([$name, $specialty, $room, $fee, $duration, $inpe, $phone, $avatar, $workingDays, $workStart, $workEnd, $id, $tenantId]);
 
         $pdo->prepare('UPDATE appointments SET doctor=?, specialty=?, room=? WHERE doctor_id=? AND tenant_id=? AND date >= ?')
-            ->execute([$name, $specialty, $room, $id, $tenantId, CliniqoDatabase::TODAY]);
+            ->execute([$name, $specialty, $room, $id, $tenantId, CliniqoDatabase::today()]);
 
         if ($workStart !== $doc['work_start'] || $workEnd !== $doc['work_end'] || $workingDays !== $doc['working_days']) {
             CliniqoAuthService::pushNotification(
@@ -1647,13 +1656,13 @@ class SaasWorkspaceController
                 INSERT INTO encounters (tenant_id, branch_id, patient_id, doctor_name, pole, icd_code, clinical_text, bp, spo2, hr, encounter_date)
                 VALUES (?,?,?,?,?,?,?,?,?,?,?)
             ')->execute([
-                $tenantId, (int) $p['branch_id'], $id, $ctx['user']['name'], $pole, $icd, $note, $bp, $spo2, $hr, CliniqoDatabase::TODAY,
+                $tenantId, (int) $p['branch_id'], $id, $ctx['user']['name'], $pole, $icd, $note, $bp, $spo2, $hr, CliniqoDatabase::today(),
             ]);
 
             if ($shareWithPatient === 1) {
                 $ref = sprintf('CR-%d-%d', $tenantId, random_int(1000, 9999));
                 $pdo->prepare('INSERT INTO documents (tenant_id, branch_id, patient_id, doctor_name, doc_type, reference, title, body_text, amount_mad, issued_date, shared_with_patient, created_by) VALUES (?,?,?,?,?,?,?,0,?,1,?)')
-                    ->execute([$tenantId, (int) $p['branch_id'], $id, $ctx['user']['name'], 'report', $ref, "Compte-rendu médical ({$icd})", $note, CliniqoDatabase::TODAY, $ctx['user']['name']]);
+                    ->execute([$tenantId, (int) $p['branch_id'], $id, $ctx['user']['name'], 'report', $ref, "Compte-rendu médical ({$icd})", $note, CliniqoDatabase::today(), $ctx['user']['name']]);
             }
         }
 
@@ -1716,7 +1725,7 @@ class SaasWorkspaceController
         ')->execute([
             $tenantId, $branchId, $code, $patientId, $pat['first'] . ' ' . $pat['last'],
             $testName, $category, 'En analyse...', 'Valeurs usuelles', $priority, $status,
-            $ctx['user']['name'], CliniqoDatabase::TODAY, date('H:i'),
+            $ctx['user']['name'], CliniqoDatabase::today(), date('H:i'),
         ]);
 
         if ($priority === 'URGENT') {
@@ -1756,7 +1765,7 @@ class SaasWorkspaceController
         }
 
         $pdo->prepare("UPDATE labs SET value=?, status='validated', validated_by=?, completed_date=? WHERE id=? AND tenant_id=?")
-            ->execute([$val, $ctx['user']['name'], CliniqoDatabase::TODAY, $id, $tenantId]);
+            ->execute([$val, $ctx['user']['name'], CliniqoDatabase::today(), $id, $tenantId]);
 
         CliniqoAuthService::pushNotification(
             $tenantId, (int) $lab['branch_id'], 'lab', 'info',
@@ -1848,7 +1857,7 @@ class SaasWorkspaceController
                 $tenantId, $branchId, $invNum, $patientId, $pat['first'] . ' ' . $pat['last'],
                 trim((string) $request->input('doctor_name', $ctx['user']['name'])),
                 trim((string) $request->input('specialty', $pat['department'])),
-                $service, CliniqoDatabase::TODAY, $total, $paidNow, $method, $status, $cnssOrg, $cnssEst, 'Dossier prêt',
+                $service, CliniqoDatabase::today(), $total, $paidNow, $method, $status, $cnssOrg, $cnssEst, 'Dossier prêt',
             ]);
             $invId = (int) $pdo->lastInsertId();
 
@@ -1863,7 +1872,7 @@ class SaasWorkspaceController
                     VALUES (?,?,?,?,?,?,\'payment\',?,?,?,\'valid\',?,?)
                 ')->execute([
                     $tenantId, $branchId, $invId, $csId, $recNum, $paidNow, $method,
-                    CliniqoDatabase::TODAY, date('H:i'), $ctx['user']['name'], 'Règlement initial à l’émission',
+                    CliniqoDatabase::today(), date('H:i'), $ctx['user']['name'], 'Règlement initial à l’émission',
                 ]);
             }
             $pdo->commit();
@@ -1939,7 +1948,7 @@ class SaasWorkspaceController
                 VALUES (?,?,?,?,?,?,\'payment\',?,?,?,\'valid\',?,?)
             ')->execute([
                 $tenantId, (int) $inv['branch_id'], $id, $csId, $recNum, $amount, $method,
-                CliniqoDatabase::TODAY, date('H:i'), $ctx['user']['name'],
+                CliniqoDatabase::today(), date('H:i'), $ctx['user']['name'],
                 trim((string) $request->input('notes', 'Règlement sur facture ' . $inv['num'])),
             ]);
 
@@ -2009,7 +2018,7 @@ class SaasWorkspaceController
             ');
             $stIns->execute([
                 $tenantId, (int) $inv['branch_id'], $id, $recNum, $amount, $method,
-                CliniqoDatabase::TODAY, date('H:i'), $ctx['user']['name'], $reason,
+                CliniqoDatabase::today(), date('H:i'), $ctx['user']['name'], $reason,
             ]);
 
             $pdo->prepare('UPDATE invoices SET refunded = ?, status = ? WHERE id = ? AND tenant_id = ?')
@@ -2085,7 +2094,7 @@ class SaasWorkspaceController
 
         $category = trim((string) $request->input('category', 'Consommables Médicaux'));
         $amount = round((float) $request->input('amount', 0), 2);
-        $date = trim((string) $request->input('expense_date', CliniqoDatabase::TODAY));
+        $date = trim((string) $request->input('expense_date', CliniqoDatabase::today()));
         $desc = trim((string) $request->input('description', ''));
         $supplier = trim((string) $request->input('supplier', ''));
         $docRef = trim((string) $request->input('supporting_doc_ref', ''));
@@ -2173,12 +2182,12 @@ class SaasWorkspaceController
         $pdo->prepare('
             INSERT INTO inventory_items (tenant_id, branch_id, sku, name, category, unit, quantity, min_threshold, unit_cost_mad, supplier, last_movement_date)
             VALUES (?,?,?,?,?,?,?,?,?,?,?)
-        ')->execute([$tenantId, $branchId, $sku, $name, $cat, $unit, $qty, $minT, $cost, $supplier, CliniqoDatabase::TODAY]);
+        ')->execute([$tenantId, $branchId, $sku, $name, $cat, $unit, $qty, $minT, $cost, $supplier, CliniqoDatabase::today()]);
         $itemId = (int) $pdo->lastInsertId();
 
         if ($qty > 0) {
             $pdo->prepare('INSERT INTO inventory_movements (tenant_id, branch_id, item_id, movement_type, quantity, reason, supplier_or_ref, created_by, movement_date) VALUES (?,?,?,\'in\',?,?,?,?,?)')
-                ->execute([$tenantId, $branchId, $itemId, $qty, 'Stock initial à la création', $supplier, $ctx['user']['name'], CliniqoDatabase::TODAY]);
+                ->execute([$tenantId, $branchId, $itemId, $qty, 'Stock initial à la création', $supplier, $ctx['user']['name'], CliniqoDatabase::today()]);
         }
 
         if ($qty <= $minT) {
@@ -2225,10 +2234,10 @@ class SaasWorkspaceController
         $newQty = $type === 'in' ? ($currentQty + $qty) : ($currentQty - $qty);
 
         $pdo->prepare('UPDATE inventory_items SET quantity = ?, last_movement_date = ? WHERE id = ? AND tenant_id = ?')
-            ->execute([$newQty, CliniqoDatabase::TODAY, $id, $tenantId]);
+            ->execute([$newQty, CliniqoDatabase::today(), $id, $tenantId]);
 
         $pdo->prepare('INSERT INTO inventory_movements (tenant_id, branch_id, item_id, movement_type, quantity, reason, supplier_or_ref, created_by, movement_date) VALUES (?,?,?,?,?,?,?,?,?)')
-            ->execute([$tenantId, (int) $item['branch_id'], $id, $type, $qty, $reason, $ref, $ctx['user']['name'], CliniqoDatabase::TODAY]);
+            ->execute([$tenantId, (int) $item['branch_id'], $id, $type, $qty, $reason, $ref, $ctx['user']['name'], CliniqoDatabase::today()]);
 
         if ($newQty <= (int) $item['min_threshold']) {
             CliniqoAuthService::pushNotification(
@@ -2294,7 +2303,7 @@ class SaasWorkspaceController
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
         ')->execute([
             $tenantId, $branchId, $patientId, trim((string) $request->input('doctor_name', $ctx['user']['name'])),
-            $docType, $ref, $title, $body, $amount, CliniqoDatabase::TODAY, $shared, $ctx['user']['name'],
+            $docType, $ref, $title, $body, $amount, CliniqoDatabase::today(), $shared, $ctx['user']['name'],
         ]);
 
         CliniqoAuthService::audit(
@@ -2418,7 +2427,7 @@ class SaasWorkspaceController
         $patientId = (int) $request->input('patient_id', 0);
         $patientName = trim((string) $request->input('patient_name', ''));
         $doctorName = trim((string) $request->input('doctor_name', 'Dr. Jackson'));
-        $issuedDate = trim((string) $request->input('issued_date', CliniqoDatabase::TODAY));
+        $issuedDate = trim((string) $request->input('issued_date', CliniqoDatabase::today()));
         $validUntil = trim((string) $request->input('valid_until', date('Y-m-d', strtotime("{$issuedDate} +30 days"))));
         $discount = (float) $request->input('discount', 0);
         $notes = trim((string) $request->input('notes', ''));
@@ -2484,7 +2493,7 @@ class SaasWorkspaceController
                 VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, 0, "unpaid", "En attente", "CNSS AMO", ?, "Dossier prêt")
             ')->execute([
                 $tenantId, $invNum, (int) $quote['patient_id'], $quote['patient_name'], $quote['doctor_name'],
-                "Facturation suite au Devis {$quote['quote_num']}", CliniqoDatabase::TODAY, (float) $quote['total'],
+                "Facturation suite au Devis {$quote['quote_num']}", CliniqoDatabase::today(), (float) $quote['total'],
                 round((float) $quote['total'] * 0.8, 2)
             ]);
             $invId = (int) $pdo->lastInsertId();
@@ -2569,7 +2578,7 @@ class SaasWorkspaceController
         $pdo->prepare('
             INSERT INTO dental_treatment_plans (tenant_id, patient_id, doctor_id, tooth_number, procedure_name, estimated_cost_mad, status, treatment_date, notes)
             VALUES (?,?,?,?,?,?,?,?,?)
-        ')->execute([$tenantId, $patientId, (int) $ctx['user']['id'], $toothNumber, $procedureName, $cost, $status, CliniqoDatabase::TODAY, $notes]);
+        ')->execute([$tenantId, $patientId, (int) $ctx['user']['id'], $toothNumber, $procedureName, $cost, $status, CliniqoDatabase::today(), $notes]);
 
         $planId = (int) $pdo->lastInsertId();
 

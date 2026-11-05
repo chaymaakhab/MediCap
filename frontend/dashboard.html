@@ -408,7 +408,7 @@
       <div class="flex flex-wrap items-center gap-2">
         <a id="sub-header-rdv-link" href="rendez-vous.html" title="Ouvrir la page dédiée aux Rendez-vous" class="bg-primary hover:bg-primary-hover text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold flex items-center gap-1.5 shadow-xs transition-colors">
           <span class="material-symbols-outlined text-[14px] text-primary-light">calendar_month</span>
-          <span>29-10-2026</span>
+          <span id="today-date-label"></span>
           <span id="today-rdv-pill" class="px-1.5 py-0.2 rounded-full bg-white/15 text-[10px] font-bold">6 RDV</span>
         </a>
 
@@ -429,92 +429,7 @@
     <!-- ========================================================================= -->
     <section id="view-overview" class="saas-view space-y-3">
 
-      <!-- LIGNE 1 : 4 CARTES KPI COMPACTES -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-
-        <!-- CARTE 1 : Patients Aujourd'hui (Section 4A) -->
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[185px]">
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="text-[12.5px] font-semibold text-on-surface-variant">Patients Aujourdhui</span>
-              <button onclick="switchTab('patients')" title="Voir les dossiers patients" class="text-outline hover:text-primary transition-colors">
-                <span class="material-symbols-outlined text-[17px]">more_horiz</span>
-              </button>
-            </div>
-            <div class="flex items-baseline gap-2">
-              <span id="kpi-patients-val" class="text-[24px] font-extrabold tracking-tight text-on-surface leading-none">0</span>
-              <span id="kpi-patients-day-hint" class="text-[10px] font-bold text-primary bg-secondary-container/70 px-1.5 py-0.5 rounded-md">29 Octobre</span>
-            </div>
-            <div id="kpi-patients-breakdown" class="flex flex-wrap gap-1 mt-1 text-[9.5px]"></div>
-          </div>
-          <div class="pt-2">
-            <div id="patients-bars-grid" class="grid grid-cols-7 gap-1.5 items-end h-[74px]"></div>
-          </div>
-        </div>
-
-        <!-- CARTE 2 : Analyses Réalisées (Section 4B) -->
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[185px]">
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <span id="card-labs-title" class="text-[12.5px] font-semibold text-on-surface-variant">Analyses Réalisées</span>
-              <button onclick="switchTab('labs')" title="Ouvrir le Laboratoire" class="text-outline hover:text-primary transition-colors">
-                <span class="material-symbols-outlined text-[17px]">more_horiz</span>
-              </button>
-            </div>
-            <div class="flex items-baseline justify-between">
-              <span id="kpi-tests-val" class="text-[24px] font-extrabold tracking-tight text-on-surface leading-none">0</span>
-              <span id="heatmap-hover-label" class="text-[10px] font-semibold text-primary truncate max-w-[125px]">Analyses</span>
-            </div>
-          </div>
-          <div class="relative pt-2">
-            <div id="tests-heatmap-grid" class="grid grid-cols-4 gap-1"></div>
-          </div>
-        </div>
-
-        <!-- CARTE 3 : Recettes du Jour (Section 4C) -->
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[185px]">
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-[12.5px] font-semibold text-on-surface-variant">Recettes du Jour</span>
-              <button onclick="switchTab('finance')" title="Ouvrir la Facturation" class="text-outline hover:text-primary transition-colors">
-                <span class="material-symbols-outlined text-[17px]">more_horiz</span>
-              </button>
-            </div>
-            <div class="flex items-baseline gap-1.5">
-              <span id="kpi-revenue-val" class="text-[24px] font-extrabold tracking-tight text-on-surface leading-none">0</span>
-              <span id="kpi-currency-code" class="text-[10.5px] font-bold text-primary uppercase">MAD</span>
-            </div>
-            <div id="kpi-revenue-submetrics" class="flex flex-wrap gap-1.5 mt-1 text-[9.5px] text-outline font-medium"></div>
-          </div>
-          <div class="relative pt-2">
-            <div id="revenue-equalizer" class="flex items-end justify-between h-[72px] px-1 relative"></div>
-          </div>
-        </div>
-
-        <!-- CARTE 4 : Nos Spécialistes (Section 4D) -->
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between min-h-[185px]">
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-[12.5px] font-semibold text-on-surface-variant">Nos Spécialistes</span>
-              <button onclick="openDoctorModal()" class="px-2 py-0.5 rounded-full bg-secondary-container hover:bg-primary text-primary hover:text-white text-[10px] font-bold flex items-center gap-0.5 transition-colors">
-                <span class="material-symbols-outlined text-[12px]">add</span>
-                Médecin
-              </button>
-            </div>
-            <div class="flex items-baseline justify-between mb-1.5">
-              <span id="kpi-specialists-val" class="text-[20px] font-extrabold tracking-tight text-on-surface leading-none">0 médecins</span>
-              <button onclick="filterSpecialists('all')" id="kpi-specialties-count-label" class="text-[10px] font-bold text-primary hover:underline">Toutes</button>
-            </div>
-
-            <div id="specialists-chips-grid" class="grid grid-cols-3 gap-1 mb-1.5"></div>
-          </div>
-
-          <div id="specialist-doctors-list" class="slim-scroll max-h-[64px] overflow-y-auto pr-1 space-y-1"></div>
-        </div>
-
-      </div>
-
-      <!-- LIGNE 2 : OCCUPATION CRÉNEAUX & SALLES (7 COLS) + MOYENNE DIAGNOSTICS (5 COLS) -->
+      <!-- Occupation des créneaux et diagnostics -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
 
         <!-- COL 1-7 : Occupation des Créneaux & Salles de Consultation (Section 4E) -->
@@ -632,7 +547,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-ping"></span>
-            <h2 class="text-[13px] font-bold text-on-surface">Prochains Rendez-vous dAujourdhui (29 Octobre 2026)</h2>
+            <h2 id="overview-today-label" class="text-[13px] font-bold text-on-surface">Prochains rendez-vous d’aujourd’hui</h2>
             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-secondary-container/70 text-primary">Synchronisé avec lAgenda</span>
           </div>
           <div class="flex items-center gap-2">
@@ -1059,11 +974,11 @@
           </div>
           <div>
             <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Date Début</label>
-            <input id="rpt-date-from" type="date" value="2026-10-01" onchange="loadReportsSummary()" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px] font-semibold focus:outline-none focus:border-primary"/>
+            <input id="rpt-date-from" type="date" onchange="loadReportsSummary()" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px] font-semibold focus:outline-none focus:border-primary"/>
           </div>
           <div>
             <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Date Fin</label>
-            <input id="rpt-date-to" type="date" value="2026-10-29" onchange="loadReportsSummary()" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px] font-semibold focus:outline-none focus:border-primary"/>
+            <input id="rpt-date-to" type="date" onchange="loadReportsSummary()" class="w-full px-2 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 text-[11px] font-semibold focus:outline-none focus:border-primary"/>
           </div>
         </div>
       </div>
@@ -2404,7 +2319,7 @@
           </div>
           <div>
             <label class="block font-semibold text-on-surface-variant mb-1">Date d'opération</label>
-            <input id="exp-date" type="date" value="2026-10-29" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
+            <input id="exp-date" type="date" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary">
           </div>
         </div>
         <div class="flex justify-end gap-2 pt-2">

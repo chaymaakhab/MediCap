@@ -16,7 +16,10 @@ class CliniqoDatabase
 {
     private static ?PDO $pdo = null;
 
-    public const TODAY = '2026-10-29';
+    public static function today(): string
+    {
+        return (new \DateTimeImmutable('now', new \DateTimeZone('Africa/Casablanca')))->format('Y-m-d');
+    }
 
     public static function dbPath(): string
     {
@@ -58,6 +61,10 @@ class CliniqoDatabase
         self::$pdo = $pdo;
 
         self::migrate($pdo);
+        $appointmentColumns = array_column($pdo->query('PRAGMA table_info(appointments)')->fetchAll(), 'name');
+        if (!in_array('priority', $appointmentColumns, true)) {
+            $pdo->exec("ALTER TABLE appointments ADD COLUMN priority TEXT NOT NULL DEFAULT 'routine'");
+        }
         if ($needsSeed || self::isEmpty($pdo)) {
             self::seedAll($pdo);
         }
@@ -484,6 +491,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     seen_at TEXT,
     fee_mad REAL NOT NULL DEFAULT 350,
     reason TEXT NOT NULL DEFAULT '',
+    priority TEXT NOT NULL DEFAULT 'routine',
     source TEXT NOT NULL DEFAULT 'clinic', -- clinic, phone, portal
     created_by_user_id INTEGER,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -776,7 +784,7 @@ SQL;
     {
         $pdo->beginTransaction();
         try {
-            $today = self::TODAY;
+            $today = self::today();
 
             // 1. Subscription Plans (3 Plans Configurables MediCab)
             $plans = [
@@ -930,7 +938,7 @@ SQL;
 
     private static function seedGeneralPracticeCabinet(PDO $pdo, int $tenantId, int $branchId): void
     {
-        $today = self::TODAY;
+        $today = self::today();
 
         // Specialties & Services
         $pdo->prepare('INSERT INTO specialties (tenant_id, name, pole, code) VALUES (?,?,?,?)')
@@ -1063,7 +1071,7 @@ SQL;
 
     private static function seedDentalCabinet(PDO $pdo, int $tenantId, int $branchId): void
     {
-        $today = self::TODAY;
+        $today = self::today();
 
         // Specialty & Services Dentaires
         $pdo->prepare('INSERT INTO specialties (tenant_id, name, pole, code) VALUES (?,?,?,?)')

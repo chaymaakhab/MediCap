@@ -333,7 +333,41 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- LIGNE 1 : 4 CARTES KPI COMPACTES SPÉCIALES RENDEZ-VOUS -->
+    <!-- CALENDRIER MÉDICAL — EN TÊTE DE L'AGENDA -->
+    <!-- ========================================================================= -->
+    <div class="bento-card rounded-2xl p-4 shadow-bento mb-3">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-primary block">Calendrier Médical</span>
+          <h2 id="cal-month-title" class="text-[15px] font-extrabold text-on-surface leading-tight mt-0.5">Novembre 2026</h2>
+        </div>
+        <div class="flex items-center gap-1">
+          <button onclick="changeCalendarMonth(-1)" title="Mois précédent" class="w-7 h-7 rounded-lg bg-surface-container-low hover:bg-secondary-container text-on-surface-variant hover:text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+          </button>
+          <button onclick="jumpCalendarToday(false)" class="px-2.5 h-7 rounded-lg bg-secondary-container/80 hover:bg-primary hover:text-white text-primary text-[10.5px] font-bold">Aujourd’hui</button>
+          <button onclick="changeCalendarMonth(1)" title="Mois suivant" class="w-7 h-7 rounded-lg bg-surface-container-low hover:bg-secondary-container text-on-surface-variant hover:text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-outline uppercase mb-1.5">
+        <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+      </div>
+      <div id="calendar-days-grid" class="grid grid-cols-7 gap-1"></div>
+      <div class="mt-3 pt-2.5 border-t border-surface-container flex items-center justify-between text-[10.5px]">
+        <span class="flex items-center gap-1.5 text-on-surface-variant font-medium">
+          <span class="w-2 h-2 rounded-full bg-brand-soft-green"></span>
+          Cliquez sur un jour pour ouvrir sa <strong>Fiche RDV</strong>
+        </span>
+        <button onclick="openDaySheet(rdvApp.selectedDate)" class="font-extrabold text-primary hover:underline flex items-center gap-0.5">
+          Ouvrir Fiche <span class="material-symbols-outlined text-[13px]">open_in_new</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- INDICATEURS DU PLANNING -->
     <!-- ========================================================================= -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
 
@@ -414,53 +448,12 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- LIGNE 2 : CALENDRIER INTERACTIF (5 COLS) + PLANNING DU JOUR (7 COLS) -->
+    <!-- LIGNE 3 : FILTRES PRATICIEN + PLANNING DU JOUR -->
     <!-- ========================================================================= -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
 
-      <!-- COLONNE GAUCHE (5 COLS) : CALENDRIER MENSUEL CLINIQO + PRATICIENS -->
-      <div class="lg:col-span-5 space-y-3">
-
-        <!-- Carte Calendrier Thématique -->
-        <div class="bento-card rounded-2xl p-4 shadow-bento">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-primary block">Calendrier Médical</span>
-              <h2 id="cal-month-title" class="text-[15px] font-extrabold text-on-surface leading-tight mt-0.5">Octobre 2026</h2>
-            </div>
-            <div class="flex items-center gap-1">
-              <button onclick="changeCalendarMonth(-1)" title="Mois précédent" class="w-7 h-7 rounded-lg bg-surface-container-low hover:bg-secondary-container text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
-                <span class="material-symbols-outlined text-[16px]">chevron_left</span>
-              </button>
-              <button onclick="jumpCalendarToday(false)" class="px-2.5 h-7 rounded-lg bg-secondary-container/80 hover:bg-primary hover:text-white text-primary text-[10.5px] font-bold transition-colors">
-                Aujourd’hui
-              </button>
-              <button onclick="changeCalendarMonth(1)" title="Mois suivant" class="w-7 h-7 rounded-lg bg-surface-container-low hover:bg-secondary-container text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
-                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- En-tête des jours (Lundi -> Dimanche) -->
-          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-outline uppercase mb-1.5">
-            <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
-          </div>
-
-          <!-- Grille des jours -->
-          <div id="calendar-days-grid" class="grid grid-cols-7 gap-1"></div>
-
-          <!-- Légende interactive -->
-          <div class="mt-3 pt-2.5 border-t border-surface-container flex items-center justify-between text-[10.5px]">
-            <span class="flex items-center gap-1.5 text-on-surface-variant font-medium">
-              <span class="w-2 h-2 rounded-full bg-brand-soft-green"></span>
-              Cliquez sur un jour pour ouvrir sa <strong>Fiche RDV</strong>
-            </span>
-            <button onclick="openDaySheet(rdvApp.selectedDate)" class="font-extrabold text-primary hover:underline flex items-center gap-0.5">
-              Ouvrir Fiche <span class="material-symbols-outlined text-[13px]">open_in_new</span>
-            </button>
-          </div>
-        </div>
-
+      <!-- COLONNE GAUCHE : FILTRAGE PAR PRATICIEN -->
+      <div class="lg:col-span-3 space-y-3">
         <!-- Carte Filtrage par Praticien & Gestion des Médecins -->
         <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
           <div class="flex items-center justify-between gap-2">
@@ -483,8 +476,8 @@
 
       </div>
 
-      <!-- COLONNE DROITE (7 COLS) : PLANNING DU JOUR (LISTE & GRILLE HORAIRE) -->
-      <div class="lg:col-span-7 bento-card rounded-2xl p-4 shadow-bento space-y-3">
+      <!-- COLONNE DROITE : PLANNING DU JOUR (LISTE & GRILLE HORAIRE) -->
+      <div class="lg:col-span-9 bento-card rounded-2xl p-4 shadow-bento space-y-3">
 
         <!-- Sélecteur Principal Espace Docteur : Planning des Consultations VS Fiches Patients & Historique Médical (DME) -->
         <div class="flex items-center gap-1.5 p-1 bg-surface-container-low rounded-2xl text-xs font-bold border border-outline-variant/30">
@@ -1118,7 +1111,14 @@
   <script>
     let API_BASE = (window.CLINIQO_API_URL) 
       || (typeof location !== 'undefined' && location.port === '8000' ? 'http://127.0.0.1:8000/api/v1' : 'http://127.0.0.1:8001/api/v1');
-    const TODAY_ISO = '2026-10-29';
+    const todayParts = Object.fromEntries(new Intl.DateTimeFormat('en', {
+      timeZone: 'Africa/Casablanca',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date()).map(({ type, value }) => [type, value]));
+    const TODAY_ISO = `${todayParts.year}-${todayParts.month}-${todayParts.day}`;
+    const todayDate = new Date(`${TODAY_ISO}T12:00:00`);
 
     function makeInitialsAvatar(name) {
       const cleaned = String(name || 'Dr').replace(/^(Dr\.|Pr\.|Docteur|Professeur)\s+/i, '').trim();
@@ -1139,8 +1139,8 @@
       tenantName: 'Cabinet Médical MediCab',
       currency: localStorage.getItem('cliniqo_currency') || 'MAD',
       selectedDate: TODAY_ISO,
-      calYear: 2026,
-      calMonth: 9, // Octobre (0-indexé)
+      calYear: todayDate.getFullYear(),
+      calMonth: todayDate.getMonth(),
       boardMode: 'list', // 'list' | 'slots'
       doctorFilter: 'all',
       statusFilter: 'all',
@@ -1332,8 +1332,8 @@
 
     function jumpCalendarToday(openSheet = false) {
       rdvApp.selectedDate = TODAY_ISO;
-      rdvApp.calYear = 2026;
-      rdvApp.calMonth = 9;
+      rdvApp.calYear = todayDate.getFullYear();
+      rdvApp.calMonth = todayDate.getMonth();
       renderAll();
       if (openSheet) openDaySheet(TODAY_ISO);
     }
@@ -1795,7 +1795,7 @@
         document.getElementById('df-time').value = apt.time;
         populateDoctorSelect(apt.doctor);
         document.getElementById('df-fee').value = apt.fee_mad || 650;
-        document.getElementById('df-channel').value = apt.channel || 'Présentiel';
+        document.getElementById('df-channel').value = apt.priority === 'urgent' || apt.channel === 'Urgence' ? 'Urgence' : (apt.channel || 'Présentiel');
         document.getElementById('df-status').value = apt.status || 'confirmed';
         document.getElementById('df-reason').value = apt.reason || '';
       } else {
@@ -1830,10 +1830,11 @@
       const [doctor, specialty, room] = document.getElementById('df-doctor').value.split('|');
       const fee_mad = Number(document.getElementById('df-fee').value) || 650;
       const channel = document.getElementById('df-channel').value;
+      const priority = channel === 'Urgence' ? 'urgent' : 'routine';
       const status = document.getElementById('df-status').value;
       const reason = document.getElementById('df-reason').value.trim();
 
-      const payload = { patient_id, date, time, doctor, specialty, room, fee_mad, channel, status, reason };
+      const payload = { patient_id, date, time, doctor, specialty, room, fee_mad, channel, priority, status, reason };
 
       try {
         const path = editId ? `/appointments/${editId}` : '/appointments';

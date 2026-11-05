@@ -107,7 +107,7 @@ class ReportsAndAdminController
     {
         $pdo = CliniqoDatabase::connection();
         $tenantId = (int) $ctx['tenant_id'];
-        $today = CliniqoDatabase::TODAY;
+        $today = CliniqoDatabase::today();
 
         $period = trim((string) $request->query('period', 'month'));
         if ($period === 'day') {
@@ -894,7 +894,7 @@ class ReportsAndAdminController
             ORDER BY t.id ASC
         ")->fetchAll();
 
-        $today = CliniqoDatabase::TODAY;
+        $today = CliniqoDatabase::today();
         $mrr = 0.0;
         $arr = 0.0;
         $trialCount = 0;
@@ -999,7 +999,7 @@ class ReportsAndAdminController
 
         $slug = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $name)) . '-' . random_int(10, 99);
         $short = mb_substr($name, 0, 18);
-        $today = CliniqoDatabase::TODAY;
+        $today = CliniqoDatabase::today();
         $trialEnd = date('Y-m-d', strtotime("{$today} +30 days"));
         $expiresAt = $startTrial ? $trialEnd : date('Y-m-d', strtotime("{$today} +365 days"));
         $status = $startTrial ? 'trialing' : 'active';
@@ -1195,10 +1195,10 @@ class ReportsAndAdminController
         $period = trim((string) $request->input('billing_period', 'monthly')); // 'monthly' or 'annual'
         $method = trim((string) $request->input('payment_method', 'virement'));
         $ref = trim((string) $request->input('payment_reference', 'VIR-' . date('Ymd') . '-' . rand(100, 999)));
-        $paymentDate = trim((string) $request->input('payment_date', CliniqoDatabase::TODAY));
+        $paymentDate = trim((string) $request->input('payment_date', CliniqoDatabase::today()));
 
         $periodDays = ($period === 'annual') ? 365 : 30;
-        $baseDate = max(CliniqoDatabase::TODAY, (string) ($sub['expires_at'] ?? CliniqoDatabase::TODAY));
+        $baseDate = max(CliniqoDatabase::today(), (string) ($sub['expires_at'] ?? CliniqoDatabase::today()));
         $newExpiry = date('Y-m-d', strtotime("{$baseDate} +{$periodDays} days"));
 
         $pdo->prepare('
@@ -1255,7 +1255,7 @@ class ReportsAndAdminController
         $isTrial = $status === 'trialing' ? 1 : 0;
 
         if ((bool) $request->input('renew_30_days', false)) {
-            $base = max(CliniqoDatabase::TODAY, (string) $sub['expires_at']);
+            $base = max(CliniqoDatabase::today(), (string) $sub['expires_at']);
             $expiresAt = date('Y-m-d', strtotime("{$base} +30 days"));
             $status = 'active';
             $isTrial = 0;
@@ -1271,7 +1271,7 @@ class ReportsAndAdminController
             WHERE tenant_id=?
         ')->execute([
             $planId, $status, $isTrial, $expiresAt,
-            $status === 'active' ? CliniqoDatabase::TODAY : $sub['last_payment_date'],
+            $status === 'active' ? CliniqoDatabase::today() : $sub['last_payment_date'],
             $status === 'active' && $plan ? (float) $plan['monthly_price_mad'] : (float) $sub['last_payment_amount'],
             $tenantId,
         ]);
