@@ -285,7 +285,7 @@
           <div class="kpi-box">
             <span class="kpi-lbl">Praticien / Émetteur</span>
             <span class="kpi-val" style="font-size:13.5px;">${esc(doc.doctor_name || doc.created_by || 'Direction Médicale')}</span>
-            <span style="font-size:11px;color:#57615c;">Portail Patient : ${doc.shared_with_patient ? 'Partagé avec le patient' : 'Usage interne clinique'}</span>
+            <span style="font-size:11px;color:#57615c;">Usage interne clinique</span>
           </div>
         </div>
         <div class="body-pre">${esc(doc.body_text || '')}</div>

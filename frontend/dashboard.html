@@ -67,6 +67,20 @@
   </script>
 
   <style>
+    html {
+      font-size: 16px;
+    }
+    @media (min-width: 768px) {
+      html {
+        font-size: 17px;
+      }
+    }
+    @media (min-width: 1440px) {
+      html {
+        font-size: 18px;
+      }
+    }
+
     @layer base {
       html, body {
         margin: 0;
@@ -98,6 +112,8 @@
     .slim-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
     .slim-scroll::-webkit-scrollbar-track { background: transparent; }
     .slim-scroll::-webkit-scrollbar-thumb { background: #bfc9c0; border-radius: 9999px; }
+    .nav-scroll-hidden { scrollbar-width: none; -ms-overflow-style: none; }
+    .nav-scroll-hidden::-webkit-scrollbar { display: none; }
 
     @keyframes floatSlow {
       0%, 100% { transform: translateY(0px); }
@@ -122,6 +138,24 @@
     @keyframes ecgMove { to { stroke-dashoffset: -120; } }
     .ecg-trace { stroke-dasharray: 60 12; animation: ecgMove 2.5s linear infinite; }
 
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root) { animation: 120ms ease-out both workspace-fade-out; }
+    ::view-transition-new(root) { animation: 180ms ease-out both workspace-fade-in; }
+    ::view-transition-old(workspace-panel) { animation: 120ms ease-out both workspace-fade-out; }
+    ::view-transition-new(workspace-panel) { animation: 180ms ease-out both workspace-fade-in; }
+    ::view-transition-old(owner-panel) { animation: 120ms ease-out both workspace-fade-out; }
+    ::view-transition-new(owner-panel) { animation: 180ms ease-out both workspace-fade-in; }
+    @keyframes workspace-fade-out { to { opacity: 0; transform: translateY(3px); } }
+    @keyframes workspace-fade-in { from { opacity: 0; transform: translateY(3px); } }
+    @media (prefers-reduced-motion: reduce) {
+      ::view-transition-old(root),
+      ::view-transition-new(root),
+      ::view-transition-old(workspace-panel),
+      ::view-transition-new(workspace-panel),
+      ::view-transition-old(owner-panel),
+      ::view-transition-new(owner-panel) { animation-duration: 1ms; }
+    }
+
     /* Isolation Stricte Espace SaaS Owner */
     html.role-owner #nav-clinic-tabs,
     html.role-owner #view-overview,
@@ -139,7 +173,7 @@
     (function () {
       try {
         var role = localStorage.getItem("cliniqo_user_role");
-        if (role === null || role === "owner" || role === "saas_owner") {
+        if (role === "owner" || role === "saas_owner") {
           document.documentElement.classList.add("role-owner");
         }
       } catch (_) {}
@@ -150,13 +184,19 @@
 <body class="saas-bg font-sans antialiased min-h-screen selection:bg-primary selection:text-white">
 
   <div id="hover-tip" class="fixed z-[90] pointer-events-none hidden bg-on-primary-fixed text-white text-[10.5px] font-semibold px-2.5 py-1 rounded-lg shadow-lg whitespace-nowrap"></div>
+  <div id="workspace-loading" role="status" aria-live="polite" class="fixed inset-0 z-[200] flex items-center justify-center bg-[#eef2ef]/95 p-6 backdrop-blur-md transition-opacity duration-200">
+    <div class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/90 px-5 py-4 shadow-xl">
+      <span class="h-5 w-5 animate-spin rounded-full border-2 border-primary/20 border-t-primary"></span>
+      <span class="text-sm font-semibold text-on-surface">Chargement sécurisé de votre espace…</span>
+    </div>
+  </div>
 
-  <div class="max-w-[1160px] mx-auto px-3.5 sm:px-5 pt-3 pb-7">
+  <div class="max-w-[1440px] mx-auto px-3.5 sm:px-5 pt-3 pb-7">
 
     <!-- ========================================================================= -->
     <!-- EN-TÊTE CAPSULE FLOTTANTE CLINIQO (100% FRANÇAIS) -->
     <!-- ========================================================================= -->
-    <header class="flex flex-wrap items-center justify-between gap-2.5 mb-3.5">
+    <header class="sticky top-3 z-[40] flex flex-wrap items-center justify-between gap-2.5 mb-5 rounded-[22px] border border-white/70 bg-white/70 px-3.5 py-2.5 shadow-[0_12px_40px_rgba(15,55,39,0.12)] ring-1 ring-primary/5 backdrop-blur-2xl transition-all duration-300 sm:px-5">
 
       <!-- Gauche : Logo Vert Cliniqo + Sélecteur Multi-Cliniques -->
       <div class="flex items-center gap-2 relative">
@@ -176,7 +216,7 @@
           </div>
         </a>
 
-        <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest border border-outline-variant/35 hover:border-primary/40 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-pill transition-all" title="Détails du Cabinet Médical">
+        <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/55 border border-white/70 hover:border-primary/30 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-sm transition-all" title="Détails du Cabinet Médical">
           <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-pulse"></span>
           <span id="active-branch-name" class="font-bold text-on-surface">Cabinet Médical MediCab</span>
           <span id="active-plan-badge" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Solo</span>
@@ -200,31 +240,31 @@
       </div>
 
       <!-- Centre : Navigation Principale Adaptative par Rôle -->
-      <nav aria-label="Navigation Principale" class="order-3 md:order-2 w-full md:w-auto overflow-x-auto slim-scroll">
+      <nav aria-label="Navigation Principale" class="nav-scroll-hidden order-3 w-full overflow-x-auto">
         <!-- Barre de Navigation Standard Clinique (Admin / Docteur / Vue Cabinet) -->
-        <div id="nav-clinic-tabs" class="inline-flex items-center bg-surface-container-lowest border border-outline-variant/35 rounded-full p-1 shadow-pill gap-0.5 min-w-max">
-          <button id="tab-overview" onclick="switchTab('overview')" class="saas-tab px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow transition-all">
+        <div id="nav-clinic-tabs" class="inline-flex items-center bg-white/50 border border-white/70 rounded-full p-1 shadow-sm backdrop-blur-md gap-0.5 min-w-max">
+          <button id="tab-overview" data-role-access="admin,docteur" onclick="switchTab('overview')" class="saas-tab px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow transition-all">
             Tableau de bord
           </button>
           <!-- Page dédiée aux Rendez-vous juste après le Tableau de bord ! -->
-          <a href="rendez-vous.html" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
+          <a href="rendez-vous.html" data-role-access="admin,docteur" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
             <span>Rendez-vous</span>
             <span id="badge-rdv-nav" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/75 text-primary">17</span>
           </a>
-          <button id="tab-patients" onclick="switchTab('patients')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
+          <button id="tab-patients" data-role-access="admin,docteur" onclick="switchTab('patients')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
             Patients &amp; DME
             <span id="badge-patients" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary">5</span>
           </button>
-          <button id="tab-labs" onclick="switchTab('labs')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
+          <button id="tab-labs" data-role-access="admin,docteur" onclick="switchTab('labs')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
             Laboratoire
             <span id="badge-labs" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-error-container text-error">1 URGENT</span>
           </button>
-          <button id="tab-finance" onclick="switchTab('finance')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
+          <button id="tab-finance" data-role-access="admin" onclick="switchTab('finance')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Facturation &amp; CNSS
           </button>
 
           <!-- Dépenses & Stock avec badge dynamique et menu rapide UX -->
-          <div class="relative group">
+          <div class="relative group" data-role-access="admin">
             <button id="tab-stock" onclick="switchTab('stock')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Dépenses & Pharmacie / Stock">
               <span>Dépenses &amp; Stock</span>
               <span id="badge-stock" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary group-hover:scale-105 transition-transform">12</span>
@@ -251,12 +291,12 @@
             </div>
           </div>
 
-          <button id="tab-reports" onclick="switchTab('reports')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
+          <button id="tab-reports" data-role-access="admin,docteur" onclick="switchTab('reports')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Rapports
           </button>
 
           <!-- Paramétrage avec icône rotative et sous-onglets directs -->
-          <div class="relative group">
+          <div class="relative group" data-role-access="admin">
             <button id="tab-settings" onclick="openSettingsWithTab('general')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1 group/btn" title="Paramétrage & Administration">
               <span class="material-symbols-outlined text-[13.5px] text-outline group-hover/btn:text-primary group-hover/btn:rotate-45 transition-transform duration-300">settings</span>
               <span>Paramétrage</span>
@@ -288,7 +328,7 @@
                   <span class="material-symbols-outlined text-[15px] text-primary">security</span>
                   <span>Sécurité &amp; Backups</span>
                 </button>
-                <button onclick="switchTab('saas-owner')" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-primary/5 hover:bg-secondary-container text-[11px] font-bold text-primary transition-colors border-t border-surface-container pt-1.5">
+                <button data-role-access="owner" onclick="switchTab('saas-owner')" class="hidden w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-primary/5 hover:bg-secondary-container text-[11px] font-bold text-primary transition-colors border-t border-surface-container pt-1.5">
                   <span class="material-symbols-outlined text-[15px] text-primary">card_membership</span>
                   <span>Abonnements &amp; Forfaits</span>
                 </button>
@@ -297,14 +337,14 @@
           </div>
 
           <!-- Bouton retour Abonnements (affiché uniquement à l'Owner quand il visite la vue cabinet) -->
-          <button id="btn-return-owner-subs" onclick="toggleOwnerCabinetView()" class="hidden saas-tab px-3 py-1.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center gap-1" title="Revenir à l'Espace Abonnements & Packs SaaS">
+          <button id="btn-return-owner-subs" data-role-access="owner" onclick="toggleOwnerCabinetView()" class="hidden saas-tab px-3 py-1.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all flex items-center gap-1" title="Revenir à l'Espace Abonnements & Packs SaaS">
             <span class="material-symbols-outlined text-[14px]">card_membership</span>
             <span>Abonnements</span>
           </button>
         </div>
 
         <!-- Barre de Navigation Exclusive Propriétaire (Abonnements & Packs SaaS) -->
-        <div id="nav-owner-tabs" class="hidden inline-flex items-center bg-surface-container-lowest border border-primary/20 rounded-full p-1 shadow-pill gap-0.5 min-w-max">
+        <div id="nav-owner-tabs" data-role-access="owner" class="hidden inline-flex items-center bg-white/50 border border-white/70 rounded-full p-1 shadow-sm backdrop-blur-md gap-0.5 min-w-max">
           <button id="owner-subnav-subscriptions" onclick="switchOwnerSection('subscriptions')" class="saas-owner-nav-btn px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow flex items-center gap-1.5 transition-all">
             <span class="material-symbols-outlined text-[15px]">card_membership</span>
             <span>Gestion des Abonnements</span>
@@ -321,32 +361,9 @@
         </div>
       </nav>
 
-      <!-- Droite : Recherche + Profil Médecin -->
-      <div class="order-2 md:order-3 flex items-center gap-2 relative">
-        <button onclick="openModal('search-modal')" title="Recherche globale (Ctrl+K)" class="h-8 px-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/35 shadow-pill flex items-center gap-1.5 text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all text-[11px] font-semibold">
-          <span class="material-symbols-outlined text-[15px]">search</span>
-          <span class="hidden sm:inline text-outline">Rechercher</span>
-          <kbd class="hidden sm:inline text-[9.5px] px-1 rounded bg-surface-container-low text-outline">Ctrl+K</kbd>
-        </button>
-
-        <div class="relative bg-surface-container-lowest border border-outline-variant/35 rounded-full pl-1 pr-1.5 py-1 shadow-pill flex items-center gap-2">
-          <!-- Sélecteur Rapide de Rôle (Owner / Admin / Docteur) -->
-          <button onclick="toggleRoleSelector(event)" title="Changer de rôle (Owner / Admin / Docteur)" class="flex items-center gap-2 text-left pr-0.5 group">
-            <div class="relative">
-              <img id="header-user-avatar" class="w-7 h-7 rounded-full object-cover ring-1 ring-primary/25" src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120" alt="Dr. Jackson"/>
-              <span id="duty-dot" class="w-2 h-2 rounded-full bg-brand-soft-green ring-1 ring-white absolute bottom-0 right-0"></span>
-            </div>
-            <div class="leading-none">
-              <span id="duty-label" class="block text-[9.5px] text-outline font-medium">Propriétaire (Owner)</span>
-              <span id="header-user-name" class="block text-[11.5px] font-bold text-on-surface group-hover:text-primary transition-colors mt-0.5">Dr. Jackson</span>
-            </div>
-            <span class="material-symbols-outlined text-[14px] text-outline group-hover:text-primary transition-colors">unfold_more</span>
-          </button>
-
-          <div class="flex items-center gap-1">
-            <a href="espace-patient.html" target="_blank" title="Ouvrir le Portail Patient Sécurisé" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
-              <span class="material-symbols-outlined text-[15px]">health_and_safety</span>
-            </a>
+      <!-- Actions rapides et session active -->
+      <div class="order-2 flex items-center gap-2 relative">
+        <div class="bg-white/50 border border-white/70 rounded-full px-1.5 py-1 shadow-sm backdrop-blur-md flex items-center gap-1">
             <button onclick="toggleNotifications(event)" title="Alertes et notifications cliniques" class="relative w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
               <span class="material-symbols-outlined text-[15px]">notifications</span>
               <span id="notif-dot" class="w-1.5 h-1.5 rounded-full bg-error absolute top-1.5 right-1.5 hidden"></span>
@@ -354,59 +371,10 @@
             <button onclick="openModal('settings-modal')" title="Paramètres du Cabinet" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
               <span class="material-symbols-outlined text-[15px]">settings</span>
             </button>
-          </div>
-
-          <!-- Menu Déroulant Instantané des 3 Rôles Officiels -->
-          <div id="quick-role-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 top-11 w-64 bg-surface-container-lowest rounded-2xl shadow-floatCard border border-outline-variant/40 p-2 z-50 modal-pop space-y-1">
-            <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-outline flex items-center justify-between">
-              <span>Rôles du Cabinet</span>
-              <span class="text-[9px] font-semibold text-primary">1-Clic Rapide</span>
-            </div>
-            <button onclick="switchRoleFast('owner')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
-              <div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-sm">
-                <span class="material-symbols-outlined text-[17px]">verified_user</span>
-              </div>
-              <div class="flex-1 leading-tight">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Owner</span>
-                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary text-white">Propriétaire</span>
-                </div>
-                <span class="text-[10px] text-outline">Dr. Jackson • Plein Pouvoir</span>
-              </div>
+            <button onclick="logoutStaff()" title="Déconnexion" aria-label="Déconnexion" class="inline-flex h-7 items-center gap-1 rounded-full bg-primary/10 px-2 text-primary hover:bg-primary hover:text-white transition-colors">
+              <span class="material-symbols-outlined text-[15px]">logout</span>
+              <span class="hidden sm:inline text-[10px] font-bold">Quitter</span>
             </button>
-            <button onclick="switchRoleFast('admin')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
-              <div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-sm">
-                <span class="material-symbols-outlined text-[17px]">badge</span>
-              </div>
-              <div class="flex-1 leading-tight">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Admin</span>
-                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Gestionnaire</span>
-                </div>
-                <span class="text-[10px] text-outline">Sarah Benali • Accueil &amp; Caisse</span>
-              </div>
-            </button>
-            <button onclick="switchRoleFast('docteur')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
-              <div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-sm">
-                <span class="material-symbols-outlined text-[17px]">stethoscope</span>
-              </div>
-              <div class="flex-1 leading-tight">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Docteur</span>
-                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-surface-container text-on-surface-variant">Médecin</span>
-                </div>
-                <span class="text-[10px] text-outline">Dr. Alimi Jan • Consultations &amp; DME</span>
-              </div>
-            </button>
-            <div class="pt-1.5 border-t border-surface-container mt-1">
-              <button onclick="document.getElementById('quick-role-menu').classList.add('hidden'); switchTab('saas-owner');" class="w-full text-left px-2 py-1.5 rounded-xl bg-primary/5 hover:bg-secondary-container text-primary flex items-center justify-between transition-colors">
-                <span class="text-[10.5px] font-bold flex items-center gap-1.5">
-                  <span class="material-symbols-outlined text-[14px]">card_membership</span>
-                  <span>Abonnements &amp; Forfaits</span>
-                </span>
-                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary text-white">Owner</span>
-              </button>
-            </div>
           </div>
         </div>
 
@@ -1692,7 +1660,7 @@
   </div>
 
   <!-- Modale Enregistrement Paiement Abonnement SaaS (Pour Owner) -->
-  <div id="saas-payment-modal" onclick="closeModal('saas-payment-modal')" class="fixed inset-0 z-[60] hidden bg-on-primary-fixed/40 backdrop-blur-xs flex items-center justify-center p-4">
+  <div id="saas-payment-modal" onclick="closeModal('saas-payment-modal')" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-on-primary-fixed/40 backdrop-blur-xs flex items-start justify-center p-4 sm:items-center">
     <div onclick="event.stopPropagation()" class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-5 shadow-2xl border border-outline-variant/40 modal-pop">
       <div class="flex items-center justify-between mb-3.5">
         <h3 class="text-base font-extrabold text-on-surface">Enregistrer un Règlement d'Abonnement</h3>
@@ -2543,17 +2511,9 @@
           <label class="block font-semibold text-on-surface-variant mb-1">Contenu / Prescription / Corps du texte</label>
           <textarea id="docgen-body" rows="4" required placeholder="Rédigez la posologie, le constat médical ou le détail des actes..." class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary resize-none"></textarea>
         </div>
-        <div class="grid grid-cols-2 gap-3 items-center">
-          <div>
-            <label class="block font-semibold text-on-surface-variant mb-1">Montant Devis (Optionnel, MAD)</label>
-            <input id="docgen-amount" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-mono">
-          </div>
-          <div class="pt-4">
-            <label class="inline-flex items-center gap-2 cursor-pointer">
-              <input id="docgen-share" type="checkbox" checked class="w-4 h-4 rounded text-primary focus:ring-primary border-outline-variant">
-              <span class="text-xs font-semibold text-on-surface">Rendre visible sur le Portail Patient</span>
-            </label>
-          </div>
+        <div>
+          <label class="block font-semibold text-on-surface-variant mb-1">Montant Devis (Optionnel, MAD)</label>
+          <input id="docgen-amount" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-3 py-2 rounded-xl bg-surface-container-low border border-outline-variant/40 focus:border-primary font-mono">
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" onclick="closeModal('document-modal')" class="px-4 py-2 rounded-full text-xs font-semibold hover:bg-surface-container-low text-outline">Annuler</button>
@@ -2564,11 +2524,9 @@
   </div>
 
   <!-- MODAL : CRÉER / PROVISIONNER UNE CLINIQUE (Propriétaire SaaS) -->
-  <div id="saas-clinic-modal"
-
   <!-- MODALE CRÉATION DE PACK D'ABONNEMENT SAAS -->
-  <div id="saas-plan-modal" class="hidden fixed inset-0 z-[75] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
-    <div onclick="event.stopPropagation()" class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-lg shadow-floatCard border border-outline-variant/30 space-y-4 modal-pop">
+  <div id="saas-plan-modal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-on-surface/40 backdrop-blur-xs flex items-start justify-center p-4 sm:items-center">
+    <div onclick="event.stopPropagation()" class="my-auto max-h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto overscroll-contain bg-surface-container-lowest rounded-3xl p-6 shadow-floatCard border border-outline-variant/30 space-y-4 modal-pop">
       <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
         <div>
           <h3 class="text-sm font-extrabold text-on-surface flex items-center gap-1.5">
@@ -2622,10 +2580,6 @@
               <span>Stock &amp; Pharmacie</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer font-medium text-on-surface">
-              <input id="new-plan-feat-portal" type="checkbox" checked class="rounded border-outline-variant text-primary focus:ring-primary">
-              <span>Portail Patient en ligne</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer font-medium text-on-surface">
               <input id="new-plan-feat-multi" type="checkbox" class="rounded border-outline-variant text-primary focus:ring-primary">
               <span>Multi-établissements</span>
             </label>
@@ -2644,8 +2598,8 @@
   </div>
 
   <!-- MODALE MODIFICATION PACK D'ABONNEMENT SAAS -->
-  <div id="saas-plan-edit-modal" class="hidden fixed inset-0 z-[75] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
-    <div onclick="event.stopPropagation()" class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-lg shadow-floatCard border border-outline-variant/30 space-y-4 modal-pop">
+  <div id="saas-plan-edit-modal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-on-surface/40 backdrop-blur-xs flex items-start justify-center p-4 sm:items-center">
+    <div onclick="event.stopPropagation()" class="my-auto max-h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto overscroll-contain bg-surface-container-lowest rounded-3xl p-6 shadow-floatCard border border-outline-variant/30 space-y-4 modal-pop">
       <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
         <div>
           <h3 class="text-sm font-extrabold text-on-surface flex items-center gap-1.5">
@@ -2707,8 +2661,8 @@
     </div>
   </div>
 
-  <div id="saas-clinic-modal" class="hidden fixed inset-0 z-[70] bg-on-surface/40 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-surface-container-lowest rounded-3xl p-6 w-full max-w-md shadow-floatCard border border-outline-variant/30 space-y-4">
+  <div id="saas-clinic-modal" class="hidden fixed inset-0 z-[100] overflow-y-auto bg-on-surface/40 backdrop-blur-xs flex items-start justify-center p-4 sm:items-center">
+    <div class="my-auto max-h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto overscroll-contain bg-surface-container-lowest rounded-3xl p-6 shadow-floatCard border border-outline-variant/30 space-y-4">
       <div class="flex items-center justify-between pb-2 border-b border-outline-variant/30">
         <div>
           <h3 class="text-sm font-extrabold text-on-surface">Provisionner un Nouveau Compte Clinique</h3>

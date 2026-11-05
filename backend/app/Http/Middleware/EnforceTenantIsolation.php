@@ -19,9 +19,12 @@ class EnforceTenantIsolation
             return response('', 204)->withHeaders($this->corsHeaders());
         }
 
-        // Public auth & portal endpoints validate their own credentials
+        // Login and profile discovery are public; logout still requires an active staff token.
         $path = $request->path();
-        if (str_contains($path, 'api/v1/auth/') || str_contains($path, 'api/v1/portal/')) {
+        if (
+            in_array($path, ['api/v1/auth/profiles', 'api/v1/auth/login'], true)
+            || str_starts_with($path, 'api/v1/portal/')
+        ) {
             $response = $next($request);
             return $this->attachHeaders($response);
         }

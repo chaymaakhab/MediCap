@@ -109,6 +109,9 @@
     .ambient-glow {
       animation: softGlow 8s ease-in-out infinite;
     }
+    .landing-main {
+      overflow-x: clip;
+    }
 
     /* ========================================================================= */
     /* SCROLL REVEAL & UX ANIMATIONS */
@@ -239,6 +242,19 @@
       box-shadow: 0 16px 32px -8px rgba(0, 81, 49, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
       border-color: rgba(16, 185, 129, 0.35);
     }
+    .landing-dropdown {
+      opacity: 0;
+      transform: translateY(0.5rem);
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+    }
+    .landing-dropdown.is-open {
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+      pointer-events: auto;
+    }
   </style>
 </head>
 
@@ -277,11 +293,11 @@
   <!-- ========================================================================= -->
   <!-- HEADER / NAVIGATION BAR (Elevated Enterprise SaaS Header with Dropdowns) -->
   <!-- ========================================================================= -->
-  <header class="sticky top-0 z-50 bg-surface-container-lowest/90 backdrop-blur-xl border-b border-surface-container/80 shadow-[0_4px_24px_rgba(0,0,0,0.03)] transition-all">
+  <header class="sticky top-2 z-50 mx-auto w-[calc(100%-1rem)] max-w-7xl rounded-[22px] border border-white/70 bg-white/70 backdrop-blur-2xl shadow-[0_12px_40px_rgba(15,55,39,0.12)] ring-1 ring-primary/5 transition-all duration-300">
     <!-- Top glowing emerald accent line -->
-    <div class="h-[1.5px] w-full bg-gradient-to-r from-transparent via-brand-soft-green/60 to-transparent"></div>
+    <div class="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-brand-soft-green/70 to-transparent"></div>
 
-    <div class="h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+    <div class="h-16 max-w-7xl mx-auto px-3 max-[420px]:px-2 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4">
       
       <!-- Brand Logo & Label -->
       <div class="flex items-center gap-7">
@@ -310,9 +326,9 @@
           <div class="flex flex-col">
             <div class="flex items-center gap-1.5">
               <span class="font-extrabold text-lg tracking-tight text-on-surface group-hover:text-primary transition-colors">MediCab</span>
-              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary/10 text-primary uppercase tracking-wide border border-primary/20">Medical</span>
+              <span class="max-[420px]:hidden text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary/10 text-primary uppercase tracking-wide border border-primary/20">Medical</span>
             </div>
-            <span class="text-[10px] font-medium text-outline uppercase tracking-wider -mt-0.5">Clinical Cloud OS</span>
+            <span class="max-[420px]:hidden text-[10px] font-medium text-outline uppercase tracking-wider -mt-0.5">Clinical Cloud OS</span>
           </div>
         </a>
 
@@ -323,14 +339,14 @@
           </a>
 
           <!-- Modules with Dropdown -->
-          <div class="relative group">
-            <a href="#modules" class="px-3 py-1.5 text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors flex items-center gap-1">
+          <div class="relative" id="modules-nav-wrapper">
+            <button type="button" aria-haspopup="true" aria-controls="modules-dropdown" aria-expanded="false" onclick="toggleLandingDropdown(event, 'modules-dropdown')" class="px-3 py-1.5 text-xs font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors flex items-center gap-1">
               <span>Modules Cliniques</span>
-              <span class="material-symbols-outlined text-[16px] text-outline transition-transform duration-200 group-hover:rotate-180">keyboard_arrow_down</span>
-            </a>
+              <span class="material-symbols-outlined text-[16px] text-outline transition-transform duration-200">keyboard_arrow_down</span>
+            </button>
 
             <!-- Dropdown Megamenu -->
-            <div class="absolute top-full left-0 pt-2 w-80 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+            <div id="modules-dropdown" class="landing-dropdown absolute top-full left-0 pt-2 w-80 z-50">
               <div class="bg-surface-container-lowest/98 backdrop-blur-2xl border border-surface-container rounded-2xl shadow-2xl p-2.5 grid gap-1">
                 <a href="#modules" class="flex items-start gap-3 p-2 rounded-xl hover:bg-surface-container-low transition-colors">
                   <div class="w-8 h-8 rounded-lg bg-primary-container/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -403,14 +419,7 @@
       </div>
 
       <!-- Action Buttons & Badges -->
-      <div class="flex items-center gap-2.5">
-        
-        <!-- Live System Status Badge -->
-        <div class="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/5 border border-primary/15 text-[10px] font-semibold text-primary">
-          <span class="w-1.5 h-1.5 rounded-full bg-brand-soft-green animate-pulse"></span>
-          <span>Cloud Santé 99.98% • Certifié CNDP</span>
-        </div>
-
+      <div class="flex items-center gap-2.5 max-[420px]:gap-1.5">
         <!-- Language Switcher Pill -->
         <div class="hidden sm:inline-flex items-center bg-surface-container-low rounded-lg p-0.5 border border-outline-variant/40 text-xs font-semibold">
           <button id="lang-fr" class="px-2 py-1 rounded bg-surface-container-lowest text-primary shadow-xs" onclick="switchLanguage('fr')">FR</button>
@@ -418,119 +427,22 @@
           <button id="lang-en" class="px-2 py-1 rounded text-outline hover:text-on-surface" onclick="switchLanguage('en')">EN</button>
         </div>
 
-        <!-- Login Button with Fast-Access Dropdown & Direct Modal Trigger -->
+        <!-- Single, clear sign-in action -->
         <div class="relative" id="nav-login-wrapper">
           <div class="inline-flex items-center rounded-xl bg-surface-container-lowest border border-primary/25 hover:border-primary shadow-xs transition-all duration-200">
-            <button id="nav-login-btn" onclick="openLoginModal('roles')" 
-                    class="inline-flex items-center gap-1.5 font-bold text-xs hover:bg-secondary-container text-primary px-3 py-2 rounded-l-xl transition-all duration-200 group focus:outline-none">
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-soft-mint opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              <span class="material-symbols-outlined text-[17px] text-primary group-hover:scale-110 transition-transform">lock_open</span>
-              <span>Connexion</span>
+            <button id="nav-login-btn" onclick="handleLandingAuthAction()"
+                    class="inline-flex items-center gap-1.5 font-bold text-xs hover:bg-secondary-container text-primary px-3 py-2 rounded-xl transition-all duration-200 group focus:outline-none">
+              <span id="nav-login-icon" class="material-symbols-outlined text-[17px] text-primary group-hover:scale-110 transition-transform">login</span>
+              <span id="nav-login-label">Connexion</span>
             </button>
-            <button onclick="toggleNavLoginDropdown(event)" title="Menu d'accès rapide"
-                    class="px-1.5 py-2 hover:bg-secondary-container text-outline hover:text-primary rounded-r-xl border-l border-outline-variant/30 transition-colors focus:outline-none">
-              <span class="material-symbols-outlined text-[16px] transition-transform duration-200 block" id="login-chevron">expand_more</span>
-            </button>
-          </div>
-
-          <!-- Dropdown Accès Rapide aux Espaces -->
-          <div id="nav-login-dropdown" onclick="event.stopPropagation()" 
-               class="hidden absolute right-0 mt-2 w-[340px] sm:w-[380px] bg-white/95 backdrop-blur-xl rounded-2xl p-3 shadow-2xl border border-outline-variant/40 z-[80] space-y-2 text-xs">
-            <div class="flex items-center justify-between pb-2 border-b border-surface-container">
-              <div>
-                <strong class="text-xs text-on-surface block font-extrabold">Accès Rapide aux Espaces</strong>
-                <span class="text-[10px] text-outline">Sélectionnez votre rôle médical en 1 clic</span>
-              </div>
-              <button onclick="openLoginModal('credentials')" class="text-[10.5px] font-bold text-primary hover:underline flex items-center gap-0.5">
-                <span class="material-symbols-outlined text-[13px]">key</span>
-                <span>Manuel</span>
-              </button>
-            </div>
-
-            <div class="space-y-1.5">
-              <!-- Item 1: Owner -->
-              <button onclick="quickLoginRole('owner')" 
-                      class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
-                <div class="w-8 h-8 rounded-lg bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-[18px]">verified_user</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between gap-1">
-                    <strong class="text-xs font-bold text-on-surface">Espace Owner</strong>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-primary text-white">PROPRIÉTAIRE</span>
-                  </div>
-                  <p class="text-[10.5px] text-outline mt-0.5 leading-snug">Gestion des abonnements, packs &amp; forfaits SaaS, supervision globale.</p>
-                  <span class="text-[9.5px] font-mono text-primary font-bold mt-1 inline-block">Dr. Jackson • owner@cabinet-cliniqo.ma</span>
-                </div>
-              </button>
-
-              <!-- Item 2: Admin -->
-              <button onclick="quickLoginRole('admin')" 
-                      class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
-                <div class="w-8 h-8 rounded-lg bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-[18px]">badge</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between gap-1">
-                    <strong class="text-xs font-bold text-on-surface">Espace Admin</strong>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-secondary-container text-primary">CABINET COMPLET</span>
-                  </div>
-                  <p class="text-[10.5px] text-outline mt-0.5 leading-snug">Gestion complète du cabinet : agenda, caisse &amp; facturation CNSS, dépenses &amp; stock.</p>
-                  <span class="text-[9.5px] font-mono text-primary font-bold mt-1 inline-block">Sarah Benali • admin@cabinet-cliniqo.ma</span>
-                </div>
-              </button>
-
-              <!-- Item 3: Docteur -->
-              <button onclick="quickLoginRole('docteur')" 
-                      class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
-                <div class="w-8 h-8 rounded-lg bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-[18px]">stethoscope</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between gap-1">
-                    <strong class="text-xs font-bold text-on-surface">Espace Docteur</strong>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary">CONSULTATIONS &amp; DME</span>
-                  </div>
-                  <p class="text-[10.5px] text-outline mt-0.5 leading-snug">Planning rendez-vous, fiche patient DME, ordonnances sécurisées QR &amp; labo.</p>
-                  <span class="text-[9.5px] font-mono text-primary font-bold mt-1 inline-block">Dr. Alimi Jan • docteur@cabinet-cliniqo.ma</span>
-                </div>
-              </button>
-
-              <!-- Item 4: Patient Portal -->
-              <a href="espace-patient.html" 
-                 class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container/80 border border-outline-variant/30 hover:border-primary/40 transition-all flex items-start gap-2.5 group">
-                <div class="w-8 h-8 rounded-lg bg-secondary-container text-primary flex items-center justify-center flex-shrink-0 text-base group-hover:scale-110 transition-transform">
-                  <span class="material-symbols-outlined text-[18px]">person</span>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between gap-1">
-                    <strong class="text-xs font-bold text-on-surface">Espace Patient</strong>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-surface-container text-outline">PORTAIL SÉCURISÉ</span>
-                  </div>
-                  <p class="text-[10.5px] text-outline mt-0.5 leading-snug">Ordonnances, reçus officiels, bilans de santé et prise de rendez-vous en ligne.</p>
-                  <span class="text-[9.5px] font-mono text-outline font-semibold mt-1 inline-block">Accès CIN + PIN démo (1234)</span>
-                </div>
-              </a>
-            </div>
-
-            <div class="pt-2 border-t border-surface-container flex items-center justify-between">
-              <button onclick="openLoginModal('roles')" class="text-[10.5px] font-bold text-primary hover:underline flex items-center gap-1">
-                <span class="material-symbols-outlined text-[14px]">open_in_full</span>
-                <span>Ouvrir en plein écran</span>
-              </button>
-              <span class="text-[10px] text-outline font-mono">Conformité CNDP</span>
-            </div>
           </div>
         </div>
 
         <!-- Schedule Demo CTA -->
-        <button onclick="openDemoModal('Demande de Démonstration Live')" class="btn-shimmer inline-flex items-center justify-center gap-1.5 font-bold text-xs bg-gradient-to-r from-primary to-primary-container text-white hover:opacity-95 transition-all px-3.5 py-2 rounded-xl shadow-[0_2px_12px_rgba(0,81,49,0.22)] hover:shadow-[0_4px_18px_rgba(0,81,49,0.35)] hover:scale-102 active:scale-98">
+        <button onclick="openDemoModal('Demande de Démonstration Live')" aria-label="Planifier une démonstration" class="btn-shimmer inline-flex items-center justify-center gap-1.5 font-bold text-xs bg-gradient-to-r from-primary to-primary-container text-white hover:opacity-95 transition-all px-2.5 sm:px-3.5 py-2 rounded-xl shadow-[0_2px_12px_rgba(0,81,49,0.22)] hover:shadow-[0_4px_18px_rgba(0,81,49,0.35)] hover:scale-102 active:scale-98">
           <span class="material-symbols-outlined text-[17px]">calendar_today</span>
-          <span class="hidden md:inline">Planifier une démo</span>
-          <span class="md:hidden">Démo</span>
+          <span class="hidden max-[420px]:hidden md:inline">Planifier une démo</span>
+          <span class="max-[420px]:hidden md:hidden">Démo</span>
         </button>
 
         <!-- Mobile Menu Hamburger Button -->
@@ -541,7 +453,7 @@
     </div>
 
     <!-- Mobile Drawer Menu -->
-    <div id="mobile-menu" class="hidden lg:hidden border-t border-surface-container bg-surface-container-lowest/98 backdrop-blur-xl px-4 pt-3 pb-6 space-y-2 shadow-xl">
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-white/60 bg-white/75 backdrop-blur-2xl px-4 pt-3 pb-5 space-y-2 rounded-b-[22px]">
       <a href="#solutions" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">Solutions</a>
       <a href="#modules" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Modules Cliniques</a>
       <a href="dashboard.html#stock" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low flex items-center justify-between">
@@ -559,54 +471,6 @@
       <a href="#privacy" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Conformité CNDP & Sécurité</a>
       <a href="#pricing" onclick="toggleMobileMenu()" class="block px-3 py-2 rounded-lg text-sm font-medium text-on-surface hover:bg-surface-container-low">Tarifs & Forfaits</a>
 
-      <!-- Connexion Mobile par Rôle -->
-      <div class="pt-3 border-t border-surface-container space-y-1.5">
-        <div class="flex items-center justify-between px-3 mb-1">
-          <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-primary">Connexion &amp; Espaces</span>
-          <button onclick="toggleMobileMenu(); openLoginModal('credentials')" class="text-[10.5px] font-bold text-outline hover:text-primary">Manuel &rarr;</button>
-        </div>
-        <button onclick="toggleMobileMenu(); quickLoginRole('owner')" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <span class="material-symbols-outlined text-[20px] text-primary">verified_user</span>
-            <div>
-              <strong class="text-xs font-bold text-on-surface block">Espace Owner</strong>
-              <span class="text-[10px] text-outline">Abonnements, Packs &amp; Super-Admin</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-[16px] text-primary">chevron_right</span>
-        </button>
-        <button onclick="toggleMobileMenu(); quickLoginRole('admin')" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <span class="material-symbols-outlined text-[20px] text-primary">badge</span>
-            <div>
-              <strong class="text-xs font-bold text-on-surface block">Espace Admin</strong>
-              <span class="text-[10px] text-outline">Gestion Cabinet, Caisse &amp; Stock</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-[16px] text-primary">chevron_right</span>
-        </button>
-        <button onclick="toggleMobileMenu(); quickLoginRole('docteur')" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <span class="material-symbols-outlined text-[20px] text-primary">stethoscope</span>
-            <div>
-              <strong class="text-xs font-bold text-on-surface block">Espace Docteur</strong>
-              <span class="text-[10px] text-outline">Rendez-vous, Fiche Patient DME &amp; Ordonnances</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-[16px] text-primary">chevron_right</span>
-        </button>
-        <a href="espace-patient.html" onclick="toggleMobileMenu()" class="w-full text-left p-2.5 rounded-xl bg-surface-container-low hover:bg-secondary-container flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <span class="material-symbols-outlined text-[20px] text-primary">person</span>
-            <div>
-              <strong class="text-xs font-bold text-on-surface block">Espace Patient</strong>
-              <span class="text-[10px] text-outline">Portail Citoyen &amp; Ordonnances QR</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-[16px] text-primary">open_in_new</span>
-        </a>
-      </div>
-
       <div class="pt-3 border-t border-surface-container flex items-center justify-between">
         <span class="text-xs font-semibold text-outline">Langue :</span>
         <div class="inline-flex items-center bg-surface-container-low rounded-lg p-0.5 text-xs font-semibold">
@@ -621,7 +485,7 @@
   <!-- ========================================================================= -->
   <!-- MAIN CONTENT -->
   <!-- ========================================================================= -->
-  <main class="flex-1 w-full bg-surface-container-lowest">
+  <main class="landing-main flex-1 w-full bg-surface-container-lowest">
 
     <!-- Ambient Gradient Glow -->
     <div class="relative w-full overflow-hidden">
@@ -1955,20 +1819,6 @@
 
         </div>
 
-        <!-- Carte Bonus Patient Portal -->
-        <div class="p-3 rounded-2xl bg-secondary-container/35 border border-primary/20 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">person</span></span>
-            <div>
-              <strong class="text-xs font-extrabold text-on-surface">Portail Patient Sécurisé</strong>
-              <p class="text-[10.5px] text-outline">Accès en ligne aux ordonnances, bilans de santé et prise de rendez-vous (CIN BE-882911 • PIN 1234).</p>
-            </div>
-          </div>
-          <a href="espace-patient.html" class="px-3.5 py-1.5 rounded-full bg-surface-container-lowest hover:bg-secondary-container text-primary font-bold text-xs border border-primary/30 transition-all flex items-center gap-1">
-            <span>Ouvrir l'Espace Patient</span>
-            <span class="material-symbols-outlined text-[14px]">open_in_new</span>
-          </a>
-        </div>
       </div>
 
       <!-- Tab Content 2: Manual Credentials Form -->
@@ -2393,7 +2243,6 @@
     // -------------------------------------------------------------
     const ROLE_CONFIG = {
       owner: {
-        id: 1,
         name: 'Dr. Jackson',
         roleLabel: 'Propriétaire & Fondateur',
         email: 'owner@cabinet-cliniqo.ma',
@@ -2401,7 +2250,6 @@
         desc: 'Gestion des abonnements, forfaits & super-admin'
       },
       admin: {
-        id: 2,
         name: 'Sarah Benali',
         roleLabel: 'Gestionnaire Administrative',
         email: 'admin@cabinet-cliniqo.ma',
@@ -2409,41 +2257,90 @@
         desc: 'Gestion complète du cabinet médical, caisse & stock'
       },
       docteur: {
-        id: 3,
         name: 'Dr. Alimi Jan',
         roleLabel: 'Médecin Cardiologue Praticien',
         email: 'docteur@cabinet-cliniqo.ma',
         targetUrl: 'rendez-vous.html',
         desc: 'Consultations, fiche patient DME & ordonnances'
       },
-      patient: {
-        id: 'patient',
-        name: 'Portail Patient',
-        roleLabel: 'Patient Sécurisé',
-        email: 'patient@cliniqo.ma',
-        targetUrl: 'espace-patient.html',
-        desc: 'Portail Patient & documents officiels'
-      }
     };
 
-    function toggleNavLoginDropdown(ev) {
-      if (ev) ev.stopPropagation();
-      const dd = document.getElementById('nav-login-dropdown');
-      const chev = document.getElementById('login-chevron');
-      if (!dd) return;
-      const willOpen = dd.classList.contains('hidden');
-      dd.classList.toggle('hidden');
-      if (chev) {
-        chev.style.transform = willOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+    function updateLandingAuthAction() {
+      const isAuthenticated = Boolean(localStorage.getItem('cliniqo_staff_token'));
+      const icon = document.getElementById('nav-login-icon');
+      const label = document.getElementById('nav-login-label');
+
+      if (icon) icon.textContent = isAuthenticated ? 'logout' : 'login';
+      if (label) label.textContent = isAuthenticated ? 'Déconnexion' : 'Connexion';
+    }
+
+    function handleLandingAuthAction() {
+      if (localStorage.getItem('cliniqo_staff_token')) {
+        logoutFromLanding();
+      } else {
+        openLoginModal('roles');
+      }
+    }
+
+    async function logoutFromLanding() {
+      const token = localStorage.getItem('cliniqo_staff_token') || '';
+      let logoutError = null;
+      if (token) {
+        for (const base of authApiBases()) {
+          try {
+            const response = await fetch(`${base}/auth/logout`, {
+              method: 'POST',
+              headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` }
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok || payload.success === false) {
+              throw new Error(payload.message || `Déconnexion refusée (${response.status}).`);
+            }
+            logoutError = null;
+            break;
+          } catch (error) {
+            logoutError = error;
+          }
+        }
+      }
+      ['cliniqo_staff_token', 'cliniqo_tenant_id', 'cliniqo_branch_id', 'cliniqo_user_role', 'cliniqo_user_name']
+        .forEach(key => localStorage.removeItem(key));
+      updateLandingAuthAction();
+      if (logoutError) {
+        console.error('Échec de révocation de la session sur le serveur.', logoutError);
+        showLoginToast('Session locale fermée, mais le serveur n’a pas confirmé la révocation.', 'error');
+      } else {
+        showLoginToast('Déconnexion réussie.', 'success');
+      }
+    }
+
+    function closeLandingDropdowns() {
+      document.querySelectorAll('.landing-dropdown.is-open').forEach(dropdown => {
+        dropdown.classList.remove('is-open');
+        const trigger = document.querySelector(`[aria-controls="${dropdown.id}"]`);
+        if (trigger) {
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.querySelector('.material-symbols-outlined')?.classList.remove('rotate-180');
+        }
+      });
+    }
+
+    function toggleLandingDropdown(event, dropdownId) {
+      event.stopPropagation();
+      const dropdown = document.getElementById(dropdownId);
+      const trigger = event.currentTarget;
+      if (!dropdown) return;
+      const willOpen = !dropdown.classList.contains('is-open');
+      closeLandingDropdowns();
+      if (willOpen) {
+        dropdown.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+        trigger.querySelector('.material-symbols-outlined')?.classList.add('rotate-180');
       }
     }
 
     function openLoginModal(tab = 'roles') {
-      const dd = document.getElementById('nav-login-dropdown');
-      if (dd) dd.classList.add('hidden');
-      const chev = document.getElementById('login-chevron');
-      if (chev) chev.style.transform = 'rotate(0deg)';
-
+      closeLandingDropdowns();
       switchLoginTab(tab);
       const modal = document.getElementById('login-modal');
       if (modal) {
@@ -2505,49 +2402,94 @@
       }, 3500);
     }
 
+    let loginInProgress = false;
+    function normalizeLoginRole(role) {
+      const aliases = { saas_owner: 'owner', admin_clinique: 'admin', medecin: 'docteur' };
+      const key = String(role || '').toLowerCase();
+      return aliases[key] || key;
+    }
+
+    function authApiBases() {
+      const configured = window.CLINIQO_API_URL;
+      if (configured) return [configured];
+      const preferredPort = location.port === '8000' ? '8000' : '8001';
+      const otherPort = preferredPort === '8000' ? '8001' : '8000';
+      return [`http://127.0.0.1:${preferredPort}/api/v1`, `http://127.0.0.1:${otherPort}/api/v1`];
+    }
+
+    async function authenticateStaff(credentials, expectedRole = null) {
+      if (loginInProgress) return;
+      loginInProgress = true;
+      showLoginToast('Vérification des identifiants auprès du serveur...', 'info');
+      let lastError;
+
+      try {
+        for (const base of authApiBases()) {
+          let loginCredentials = credentials;
+          if (expectedRole) {
+            let profileResponse;
+            try {
+              profileResponse = await fetch(`${base}/auth/profiles`, { headers: { 'Accept': 'application/json' } });
+            } catch (error) {
+              lastError = error;
+              continue;
+            }
+            const profilePayload = await profileResponse.json().catch(() => ({}));
+            const profile = (profilePayload.profiles || []).find(
+              item => normalizeLoginRole(item.role) === normalizeLoginRole(expectedRole)
+            );
+            if (!profileResponse.ok || !profile) {
+              throw new Error(profilePayload.message || `Aucun profil actif trouvé pour le rôle « ${expectedRole} ».`);
+            }
+            loginCredentials = { user_id: Number(profile.id) };
+          }
+
+          let response;
+          try {
+            response = await fetch(`${base}/auth/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              body: JSON.stringify(loginCredentials)
+            });
+          } catch (error) {
+            lastError = error;
+            continue;
+          }
+
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok || data.success === false) {
+            throw new Error(data.message || `Connexion refusée (${response.status}).`);
+          }
+          if (!data.token || !data.user) {
+            throw new Error('Réponse de connexion invalide : le serveur n’a pas fourni de session.');
+          }
+
+          const role = normalizeLoginRole(data.user.role);
+          const profile = ROLE_CONFIG[role];
+          if (!profile) throw new Error(`Aucun espace configuré pour le rôle « ${data.user.role} ».`);
+
+          localStorage.setItem('cliniqo_staff_token', data.token);
+          localStorage.setItem('cliniqo_tenant_id', String(data.user.tenant_id || 1));
+          localStorage.setItem('cliniqo_branch_id', 'all');
+          localStorage.setItem('cliniqo_user_role', role);
+          localStorage.setItem('cliniqo_user_name', data.user.name || profile.name);
+          showLoginToast(`Bienvenue ${data.user.name || profile.name}`, 'success');
+          setTimeout(() => { window.location.href = profile.targetUrl; }, 250);
+          return;
+        }
+
+        throw new Error(lastError?.message || 'Serveur indisponible. Vérifiez que l’API Cliniqo est démarrée.');
+      } catch (error) {
+        showLoginToast(error.message || 'Échec de la connexion.', 'error');
+      } finally {
+        loginInProgress = false;
+      }
+    }
+
     async function quickLoginRole(roleKey) {
       const cfg = ROLE_CONFIG[roleKey];
       if (!cfg) return;
-
-      if (roleKey === 'patient') {
-        showLoginToast('Redirection vers le Portail Patient Sécurisé...', 'info');
-        setTimeout(() => { window.location.href = cfg.targetUrl; }, 200);
-        return;
-      }
-
-      showLoginToast(`Connexion à l'Espace ${cfg.roleLabel} (${cfg.name})...`, 'info');
-
-      // Configure local session IMMEDIATELY so the user experience is instant
-      const defaultToken = 'cliniqo-token-demo-' + roleKey;
-      localStorage.setItem('cliniqo_staff_token', defaultToken);
-      localStorage.setItem('cliniqo_tenant_id', '1');
-      localStorage.setItem('cliniqo_branch_id', 'all');
-      localStorage.setItem('cliniqo_user_role', roleKey);
-      localStorage.setItem('cliniqo_user_name', cfg.name);
-
-      // Fast non-blocking background API login against Laravel (port 8001)
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 400);
-        const res = await fetch('http://127.0.0.1:8001/api/v1/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ user_id: cfg.id }),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.token) {
-            localStorage.setItem('cliniqo_staff_token', data.token);
-          }
-        }
-      } catch (_) {}
-
-      showLoginToast(`Session initialisée ! Bienvenue ${cfg.name}`, 'success');
-      setTimeout(() => {
-        window.location.href = cfg.targetUrl;
-      }, 200);
+      await authenticateStaff(null, roleKey);
     }
 
     function fillDemoCredentials(roleKey) {
@@ -2559,25 +2501,30 @@
       if (passInput) passInput.value = 'demo2026';
     }
 
-    function handleManualLogin(e) {
+    async function handleManualLogin(e) {
       e.preventDefault();
-      const email = (document.getElementById('manual-login-email')?.value || '').trim().toLowerCase();
-      let role = 'owner';
-      if (email.includes('admin') || email.includes('sarah')) role = 'admin';
-      else if (email.includes('docteur') || email.includes('alimi') || email.includes('doctor')) role = 'docteur';
-      else if (email.includes('patient')) role = 'patient';
-
-      quickLoginRole(role);
+      const email = (document.getElementById('manual-login-email')?.value || '').trim();
+      const password = document.getElementById('manual-login-pass')?.value || '';
+      await authenticateStaff({ email, password });
     }
 
     // Expose functions globally for HTML onclick handlers
-    window.toggleNavLoginDropdown = toggleNavLoginDropdown;
+    window.toggleLandingDropdown = toggleLandingDropdown;
     window.openLoginModal = openLoginModal;
     window.closeLoginModal = closeLoginModal;
     window.switchLoginTab = switchLoginTab;
     window.quickLoginRole = quickLoginRole;
     window.fillDemoCredentials = fillDemoCredentials;
     window.handleManualLogin = handleManualLogin;
+
+    document.addEventListener('click', (event) => {
+      const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
+      if (!link || localStorage.getItem('cliniqo_staff_token')) return;
+      const destination = link.getAttribute('href') || '';
+      if (!/^(?:\.\/)?(?:dashboard|rendez-vous)\.html(?:[#?]|$)/i.test(destination)) return;
+      event.preventDefault();
+      openLoginModal('roles');
+    });
 
     // -------------------------------------------------------------
     // MODAL CONTROL & FORM SUBMISSION
@@ -2832,6 +2779,7 @@
 
     // Initialize all scroll enhancements
     document.addEventListener('DOMContentLoaded', () => {
+      updateLandingAuthAction();
       initScrollReveal();
       initCounters();
       initProgressBars();
@@ -2843,23 +2791,18 @@
       if (e.key === 'Escape') {
         closeDemoModal();
         closeLoginModal();
-        const dd = document.getElementById('nav-login-dropdown');
-        if (dd) dd.classList.add('hidden');
-        const chev = document.getElementById('login-chevron');
-        if (chev) chev.style.transform = 'rotate(0deg)';
+        closeLandingDropdowns();
       }
     });
 
-    // Close dropdown on outside click
-    document.addEventListener('click', (e) => {
-      const wrapper = document.getElementById('nav-login-wrapper');
-      if (wrapper && !wrapper.contains(e.target)) {
-        const dd = document.getElementById('nav-login-dropdown');
-        if (dd) dd.classList.add('hidden');
-        const chev = document.getElementById('login-chevron');
-        if (chev) chev.style.transform = 'rotate(0deg)';
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('#modules-nav-wrapper')) {
+        closeLandingDropdowns();
+      } else if (event.target.closest('#modules-dropdown a')) {
+        closeLandingDropdowns();
       }
     });
+    window.addEventListener('scroll', closeLandingDropdowns, { passive: true });
   </script>
 
 </body>

@@ -90,8 +90,19 @@ class CliniqoAuthService
         if ($custom !== '') {
             return $custom;
         }
-        $qTok = trim((string) $request->query('token', ''));
-        return $qTok !== '' ? $qTok : null;
+        return null;
+    }
+
+    public static function revokeStaffToken(Request $request): void
+    {
+        $rawToken = self::extractBearerToken($request);
+        if ($rawToken === null) {
+            return;
+        }
+
+        $pdo = CliniqoDatabase::connection();
+        $st = $pdo->prepare('DELETE FROM auth_tokens WHERE token_hash = ? AND token_type = ?');
+        $st->execute([hash('sha256', $rawToken), 'staff']);
     }
 
     public static function issueStaffToken(int $userId, ?int $tenantId = null): string
@@ -130,56 +141,38 @@ class CliniqoAuthService
             $requestedTenant = 1;
         }
 
-        $user = null;
-        if ($rawToken !== null) {
-            $hash = hash('sha256', $rawToken);
-            $st = $pdo->prepare('SELECT * FROM auth_tokens WHERE token_hash = ? AND token_type = ? LIMIT 1');
-            $st->execute([$hash, 'staff']);
-            $tokRow = $st->fetch();
-
-            if (!$tokRow || ($tokRow['expires_at'] ?? '') < date('Y-m-d H:i:s')) {
-                self::abortJson(401, 'INVALID_OR_EXPIRED_TOKEN', 'Session expirée ou jeton invalide. Veuillez vous reconnecter.');
-            }
-
-            $stU = $pdo->prepare('SELECT * FROM users WHERE id = ? AND is_active = 1 LIMIT 1');
-            $stU->execute([(int) $tokRow['user_id']]);
-            $user = $stU->fetch();
-            if (!$user) {
-                self::abortJson(401, 'USER_DISABLED', 'Ce compte utilisateur est désactivé.');
-            }
-        } else {
-            // Resolve role from header or fallback
-            $reqRole = strtolower(trim((string) ($request->header('X-User-Role') ?? $request->header('X-Cliniqo-Role') ?? '')));
-            if (in_array($reqRole, ['owner', 'saas_owner'], true)) {
-                $stU = $pdo->prepare("SELECT * FROM users WHERE role IN ('owner', 'saas_owner') AND is_active = 1 ORDER BY id ASC LIMIT 1");
-                $stU->execute();
-                $user = $stU->fetch();
-            } elseif (in_array($reqRole, ['docteur', 'medecin', 'doctor'], true)) {
-                $stU = $pdo->prepare("SELECT * FROM users WHERE tenant_id = ? AND role IN ('docteur', 'medecin', 'doctor') AND is_active = 1 ORDER BY id ASC LIMIT 1");
-                $stU->execute([$requestedTenant]);
-                $user = $stU->fetch();
-            } elseif (in_array($reqRole, ['admin', 'admin_clinique'], true)) {
-                $stU = $pdo->prepare("SELECT * FROM users WHERE tenant_id = ? AND role IN ('admin', 'admin_clinique') AND is_active = 1 ORDER BY id ASC LIMIT 1");
-                $stU->execute([$requestedTenant]);
-                $user = $stU->fetch();
-            }
-            if (!$user) {
-                $stU = $pdo->prepare("SELECT * FROM users WHERE tenant_id = ? AND role IN ('admin', 'admin_clinique') AND is_active = 1 ORDER BY id ASC LIMIT 1");
-                $stU->execute([$requestedTenant]);
-                $user = $stU->fetch();
-            }
-            if (!$user) {
-                $stU2 = $pdo->prepare('SELECT * FROM users WHERE is_active = 1 ORDER BY id ASC LIMIT 1');
-                $stU2->execute();
-                $user = $stU2->fetch();
-            }
+        if ($rawToken === null) {
+            self::abortJson(401, 'AUTHENTICATION_REQUIRED', 'Connexion requise. Veuillez vous authentifier.');
         }
 
-        $role = (string) ($user['role'] ?? 'admin_clinique');
+        $hash = hash('sha256', $rawToken);
+        $st = $pdo->prepare('SELECT * FROM auth_tokens WHERE token_hash = ? AND token_type = ? LIMIT 1');
+        $st->execute([$hash, 'staff']);
+        $tokRow = $st->fetch();
+
+        if (!$tokRow || ($tokRow['expires_at'] ?? '') < date('Y-m-d H:i:s')) {
+            self::abortJson(401, 'INVALID_OR_EXPIRED_TOKEN', 'Session expirée ou jeton invalide. Veuillez vous reconnecter.');
+        }
+
+        $stU = $pdo->prepare('SELECT * FROM users WHERE id = ? AND is_active = 1 LIMIT 1');
+        $stU->execute([(int) $tokRow['user_id']]);
+        $user = $stU->fetch();
+        if (!$user) {
+            self::abortJson(401, 'USER_DISABLED', 'Ce compte utilisateur est désactivé.');
+        }
+
+        $roleAliases = [
+            'saas_owner' => 'owner',
+            'admin_clinique' => 'admin',
+            'medecin' => 'docteur',
+            'doctor' => 'docteur',
+        ];
+        $storedRole = strtolower((string) ($user['role'] ?? ''));
+        $role = $roleAliases[$storedRole] ?? $storedRole;
         $permissions = self::ROLE_PERMISSIONS[$role] ?? [];
 
         // Platform Owner has tenant_id = NULL and MUST NOT access clinic medical workspaces
-        if (in_array($role, ['owner', 'saas_owner'], true)) {
+        if ($role === 'owner') {
             return [
                 'user' => self::sanitizeUser($user, []),
                 'role' => 'owner',

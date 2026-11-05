@@ -67,6 +67,20 @@
   </script>
 
   <style>
+    html {
+      font-size: 16px;
+    }
+    @media (min-width: 768px) {
+      html {
+        font-size: 17px;
+      }
+    }
+    @media (min-width: 1440px) {
+      html {
+        font-size: 18px;
+      }
+    }
+
     @layer base {
       html, body {
         margin: 0;
@@ -98,6 +112,8 @@
     .slim-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
     .slim-scroll::-webkit-scrollbar-track { background: transparent; }
     .slim-scroll::-webkit-scrollbar-thumb { background: #bfc9c0; border-radius: 9999px; }
+    .nav-scroll-hidden { scrollbar-width: none; -ms-overflow-style: none; }
+    .nav-scroll-hidden::-webkit-scrollbar { display: none; }
 
     @keyframes slideLeft {
       from { transform: translateX(100%); opacity: 0.7; }
@@ -113,19 +129,35 @@
 
     @keyframes ecgMove { to { stroke-dashoffset: -120; } }
     .ecg-trace { stroke-dasharray: 60 12; animation: ecgMove 2.5s linear infinite; }
+
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root) { animation: 120ms ease-out both route-fade-out; }
+    ::view-transition-new(root) { animation: 180ms ease-out both route-fade-in; }
+    @keyframes route-fade-out { to { opacity: 0; transform: translateY(3px); } }
+    @keyframes route-fade-in { from { opacity: 0; transform: translateY(3px); } }
+    @media (prefers-reduced-motion: reduce) {
+      ::view-transition-old(root),
+      ::view-transition-new(root) { animation-duration: 1ms; }
+    }
   </style>
 </head>
 
 <body class="saas-bg font-sans antialiased min-h-screen selection:bg-primary selection:text-white">
 
   <div id="hover-tip" class="fixed z-[90] pointer-events-none hidden bg-on-primary-fixed text-white text-[10.5px] font-semibold px-2.5 py-1 rounded-lg shadow-lg whitespace-nowrap"></div>
+  <div id="workspace-loading" role="status" aria-live="polite" class="fixed inset-0 z-[200] flex items-center justify-center bg-[#eef2ef]/95 p-6 backdrop-blur-md transition-opacity duration-200">
+    <div class="flex items-center gap-3 rounded-2xl border border-white/80 bg-white/90 px-5 py-4 shadow-xl">
+      <span class="h-5 w-5 animate-spin rounded-full border-2 border-primary/20 border-t-primary"></span>
+      <span class="text-sm font-semibold text-on-surface">Chargement sécurisé de votre espace…</span>
+    </div>
+  </div>
 
-  <div class="max-w-[1160px] mx-auto px-3.5 sm:px-5 pt-3 pb-7">
+  <div class="max-w-[1440px] mx-auto px-3.5 sm:px-5 pt-3 pb-7">
 
     <!-- ========================================================================= -->
     <!-- EN-TÊTE CAPSULE FLOTTANTE CLINIQO (100% FRANÇAIS) -->
     <!-- ========================================================================= -->
-    <header class="flex flex-wrap items-center justify-between gap-2.5 mb-3.5">
+    <header class="sticky top-3 z-[40] flex flex-wrap items-center justify-between gap-2.5 mb-5 rounded-[22px] border border-white/70 bg-white/70 px-3.5 py-2.5 shadow-[0_12px_40px_rgba(15,55,39,0.12)] ring-1 ring-primary/5 backdrop-blur-2xl transition-all duration-300 sm:px-5">
 
       <!-- Gauche : Logo Vert Cliniqo + Sélecteur Multi-Cliniques -->
       <div class="flex items-center gap-2 relative">
@@ -145,7 +177,7 @@
           </div>
         </a>
 
-        <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-lowest border border-outline-variant/35 hover:border-primary/40 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-pill transition-all" title="Détails du Cabinet Médical">
+        <button onclick="toggleBranchMenu(event)" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/55 border border-white/70 hover:border-primary/30 text-[11px] font-semibold text-on-surface-variant hover:text-primary shadow-sm transition-all" title="Détails du Cabinet Médical">
           <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-pulse"></span>
           <span id="active-branch-name" class="font-bold text-on-surface">Cabinet Médical MediCab</span>
           <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Solo</span>
@@ -169,28 +201,28 @@
       </div>
 
       <!-- Centre : Navigation Principale (Rendez-vous juste après Tableau de bord !) -->
-      <nav aria-label="Navigation Principale" class="order-3 md:order-2 w-full md:w-auto overflow-x-auto slim-scroll">
-        <div class="inline-flex items-center bg-surface-container-lowest border border-outline-variant/35 rounded-full p-1 shadow-pill gap-0.5 min-w-max">
-          <a href="dashboard.html" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
+      <nav aria-label="Navigation Principale" class="nav-scroll-hidden order-3 w-full overflow-x-auto">
+        <div class="inline-flex items-center bg-white/50 border border-white/70 rounded-full p-1 shadow-sm backdrop-blur-md gap-0.5 min-w-max">
+          <a href="dashboard.html" data-role-access="admin,docteur" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Tableau de bord
           </a>
-          <a href="rendez-vous.html" aria-current="page" class="px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow transition-all flex items-center gap-1.5">
+          <a href="rendez-vous.html" data-role-access="admin,docteur" aria-current="page" class="px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow transition-all flex items-center gap-1.5">
             <span>Rendez-vous</span>
             <span id="nav-rdv-badge" class="text-[9.5px] font-extrabold px-1.5 py-0.2 rounded-full bg-white/20 text-white">17</span>
           </a>
-          <a href="dashboard.html#patients" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
+          <a href="dashboard.html#patients" data-role-access="admin,docteur" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Patients &amp; DME
           </a>
-          <a href="dashboard.html#labs" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
+          <a href="dashboard.html#labs" data-role-access="admin,docteur" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
             Laboratoire
             <span id="nav-labs-badge" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-error-container text-error">1 URGENT</span>
           </a>
-          <a href="dashboard.html#finance" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
+          <a href="dashboard.html#finance" data-role-access="admin" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Facturation &amp; CNSS
           </a>
 
           <!-- Dépenses & Stock -->
-          <div class="relative group">
+          <div class="relative group" data-role-access="admin">
             <a href="dashboard.html#stock" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Dépenses & Pharmacie / Stock">
               <span>Dépenses &amp; Stock</span>
               <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary group-hover:scale-105 transition-transform">12</span>
@@ -214,40 +246,21 @@
             </div>
           </div>
 
-          <a href="dashboard.html#reports" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
+          <a href="dashboard.html#reports" data-role-access="admin,docteur" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Rapports
           </a>
 
           <!-- Paramétrage -->
-          <button onclick="openModal('settings-modal')" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1 group" title="Paramétrage & Administration">
+          <button data-role-access="admin" onclick="openModal('settings-modal')" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1 group" title="Paramétrage & Administration">
             <span class="material-symbols-outlined text-[13.5px] text-outline group-hover:text-primary group-hover:rotate-45 transition-transform duration-300">settings</span>
             <span>Paramétrage</span>
           </button>
         </div>
       </nav>
 
-      <!-- Droite : Recherche + Profil Médecin -->
-      <div class="order-2 md:order-3 flex items-center gap-2 relative">
-        <button onclick="openModal('search-modal')" title="Recherche rapide (Ctrl+K)" class="h-8 px-2.5 rounded-full bg-surface-container-lowest border border-outline-variant/35 shadow-pill flex items-center gap-1.5 text-on-surface-variant hover:text-primary hover:border-primary/40 transition-all text-[11px] font-semibold">
-          <span class="material-symbols-outlined text-[15px]">search</span>
-          <span class="hidden sm:inline text-outline">Rechercher</span>
-          <kbd class="hidden sm:inline text-[9.5px] px-1 rounded bg-surface-container-low text-outline">Ctrl+K</kbd>
-        </button>
-
-        <div class="relative bg-surface-container-lowest border border-outline-variant/35 rounded-full pl-1 pr-1.5 py-1 shadow-pill flex items-center gap-2">
-          <button onclick="toggleRoleSelector(event)" title="Changer de rôle (Owner / Admin / Docteur)" class="flex items-center gap-2 text-left pr-0.5 group">
-            <div class="relative">
-              <img id="header-user-avatar" class="w-7 h-7 rounded-full object-cover ring-1 ring-primary/25" src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120" alt="Dr. Jackson"/>
-              <span id="duty-dot" class="w-2 h-2 rounded-full bg-brand-soft-green ring-1 ring-white absolute bottom-0 right-0"></span>
-            </div>
-            <div class="leading-none">
-              <span id="duty-label" class="block text-[9.5px] text-outline font-medium">Propriétaire (Owner)</span>
-              <span id="header-user-name" class="block text-[11.5px] font-bold text-on-surface group-hover:text-primary transition-colors mt-0.5">Dr. Jackson</span>
-            </div>
-            <span class="material-symbols-outlined text-[14px] text-outline group-hover:text-primary transition-colors">unfold_more</span>
-          </button>
-
-          <div class="flex items-center gap-1">
+      <!-- Actions rapides et session active -->
+      <div class="order-2 flex items-center gap-2 relative">
+        <div class="bg-white/50 border border-white/70 rounded-full px-1.5 py-1 shadow-sm backdrop-blur-md flex items-center gap-1">
             <button onclick="toggleNotifications(event)" title="Alertes cliniques" class="relative w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
               <span class="material-symbols-outlined text-[15px]">notifications</span>
               <span id="notif-dot" class="w-1.5 h-1.5 rounded-full bg-error absolute top-1.5 right-1.5"></span>
@@ -255,49 +268,9 @@
             <a href="dashboard.html" title="Tableau de bord &amp; Paramètres" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
               <span class="material-symbols-outlined text-[15px]">settings</span>
             </a>
-          </div>
-
-          <!-- Menu Déroulant Instantané des 3 Rôles Officiels -->
-          <div id="quick-role-menu" onclick="event.stopPropagation()" class="hidden absolute right-0 top-11 w-64 bg-surface-container-lowest rounded-2xl shadow-floatCard border border-outline-variant/40 p-2 z-50 modal-pop space-y-1">
-            <div class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-outline flex items-center justify-between">
-              <span>Rôles du Cabinet</span>
-              <span class="text-[9px] font-semibold text-primary">1-Clic Rapide</span>
-            </div>
-            <button onclick="switchRoleFast('owner')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
-              <div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-sm">
-                <span class="material-symbols-outlined text-[17px]">verified_user</span>
-              </div>
-              <div class="flex-1 leading-tight">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Owner</span>
-                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-primary text-white">Propriétaire</span>
-                </div>
-                <span class="text-[10px] text-outline">Dr. Jackson • Plein Pouvoir</span>
-              </div>
-            </button>
-            <button onclick="switchRoleFast('admin')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
-              <div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-sm">
-                <span class="material-symbols-outlined text-[17px]">badge</span>
-              </div>
-              <div class="flex-1 leading-tight">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Admin</span>
-                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">Gestionnaire</span>
-                </div>
-                <span class="text-[10px] text-outline">Sarah Benali • Accueil &amp; Caisse</span>
-              </div>
-            </button>
-            <button onclick="switchRoleFast('docteur')" class="w-full text-left p-2 rounded-xl hover:bg-surface-container-low flex items-center gap-2.5 transition-colors group">
-              <div class="w-8 h-8 rounded-full bg-secondary-container text-primary flex items-center justify-center font-bold text-sm">
-                <span class="material-symbols-outlined text-[17px]">stethoscope</span>
-              </div>
-              <div class="flex-1 leading-tight">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-on-surface group-hover:text-primary">Docteur</span>
-                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-surface-container text-on-surface-variant">Médecin</span>
-                </div>
-                <span class="text-[10px] text-outline">Dr. Alimi Jan • Consultations &amp; DME</span>
-              </div>
+            <button onclick="logoutStaff()" title="Déconnexion" aria-label="Déconnexion" class="inline-flex h-7 items-center gap-1 rounded-full bg-primary/10 px-2 text-primary hover:bg-primary hover:text-white transition-colors">
+              <span class="material-symbols-outlined text-[15px]">logout</span>
+              <span class="hidden sm:inline text-[10px] font-bold">Quitter</span>
             </button>
           </div>
         </div>
@@ -1175,10 +1148,12 @@
       confirmDeleteAptId: null,
       confirmDeleteDocId: null,
       activePatientId: 1,
+      role: '',
+      userName: '',
       patients: [],
       appointments: [],
       labs: [],
-      doctors: [...fallbackDoctors]
+      doctors: []
     };
 
     const fallbackPatients = [
@@ -1209,8 +1184,41 @@
       confirmed: { label: 'Confirmé', cls: 'bg-surface-container-low text-on-surface-variant' }
     };
 
+    function normalizeRdvRole(role) {
+      const aliases = { saas_owner: 'owner', admin_clinique: 'admin', medecin: 'docteur', doctor: 'docteur' };
+      const key = String(role || '').toLowerCase();
+      return aliases[key] || key;
+    }
+
     function apiHeaders() {
-      return { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Tenant-ID': String(rdvApp.tenantId) };
+      const token = localStorage.getItem('cliniqo_staff_token') || '';
+      return {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Tenant-ID': String(rdvApp.tenantId),
+        'X-Branch-ID': localStorage.getItem('cliniqo_branch_id') || 'all',
+        ...(token ? { 'Authorization': `Bearer ${token}`, 'X-Auth-Token': token } : {})
+      };
+    }
+
+    async function apiFetch(path, options = {}) {
+      const alternateBase = API_BASE.includes(':8001')
+        ? API_BASE.replace(':8001', ':8000')
+        : API_BASE.includes(':8000') ? API_BASE.replace(':8000', ':8001') : null;
+      const bases = [...new Set([API_BASE, alternateBase].filter(Boolean))];
+      let lastError;
+
+      for (const base of bases) {
+        try {
+          const response = await fetch(`${base}${path}`, options);
+          API_BASE = base;
+          return response;
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      throw lastError || new Error('Serveur API indisponible.');
     }
 
     let toastTimer = null;
@@ -1828,11 +1836,11 @@
       const payload = { patient_id, date, time, doctor, specialty, room, fee_mad, channel, status, reason };
 
       try {
-        const url = editId ? `${API_BASE}/appointments/${editId}` : `${API_BASE}/appointments`;
+        const path = editId ? `/appointments/${editId}` : '/appointments';
         const method = editId ? 'PUT' : 'POST';
-        const res = await fetch(url, { method, headers: apiHeaders(), body: JSON.stringify(payload) });
-        const data = await res.json();
-        if (!res.ok) {
+        const res = await apiFetch(path, { method, headers: apiHeaders(), body: JSON.stringify(payload) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
           notify(data.message || 'Conflit horaire détecté !', 'err');
           return;
         }
@@ -1842,7 +1850,8 @@
         rdvApp.calMonth = m - 1;
         rdvApp.editingAptId = null;
         document.getElementById('day-apt-form').classList.add('hidden');
-        syncFromServerState(data.state);
+        if (data.state) syncFromServerState(data.state);
+        else await fetchTenantState(false);
         renderDaySheetContent();
         if (data.auto_invoice) {
           notify(`${editId ? 'RDV modifié' : 'RDV ajouté'} + Facture ${data.auto_invoice.num} générée !`);
@@ -1850,75 +1859,58 @@
           notify(editId ? `Rendez-vous modifié (${date} à ${time})` : `Rendez-vous ajouté (${date} à ${time})`);
         }
         return;
-      } catch (_) {
-        const conflict = rdvApp.appointments.find(a =>
-          Number(a.id) !== Number(editId || 0) &&
-          (a.date || TODAY_ISO) === date &&
-          a.time === time &&
-          (a.doctor === doctor || a.room === room || Number(a.patient_id) === patient_id)
-        );
-        if (conflict) {
-          notify(`Conflit horaire le ${date} à ${time} (${doctor})`, 'err');
-          return;
-        }
-        if (editId) {
-          const idx = rdvApp.appointments.findIndex(a => Number(a.id) === Number(editId));
-          if (idx >= 0) rdvApp.appointments[idx] = { ...rdvApp.appointments[idx], ...payload };
-        } else {
-          rdvApp.appointments.push({ id: Date.now(), ...payload, billed: false });
-        }
-        rdvApp.selectedDate = date;
-        rdvApp.editingAptId = null;
-        document.getElementById('day-apt-form').classList.add('hidden');
-        renderAll();
-        renderDaySheetContent();
-        notify(editId ? 'Rendez-vous modifié' : 'Rendez-vous ajouté');
+      } catch (error) {
+        notify(error.message || 'Impossible d’enregistrer le rendez-vous. Vérifiez la connexion API.', 'err');
       }
     }
 
     async function executeDeleteAppointment(aptId) {
       rdvApp.confirmDeleteAptId = null;
-      if (Number(rdvApp.editingAptId) === Number(aptId)) {
-        rdvApp.editingAptId = null;
-        document.getElementById('day-apt-form').classList.add('hidden');
-      }
       try {
-        const res = await fetch(`${API_BASE}/appointments/${aptId}`, { method: 'DELETE', headers: apiHeaders() });
-        const data = await res.json();
-        if (res.ok && data.state) {
-          syncFromServerState(data.state);
-          renderDaySheetContent();
-          notify('Rendez-vous supprimé avec succès');
+        const res = await apiFetch(`/appointments/${aptId}`, { method: 'DELETE', headers: apiHeaders() });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
+          notify(data.message || 'Impossible de supprimer le rendez-vous.', 'err');
           return;
         }
-      } catch (_) {}
-      rdvApp.appointments = rdvApp.appointments.filter(a => Number(a.id) !== Number(aptId));
-      renderAll();
-      renderDaySheetContent();
-      notify('Rendez-vous supprimé');
+        if (Number(rdvApp.editingAptId) === Number(aptId)) {
+          rdvApp.editingAptId = null;
+          document.getElementById('day-apt-form').classList.add('hidden');
+        }
+        if (data.state) syncFromServerState(data.state);
+        else rdvApp.appointments = rdvApp.appointments.filter(a => Number(a.id) !== Number(aptId));
+        renderAll();
+        renderDaySheetContent();
+        notify('Rendez-vous supprimé avec succès');
+      } catch (error) {
+        notify(error.message || 'Impossible de supprimer le rendez-vous.', 'err');
+      }
     }
 
     async function quickAdvanceApt(aptId, currentStatus) {
       const nextStatus = currentStatus === 'in_progress' ? 'completed' : 'in_progress';
       try {
-        const res = await fetch(`${API_BASE}/appointments/${aptId}/status`, {
+        const res = await apiFetch(`/appointments/${aptId}/status`, {
           method: 'PATCH',
           headers: apiHeaders(),
           body: JSON.stringify({ status: nextStatus })
         });
-        const data = await res.json();
-        if (res.ok && data.state) {
-          syncFromServerState(data.state);
-          renderDaySheetContent();
-          if (data.auto_invoice) notify(`Consultation terminée & facture ${data.auto_invoice.num} émise !`);
-          else notify('Consultation démarrée (En cours)');
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
+          notify(data.message || 'Impossible de mettre à jour le rendez-vous.', 'err');
           return;
         }
-      } catch (_) {}
-      const apt = rdvApp.appointments.find(a => Number(a.id) === Number(aptId));
-      if (apt) apt.status = nextStatus;
-      renderAll();
-      renderDaySheetContent();
+        if (data.state) syncFromServerState(data.state);
+        else {
+          const apt = rdvApp.appointments.find(a => Number(a.id) === Number(aptId));
+          if (apt) apt.status = nextStatus;
+        }
+        renderDaySheetContent();
+        if (data.auto_invoice) notify(`Consultation terminée & facture ${data.auto_invoice.num} émise !`);
+        else notify(nextStatus === 'completed' ? 'Consultation terminée' : 'Consultation démarrée (En cours)');
+      } catch (error) {
+        notify(error.message || 'Impossible de mettre à jour le rendez-vous.', 'err');
+      }
     }
 
     // =========================================================================
@@ -2029,15 +2021,16 @@
       };
 
       try {
-        const url = editId ? `${API_BASE}/doctors/${editId}` : `${API_BASE}/doctors`;
+        const path = editId ? `/doctors/${editId}` : '/doctors';
         const method = editId ? 'PUT' : 'POST';
-        const res = await fetch(url, { method, headers: apiHeaders(), body: JSON.stringify(payload) });
-        const data = await res.json();
-        if (!res.ok) {
+        const res = await apiFetch(path, { method, headers: apiHeaders(), body: JSON.stringify(payload) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
           notify(data.message || 'Impossible d’enregistrer ce médecin', 'err');
           return;
         }
-        syncFromServerState(data.state);
+        if (data.state) syncFromServerState(data.state);
+        else await fetchTenantState(false);
         const savedDoc = data.doctor || payload;
         if (autoSelect || !document.getElementById('day-apt-form').classList.contains('hidden')) {
           populateDoctorSelect(savedDoc.name);
@@ -2046,20 +2039,8 @@
         closeModal('doctor-modal');
         notify(editId ? `Fiche de ${savedDoc.name} mise à jour` : `${savedDoc.name} ajouté à l’équipe médicale !`);
         return;
-      } catch (_) {
-        if (editId) {
-          const idx = rdvApp.doctors.findIndex((d, i) => Number(d.id || (i + 1)) === Number(editId));
-          if (idx >= 0) rdvApp.doctors[idx] = { ...rdvApp.doctors[idx], ...payload };
-        } else {
-          rdvApp.doctors.push({ id: Date.now(), ...payload });
-        }
-        renderAll();
-        if (autoSelect || !document.getElementById('day-apt-form').classList.contains('hidden')) {
-          populateDoctorSelect(payload.name);
-          if (!rdvApp.editingAptId) document.getElementById('df-fee').value = payload.fee_mad;
-        }
-        closeModal('doctor-modal');
-        notify(editId ? `Fiche de ${payload.name} mise à jour` : `${payload.name} ajouté à l’équipe médicale !`);
+      } catch (error) {
+        notify(error.message || 'Impossible d’enregistrer ce médecin. Vérifiez la connexion API.', 'err');
       }
     }
 
@@ -2072,9 +2053,9 @@
       }
       const targetDoc = rdvApp.doctors.find((d, i) => Number(d.id || (i + 1)) === Number(docId));
       try {
-        const res = await fetch(`${API_BASE}/doctors/${docId}`, { method: 'DELETE', headers: apiHeaders() });
-        const data = await res.json();
-        if (!res.ok) {
+        const res = await apiFetch(`/doctors/${docId}`, { method: 'DELETE', headers: apiHeaders() });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
           notify(data.message || 'Suppression impossible', 'err');
           renderDoctorsFilter();
           return;
@@ -2083,20 +2064,16 @@
           rdvApp.doctorFilter = 'all';
           document.getElementById('board-doctor-pill')?.classList.add('hidden');
         }
-        syncFromServerState(data.state);
+        if (data.state) syncFromServerState(data.state);
+        else rdvApp.doctors = rdvApp.doctors.filter((d, i) => Number(d.id || (i + 1)) !== Number(docId));
         if (!document.getElementById('day-apt-form').classList.contains('hidden')) {
           populateDoctorSelect();
         }
         notify(`${targetDoc ? targetDoc.name : 'Médecin'} retiré de la liste active`);
         return;
-      } catch (_) {
-        rdvApp.doctors = rdvApp.doctors.filter((d, i) => Number(d.id || (i + 1)) !== Number(docId));
-        if (targetDoc && rdvApp.doctorFilter === targetDoc.name) {
-          rdvApp.doctorFilter = 'all';
-          document.getElementById('board-doctor-pill')?.classList.add('hidden');
-        }
-        renderAll();
-        notify('Praticien retiré');
+      } catch (error) {
+        notify(error.message || 'Impossible de supprimer ce praticien.', 'err');
+        renderDoctorsFilter();
       }
     }
 
@@ -2108,7 +2085,7 @@
       const p = rdvApp.patients.find(x => Number(x.id) === Number(patientId)) || rdvApp.patients[0];
       if (!p) return;
 
-      const currentRole = localStorage.getItem('cliniqo_user_role') || 'docteur';
+      const currentRole = normalizeRdvRole(localStorage.getItem('cliniqo_user_role') || 'docteur');
       const isDocOrOwner = (currentRole === 'docteur' || currentRole === 'owner');
 
       const avEl = document.getElementById('dme-avatar');
@@ -2160,13 +2137,21 @@
         allergy: document.getElementById('dme-allergy-input').value.trim(),
         icd: document.getElementById('dme-icd-select').value,
         note: document.getElementById('dme-note').value.trim(),
-        doctor: 'Dr. Jackson'
+        doctor: localStorage.getItem('cliniqo_user_name') || 'Docteur'
       };
       try {
-        const res = await fetch(`${API_BASE}/patients/${patId}/dme`, { method: 'POST', headers: apiHeaders(), body: JSON.stringify(payload) });
-        const data = await res.json();
-        if (res.ok && data.state) syncFromServerState(data.state);
-      } catch (_) {}
+        const res = await apiFetch(`/patients/${patId}/dme`, { method: 'POST', headers: apiHeaders(), body: JSON.stringify(payload) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
+          notify(data.message || 'Impossible d’enregistrer la note médicale.', 'err');
+          return;
+        }
+        if (data.state) syncFromServerState(data.state);
+        else await fetchTenantState(false);
+      } catch (error) {
+        notify(error.message || 'Impossible d’enregistrer la note médicale.', 'err');
+        return;
+      }
       document.getElementById('dme-note').value = '';
       openDmeDrawer(patId);
       notify('Constantes & note CIM-11 signées et chiffrées');
@@ -2206,18 +2191,22 @@
         coverage: document.getElementById('pat-cov').value
       };
       try {
-        const res = await fetch(`${API_BASE}/patients`, { method: 'POST', headers: apiHeaders(), body: JSON.stringify(payload) });
-        const data = await res.json();
-        if (!res.ok) {
+        const res = await apiFetch('/patients', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(payload) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
           notify(data.message || 'Ce numéro CIN existe déjà', 'err');
           return;
         }
-        syncFromServerState(data.state);
+        if (data.state) syncFromServerState(data.state);
+        else await fetchTenantState(false);
         if (!document.getElementById('day-apt-form').classList.contains('hidden')) {
           document.getElementById('df-patient').innerHTML = rdvApp.patients.map(p => `<option value="${p.id}">${p.first} ${p.last} (${p.code} • ${p.cin})</option>`).join('');
-          document.getElementById('df-patient').value = data.patient.id;
+          if (data.patient?.id) document.getElementById('df-patient').value = data.patient.id;
         }
-      } catch (_) {}
+      } catch (error) {
+        notify(error.message || 'Impossible de créer le dossier patient.', 'err');
+        return;
+      }
       closeModal('patient-modal');
       e.target.reset();
       notify(`Dossier créé pour ${payload.first} ${payload.last}`);
@@ -2229,10 +2218,7 @@
     async function switchTenant(id) {
       rdvApp.tenantId = id;
       localStorage.setItem('cliniqo_tenant_id', String(id));
-      document.getElementById('branch-menu').classList.add('hidden');
-      [1, 2, 3].forEach(n => {
-        document.getElementById(`tenant-dot-${n}`).className = `w-2 h-2 rounded-full ${n === id ? 'bg-brand-soft-green' : 'bg-transparent'}`;
-      });
+      document.getElementById('branch-menu')?.classList.add('hidden');
       await fetchTenantState(true);
     }
 
@@ -2246,12 +2232,18 @@
 
     async function resetTenantData() {
       try {
-        const res = await fetch(`${API_BASE}/reset`, { method: 'POST', headers: apiHeaders() });
-        const data = await res.json();
-        if (res.ok && data.state) syncFromServerState(data.state);
-      } catch (_) {}
-      closeModal('settings-modal');
-      notify('Agenda de démonstration réinitialisé');
+        const res = await apiFetch('/reset', { method: 'POST', headers: apiHeaders() });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false || !data.state) {
+          notify(data.message || 'Impossible de réinitialiser les données.', 'err');
+          return;
+        }
+        syncFromServerState(data.state);
+        closeModal('settings-modal');
+        notify('Agenda de démonstration réinitialisé');
+      } catch (error) {
+        notify(error.message || 'Impossible de réinitialiser les données.', 'err');
+      }
     }
 
     function exportAppointmentsCsv() {
@@ -2438,6 +2430,13 @@
 
     function syncFromServerState(st) {
       if (!st) return;
+      if (!st.auth?.role) {
+        throw new Error('Réponse API invalide : le rôle authentifié est absent.');
+      }
+      rdvApp.role = normalizeRdvRole(st.auth.role);
+      rdvApp.userName = st.auth.user?.name || '';
+      localStorage.setItem('cliniqo_user_role', rdvApp.role);
+      if (rdvApp.userName) localStorage.setItem('cliniqo_user_name', rdvApp.userName);
       if (st.tenant) {
         rdvApp.tenantName = st.tenant.name;
         document.getElementById('active-branch-name').textContent = st.tenant.short || st.tenant.name;
@@ -2458,38 +2457,56 @@
 
     async function fetchTenantState(announce = false) {
       try {
-        const res = await fetch(`${API_BASE}/state`, { headers: apiHeaders() });
-        if (res.ok) {
-          const payload = await res.json();
-          if (payload.state) syncFromServerState(payload.state);
-          if (payload.meta) document.getElementById('api-latency-badge').textContent = `API • ${payload.meta.latency_ms}ms`;
-          if (announce) notify(`Établissement actif : ${rdvApp.tenantName}`);
+        const res = await apiFetch('/state', { headers: apiHeaders() });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok || payload.success === false) {
+          const error = new Error(payload.message || `Erreur API (${res.status})`);
+          error.status = res.status;
+          throw error;
         }
-      } catch (_) {
-        document.getElementById('api-latency-badge').textContent = 'Mode Local';
+        syncFromServerState(payload.data || payload.state || payload);
+        if (payload.meta) document.getElementById('api-latency-badge').textContent = `API • ${payload.meta.latency_ms}ms`;
+        if (announce) notify(`Établissement actif : ${rdvApp.tenantName}`);
+        return true;
+      } catch (error) {
+        if (error.status === 401) {
+          ['cliniqo_staff_token', 'cliniqo_tenant_id', 'cliniqo_branch_id', 'cliniqo_user_role', 'cliniqo_user_name']
+            .forEach(key => localStorage.removeItem(key));
+          window.location.replace('index.html?auth=expired');
+          return false;
+        }
+        document.getElementById('api-latency-badge').textContent = 'API indisponible';
+        showRdvLoadError(error.message || 'Impossible de charger les données du serveur.');
+        return false;
       }
     }
 
     async function bootRendezVousPage() {
-      [1, 2, 3].forEach(n => {
-        document.getElementById(`tenant-dot-${n}`).className = `w-2 h-2 rounded-full ${n === rdvApp.tenantId ? 'bg-brand-soft-green' : 'bg-transparent'}`;
-      });
+      if (!localStorage.getItem('cliniqo_staff_token')) {
+        window.location.replace('index.html?auth=required');
+        return;
+      }
 
+      if (!(await fetchTenantState(false))) return;
       // Synchronisation du profil actif (Owner / Admin / Docteur)
-      const currentRole = localStorage.getItem('cliniqo_user_role') || 'admin';
+      const currentRole = rdvApp.role;
 
       // Protection stricte : l'Owner n'a pas accès aux plannings cliniques du cabinet
       if (currentRole === 'owner') {
-        showRoleAccessDenied({
-          attemptedSpace: "Gestion Clinique des Rendez-vous",
-          currentRoleLabel: "Propriétaire SaaS (Dr. Jackson)",
-          requiredRoleLabel: "Administrateur (Sarah Benali) ou Médecin",
-          reason: "En stricte conformité avec la Loi 131-13 (Secret Médical) et la séparation d'infrastructure SaaS, les dossiers et plannings des rendez-vous du cabinet sont réservés à l'administration locale et aux médecins praticiens.",
-          legalRef: "Loi 131-13 & Séparation Plateforme SaaS",
-          redirectTab: 'dashboard.html#saas-owner'
-        });
+        window.location.replace('dashboard.html#saas-owner');
         return;
       }
+      if (!['admin', 'docteur'].includes(currentRole)) {
+        showRdvLoadError(`Rôle non pris en charge par cet espace : ${currentRole || 'absent'}.`);
+        return;
+      }
+
+      document.querySelectorAll('[data-role-access]').forEach((el) => {
+        const allowedRoles = el.getAttribute('data-role-access').split(',').map(normalizeRdvRole);
+        const allowed = allowedRoles.includes(currentRole);
+        el.classList.toggle('hidden', !allowed);
+        el.style.display = allowed ? '' : 'none';
+      });
 
       const roleProfiles = {
         owner: { name: 'Dr. Jackson', label: 'Propriétaire (Owner)', avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120' },
@@ -2500,13 +2517,10 @@
       const hName = document.getElementById('header-user-name');
       const hDuty = document.getElementById('duty-label');
       const hAvatar = document.getElementById('header-user-avatar');
-      if (hName) hName.textContent = rInfo.name;
+      if (hName) hName.textContent = localStorage.getItem('cliniqo_user_name') || rInfo.name;
       if (hDuty) hDuty.textContent = rInfo.label;
       if (hAvatar && rInfo.avatar) hAvatar.src = rInfo.avatar;
 
-      rdvApp.doctors = [...fallbackDoctors];
-      rdvApp.patients = fallbackPatients;
-      rdvApp.appointments = fallbackAppointments;
       populateDoctorSelect();
 
       // Si connexion en Docteur, pré-filtrer par Dr. Alimi Jan pour lui afficher directement ses consultations
@@ -2518,7 +2532,7 @@
       }
 
       renderAll();
-      await fetchTenantState(false);
+      finishWorkspaceLoading();
 
       // Paramètres URL optionnels (?date=2026-10-30&add=1&doctor=Dr.%20Alimi%20Jan&add_doctor=1&view=patients)
       const params = new URLSearchParams(window.location.search);
@@ -2551,53 +2565,55 @@
       }
     }
 
-    function toggleRoleSelector(ev) {
-      if (ev) ev.stopPropagation();
-      document.getElementById('branch-menu')?.classList.add('hidden');
-      document.getElementById('notif-popover')?.classList.add('hidden');
-      document.getElementById('quick-role-menu')?.classList.toggle('hidden');
+    function showRdvLoadError(message) {
+      const panel = document.createElement('main');
+      panel.className = 'min-h-screen flex items-center justify-center bg-slate-50 p-6';
+      const card = document.createElement('section');
+      card.className = 'max-w-lg rounded-3xl bg-white p-8 text-center shadow-xl';
+      const title = document.createElement('h1');
+      title.className = 'text-xl font-extrabold text-slate-900';
+      title.textContent = 'Espace indisponible';
+      const details = document.createElement('p');
+      details.className = 'mt-3 text-sm text-slate-600';
+      details.textContent = message;
+      const retry = document.createElement('button');
+      retry.className = 'mt-6 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white';
+      retry.textContent = 'Réessayer';
+      retry.addEventListener('click', () => window.location.reload());
+      const home = document.createElement('a');
+      home.className = 'ml-3 text-sm font-bold text-emerald-800';
+      home.href = 'index.html';
+      home.textContent = 'Retour à l’accueil';
+      card.append(title, details, retry, home);
+      panel.append(card);
+      document.body.replaceChildren(panel);
     }
 
-    async function switchRoleFast(roleKey) {
-      if (roleKey === 'owner') {
-        localStorage.setItem('cliniqo_user_role', 'owner');
-        alert('L\'espace Rendez-vous clinique est réservé à l\'Administration (Sarah Benali) et aux Médecins. Redirection vers votre Console Propriétaire SaaS...');
-        window.location.href = 'dashboard.html#saas-owner';
-        return;
-      }
-      document.getElementById('quick-role-menu')?.classList.add('hidden');
-      const roleMap = { owner: 1, admin: 2, docteur: 3 };
-      const userId = roleMap[roleKey] || 1;
-      const roleNames = {
-        owner: { name: 'Dr. Jackson', label: 'Propriétaire (Owner)' },
-        admin: { name: 'Sarah Benali', label: 'Administrateur (Admin)' },
-        docteur: { name: 'Dr. Alimi Jan', label: 'Docteur (Médecin)' }
-      };
-      const info = roleNames[roleKey] || roleNames.owner;
-      const nameEl = document.getElementById('header-user-name');
-      const labelEl = document.getElementById('duty-label');
-      if (nameEl) nameEl.textContent = info.name;
-      if (labelEl) labelEl.textContent = info.label;
+    function finishWorkspaceLoading() {
+      const loader = document.getElementById('workspace-loading');
+      if (!loader) return;
+      loader.classList.add('pointer-events-none', 'opacity-0');
+      window.setTimeout(() => loader.remove(), 220);
+    }
 
-      localStorage.setItem('cliniqo_user_role', roleKey);
-      localStorage.setItem('cliniqo_user_name', info.name);
-
+    async function logoutStaff() {
+      const token = localStorage.getItem('cliniqo_staff_token') || '';
       try {
-        const res = await fetch(`${API_BASE}/auth/login`, {
+        const response = await apiFetch('/auth/logout', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ user_id: userId })
+          headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
         });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.token) {
-            localStorage.setItem('cliniqo_staff_token', data.token);
-          }
-          if (data.state) syncFromServerState(data.state);
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}));
+          throw new Error(payload.message || `Déconnexion refusée (${response.status}).`);
         }
-      } catch (_) {}
-
-      notify(`Rôle actif : ${info.label}`);
+      } catch (error) {
+        console.error('Échec de révocation de la session sur le serveur.', error);
+      } finally {
+        ['cliniqo_staff_token', 'cliniqo_tenant_id', 'cliniqo_branch_id', 'cliniqo_user_role', 'cliniqo_user_name']
+          .forEach(key => localStorage.removeItem(key));
+        window.location.replace('index.html');
+      }
     }
 
     function showRoleAccessDenied(opts) {
@@ -2636,7 +2652,6 @@
     document.addEventListener('click', () => {
       document.getElementById('branch-menu')?.classList.add('hidden');
       document.getElementById('notif-popover')?.classList.add('hidden');
-      document.getElementById('quick-role-menu')?.classList.add('hidden');
     });
 
     document.addEventListener('keydown', (e) => {
@@ -2649,7 +2664,6 @@
         ['doctor-modal', 'patient-modal', 'search-modal', 'settings-modal', 'print-modal'].forEach(closeModal);
         closeDmeDrawer();
         closeDaySheet();
-        document.getElementById('quick-role-menu')?.classList.add('hidden');
       } else if (!inInput && !e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'n') {
         e.preventDefault();
         openDaySheetForAdd(rdvApp.selectedDate);

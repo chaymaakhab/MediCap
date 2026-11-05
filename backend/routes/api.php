@@ -25,6 +25,7 @@ Route::prefix('v1')->middleware(['tenant.isolate'])->group(function () {
     // 0. Authentification Staff & Changement de Rôle RBAC
     Route::get('/auth/profiles', [ReportsAndAdminController::class, 'listAuthProfiles']);
     Route::post('/auth/login', [ReportsAndAdminController::class, 'login']);
+    Route::post('/auth/logout', [ReportsAndAdminController::class, 'logout']);
 
     // 1. État Global Multi-Tenant / Multi-Branche & Réinitialisation
     Route::get('/state', [SaasWorkspaceController::class, 'getState']);

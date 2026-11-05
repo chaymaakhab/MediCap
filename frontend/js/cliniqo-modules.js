@@ -382,10 +382,7 @@
               <span class="material-symbols-outlined text-[14px]">${typeIcons[d.doc_type] || 'description'}</span>
               ${escHtml(d.reference)}
             </span>
-            <button onclick="toggleDocPortalShare(${d.id})" title="Cliquer pour autoriser/bloquer l'accès patient sur le portail"
-                    class="px-2 py-0.5 rounded-full text-[9.5px] font-bold transition-all ${d.shared_with_patient ? 'bg-secondary-container text-primary hover:bg-error-container hover:text-error' : 'bg-surface-container text-outline hover:bg-secondary-container hover:text-primary'}">
-              ${d.shared_with_patient ? 'Portail Patient' : 'Interne Clinique'}
-            </button>
+            <span class="px-2 py-0.5 rounded-full bg-surface-container text-outline text-[9.5px] font-bold">Document clinique</span>
           </div>
           <h4 class="font-extrabold text-on-surface text-[12.5px] leading-snug">${escHtml(d.title)}</h4>
           <span class="text-[10.5px] text-outline block mt-0.5">Patient : <strong>${escHtml(d.patient_name || 'Établissement')}</strong></span>
@@ -616,12 +613,6 @@
     showToast(`Cabinet "${payload.name}" provisione avec succes`);
   };
 
-    window.toggleDocPortalShare = async function (docId) {
-    const res = await apiCall(`/documents/${docId}/share`, 'PATCH');
-    applyBackendState(res.data || res);
-    showToast('Visibilité sur le Portail Patient mise à jour');
-  };
-
   window.submitNewDocument = async function (ev) {
     ev.preventDefault();
     const payload = {
@@ -630,7 +621,7 @@
       title: document.getElementById('docgen-title').value.trim(),
       body_text: document.getElementById('docgen-body').value.trim(),
       amount_mad: Number(document.getElementById('docgen-amount')?.value || 0),
-      shared_with_patient: document.getElementById('docgen-share')?.checked ?? true
+      shared_with_patient: false
     };
     const res = await apiCall('/documents', 'POST', payload);
     closeModal('document-modal');
@@ -1304,7 +1295,7 @@
       max_doctors: Number(document.getElementById('new-plan-max-doctors').value),
       enable_lab_feature: document.getElementById('new-plan-feat-lab').checked ? 1 : 0,
       enable_inventory_feature: document.getElementById('new-plan-feat-stock').checked ? 1 : 0,
-      enable_portal_feature: document.getElementById('new-plan-feat-portal').checked ? 1 : 0,
+      enable_portal_feature: 0,
       enable_multibranch_feature: document.getElementById('new-plan-feat-multi').checked ? 1 : 0,
     };
     try {

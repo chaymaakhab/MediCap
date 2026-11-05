@@ -5,6 +5,17 @@ let API_BASE = (window.CLINIQO_API_URL)
   || (typeof location !== 'undefined' && location.port === '8000' ? 'http://127.0.0.1:8000/api/v1' : 'http://127.0.0.1:8001/api/v1');
 const TODAY_ISO = '2026-10-29';
 
+function normalizeAppRole(role) {
+  const aliases = {
+    saas_owner: 'owner',
+    admin_clinique: 'admin',
+    medecin: 'docteur',
+    doctor: 'docteur'
+  };
+  const key = String(role || '').toLowerCase();
+  return aliases[key] || key;
+}
+
 function escHtml(v) {
   return String(v ?? '')
     .replace(/&/g, '&amp;')
@@ -38,17 +49,9 @@ window.saas = {
   activePatientId: null,
   activeInvoiceId: null,
   auth: {
-    user: { id: 1, name: 'Dr. Jackson', role: 'owner', email: 'owner@cabinet-cliniqo.ma', title: 'Médecin Fondateur & Propriétaire' },
-    role: 'owner',
-    permissions: [
-      'dashboard.view', 'appointments.read', 'appointments.write', 'doctors.write',
-      'patients.read', 'patients.write', 'patients.dme',
-      'labs.read', 'labs.write', 'labs.validate',
-      'finance.read', 'finance.write', 'expenses.read', 'expenses.write',
-      'stock.read', 'stock.write', 'documents.read', 'documents.write',
-      'reports.read', 'reports.export', 'settings.manage', 'users.manage',
-      'branches.manage', 'backups.manage', 'audit.read', 'cabinet.ownership'
-    ],
+    user: null,
+    role: '',
+    permissions: [],
     is_saas_owner: false
   },
   authProfiles: [],
@@ -160,7 +163,7 @@ window.closeRoleDeniedModal = closeRoleDeniedModal;
 window.showRoleAccessDenied = showRoleAccessDenied;
 
 function can(perm) {
-  const role = saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
+  const role = normalizeAppRole(saas.auth?.role || localStorage.getItem('cliniqo_user_role') || '');
   
   if (role === 'owner' || role === 'saas_owner') {
     // Owner gère UNIQUEMENT les abonnements, packs SaaS, cliniques clientes et sauvegardes
@@ -172,13 +175,15 @@ function can(perm) {
     return ownerPerms.includes(perm);
   }
   
+  const permissions = Array.isArray(saas.auth?.permissions) ? saas.auth.permissions : [];
+
   if (role === 'admin') {
     const adminForbidden = [
       'cabinet.ownership', 'saas.admin', 'subscriptions.manage', 'saas.manage',
       'plans.manage', 'patients.dme', 'prescriptions.write', 'medical.diagnose'
     ];
     if (adminForbidden.includes(perm)) return false;
-    return true;
+    return permissions.includes(perm);
   }
   
   if (role === 'docteur' || role === 'medecin') {
@@ -188,10 +193,10 @@ function can(perm) {
       'labs.read', 'labs.write', 'labs.validate',
       'documents.read', 'documents.write', 'reports.read'
     ];
-    return clinicalPerms.includes(perm);
+    return clinicalPerms.includes(perm) && permissions.includes(perm);
   }
   
-  return Array.isArray(saas.auth?.permissions) && saas.auth.permissions.includes(perm);
+  return permissions.includes(perm);
 }
 
 window.fmtMoney = fmtMoney;
@@ -238,13 +243,11 @@ function showToast(msg, icon = 'check_circle') {
 }
 
 function buildAuthHeaders(extra = {}) {
-  const curRole = localStorage.getItem('cliniqo_user_role') || saas.auth?.role || 'owner';
   const h = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
     'X-Tenant-ID': String(saas.tenantId || 1),
     'X-Branch-ID': String(saas.branchId || 'all'),
-    'X-User-Role': curRole,
     ...extra
   };
   if (saas.token) {
@@ -291,13 +294,25 @@ async function apiCall(path, method = 'GET', body = null) {
 }
 
 function applyBackendState(st) {
-  if (!st) return;
-  if (st.auth) saas.auth = st.auth;
+  if (!st?.auth?.role) {
+    throw new Error('Réponse API invalide : le rôle authentifié est absent.');
+  }
+  const role = normalizeAppRole(st.auth.role);
+  if (!ROLE_SPACES_CONFIG[role]) {
+    throw new Error(`Rôle non pris en charge par l'interface : ${st.auth.role}.`);
+  }
+  if (st.auth) {
+    saas.auth = st.auth;
+    saas.auth.role = role;
+    localStorage.setItem('cliniqo_user_role', role);
+    if (st.auth.user?.name) localStorage.setItem('cliniqo_user_name', st.auth.user.name);
+  }
   if (st.backups) saas.backups = st.backups;
 
   if (st.auth?.is_saas_owner || st.auth?.role === 'owner' || st.auth?.role === 'saas_owner') {
     saas.saasConsole = st.saas_console || null;
     saas.auth = st.auth;
+    saas.auth.role = role;
     saas.activeTab = 'saas-owner';
     localStorage.setItem('cliniqo_user_role', 'owner');
     document.documentElement.classList.add('role-owner');
@@ -372,49 +387,76 @@ function getTargetTabFromUrl() {
 }
 
 async function initWorkspace() {
-  const initialTab = getTargetTabFromUrl();
-  if (initialTab) {
-    saas.activeTab = initialTab;
+  if (!saas.token) {
+    window.location.replace('index.html?auth=required');
+    return;
   }
-
-  try {
-    let profRes = await fetch(`${API_BASE}/auth/profiles`, { headers: { Accept: 'application/json' } }).then(r => r.json()).catch(() => null);
-    if (!profRes) {
-      const altBase = API_BASE.includes(':8001') ? API_BASE.replace(':8001', ':8000') : API_BASE.replace(':8000', ':8001');
-      profRes = await fetch(`${altBase}/auth/profiles`, { headers: { Accept: 'application/json' } }).then(r => r.json()).catch(() => ({}));
-      if (profRes?.profiles) API_BASE = altBase;
-    }
-    saas.authProfiles = profRes.profiles || [];
-  } catch (_) {}
 
   try {
     const res = await apiCall('/state', 'GET');
     applyBackendState(res.data || res.state || res);
   } catch (e) {
     if (e.status === 401 || e.status === 403) {
-      localStorage.removeItem('cliniqo_staff_token');
-      saas.token = '';
-      saas.branchId = 'all';
-      localStorage.setItem('cliniqo_branch_id', 'all');
-      const retry = await apiCall('/state', 'GET');
-      applyBackendState(retry.data || retry.state || retry);
+      clearStaffSession();
+      window.location.replace('index.html?auth=expired');
+      return;
     }
+    showWorkspaceLoadError(e.message || 'Impossible de charger votre espace. Vérifiez la connexion à l’API.');
+    return;
   }
 
-  const curRole = localStorage.getItem('cliniqo_user_role') || saas.auth?.role || 'owner';
-  const roleCfg = ROLE_SPACES_CONFIG[curRole] || ROLE_SPACES_CONFIG.owner;
+  const curRole = normalizeAppRole(saas.auth?.role);
+  const roleCfg = ROLE_SPACES_CONFIG[curRole];
 
   // If applyBackendState already set up Owner mode, skip redundant calls
   if (curRole === 'owner' && saas.activeTab === 'saas-owner') {
     applyRoleUiGuards(curRole);
+    finishWorkspaceLoading();
     return;
   }
 
   applyRoleUiGuards(curRole);
-  const finalTab = getTargetTabFromUrl() || (saas.activeTab || roleCfg.defaultTab || 'overview');
-  if (finalTab !== saas.activeTab) {
-    switchTab(finalTab);
-  }
+  const requestedTab = getTargetTabFromUrl() || saas.activeTab || roleCfg.defaultTab || 'overview';
+  const finalTab = roleCfg.allowedTabs.includes(requestedTab) ? requestedTab : roleCfg.defaultTab;
+  if (finalTab !== saas.activeTab || requestedTab !== finalTab || !roleCfg.allowedTabs.includes(saas.activeTab)) switchTab(finalTab);
+  finishWorkspaceLoading();
+}
+
+function clearStaffSession() {
+  ['cliniqo_staff_token', 'cliniqo_tenant_id', 'cliniqo_branch_id', 'cliniqo_user_role', 'cliniqo_user_name']
+    .forEach(key => localStorage.removeItem(key));
+  saas.token = '';
+}
+
+function showWorkspaceLoadError(message) {
+  const panel = document.createElement('main');
+  panel.className = 'min-h-screen flex items-center justify-center bg-slate-50 p-6';
+  const card = document.createElement('section');
+  card.className = 'max-w-lg rounded-3xl bg-white p-8 text-center shadow-xl';
+  const title = document.createElement('h1');
+  title.className = 'text-xl font-extrabold text-slate-900';
+  title.textContent = 'Espace indisponible';
+  const details = document.createElement('p');
+  details.className = 'mt-3 text-sm text-slate-600';
+  details.textContent = message;
+  const retry = document.createElement('button');
+  retry.className = 'mt-6 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white';
+  retry.textContent = 'Réessayer';
+  retry.addEventListener('click', () => window.location.reload());
+  const home = document.createElement('a');
+  home.className = 'ml-3 text-sm font-bold text-emerald-800';
+  home.href = 'index.html';
+  home.textContent = 'Retour à l’accueil';
+  card.append(title, details, retry, home);
+  panel.append(card);
+  document.body.replaceChildren(panel);
+}
+
+function finishWorkspaceLoading() {
+  const loader = document.getElementById('workspace-loading');
+  if (!loader) return;
+  loader.classList.add('pointer-events-none', 'opacity-0');
+  window.setTimeout(() => loader.remove(), 220);
 }
 
 let _hashChangeLock = false;
@@ -478,7 +520,6 @@ function renderHeaderAndBranches() {
         <button onclick="document.getElementById('branch-menu').classList.add('hidden'); openSettingsWithTab('general');" class="text-[10.5px] font-bold text-primary hover:underline px-1 py-0.5">
           Paramètres du cabinet &rarr;
         </button>
-        <a href="espace-patient.html" target="_blank" class="text-[10.5px] font-bold text-on-surface-variant hover:text-primary px-1 py-0.5">Portail Patient &nearr;</a>
       </div>
     `;
   }
@@ -572,31 +613,10 @@ async function switchBranch(branchId) {
   showToast(bObj ? `Branche filtrée : ${bObj.name}` : 'Affichage : Toutes les branches');
 }
 
-async function switchAuthProfile(userId) {
-  const res = await apiCall('/auth/login', 'POST', { user_id: Number(userId) });
-  saas.token = res.token || '';
-  localStorage.setItem('cliniqo_staff_token', saas.token);
-  if (res.user?.tenant_id) {
-    saas.tenantId = Number(res.user.tenant_id);
-    localStorage.setItem('cliniqo_tenant_id', String(saas.tenantId));
-  }
-  saas.branchId = 'all';
-  localStorage.setItem('cliniqo_branch_id', 'all');
-  closeModal('settings-modal');
-  applyBackendState(res.state);
-  showToast(`Connecté en tant que ${res.user?.name} (${res.user?.role})`);
-}
-
-function toggleRoleSelector(ev) {
-  if (ev) ev.stopPropagation();
-  document.getElementById('branch-menu')?.classList.add('hidden');
-  document.getElementById('notif-popover')?.classList.add('hidden');
-  document.getElementById('quick-role-menu')?.classList.toggle('hidden');
-}
-
 function applyRoleUiGuards(roleKey) {
-  const role = roleKey || saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
-  const cfg = ROLE_SPACES_CONFIG[role] || ROLE_SPACES_CONFIG.owner;
+  const role = normalizeAppRole(roleKey || saas.auth?.role || localStorage.getItem('cliniqo_user_role') || '');
+  const cfg = ROLE_SPACES_CONFIG[role];
+  if (!cfg) throw new Error(`Rôle non pris en charge par l'interface : ${role || 'absent'}.`);
   const isOwner = (role === 'owner' || role === 'saas_owner' || Boolean(saas.auth?.is_saas_owner));
   const isAdmin = (role === 'admin');
   const isDoc = (role === 'docteur');
@@ -612,8 +632,10 @@ function applyRoleUiGuards(roleKey) {
   const userNameEl = document.getElementById('header-user-name');
   const avatarEl = document.getElementById('header-user-avatar');
   if (dutyLabelEl) dutyLabelEl.textContent = cfg.title;
-  if (userNameEl) userNameEl.textContent = cfg.name;
-  if (avatarEl && cfg.avatar) avatarEl.src = cfg.avatar;
+  if (userNameEl) userNameEl.textContent = saas.auth?.user?.name || localStorage.getItem('cliniqo_user_name') || cfg.name;
+  if (avatarEl) avatarEl.src = saas.auth?.user?.avatar || cfg.avatar;
+
+  applyRoleNavVisibility(role);
 
   // 2. Séparation Navbar stricte:
   const clinicNav = document.getElementById('nav-clinic-tabs');
@@ -667,11 +689,7 @@ function applyRoleUiGuards(roleKey) {
       : 'text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary';
   }
 
-  // 5. Masquer le portail patient pour l'Owner
-  const portalLink = document.querySelector('a[href="espace-patient.html"]');
-  if (portalLink) portalLink.style.display = isOwner ? 'none' : 'flex';
-
-  // 6. Bouton Paramètres en-tête
+  // 5. Bouton Paramètres en-tête
   const headerSettingsBtn = document.querySelector('button[onclick*="settings-modal"]');
   if (headerSettingsBtn) {
     if (isOwner) {
@@ -707,33 +725,14 @@ function applyRoleUiGuards(roleKey) {
 }
 window.applyRoleUiGuards = applyRoleUiGuards;
 
-async function switchRoleFast(roleKey) {
-  document.getElementById('quick-role-menu')?.classList.add('hidden');
-  const roleMap = { owner: 1, admin: 2, docteur: 3 };
-  let targetId = roleMap[roleKey] || 1;
-  if (Array.isArray(saas.authProfiles) && saas.authProfiles.length > 0) {
-    const found = saas.authProfiles.find(p => p.role === roleKey);
-    if (found) targetId = Number(found.id);
-  }
-  await switchAuthProfile(targetId);
-  localStorage.setItem('cliniqo_user_role', roleKey);
-  
-  applyRoleUiGuards(roleKey);
-
-  const roleCfg = ROLE_SPACES_CONFIG[roleKey] || ROLE_SPACES_CONFIG.owner;
-  // Redirection automatique si l'onglet en cours est interdit au nouveau rôle
-  if (!roleCfg.allowedTabs.includes(saas.activeTab)) {
-    switchTab(roleCfg.defaultTab);
-  } else if (saas.activeTab === 'patients') {
-    renderPatientsView();
-  }
-
-  const roleLabels = {
-    owner: 'Propriétaire (Owner) — Espace Abonnements, Packs & Supervision',
-    admin: 'Administrateur (Admin) — Gestion Complète du Cabinet & Caisse',
-    docteur: 'Docteur (Médecin) — Dossier Médical Électronique & Consultations'
-  };
-  showToast(`Rôle activé : ${roleLabels[roleKey] || roleKey}`);
+function applyRoleNavVisibility(roleKey) {
+  const role = normalizeAppRole(roleKey);
+  document.querySelectorAll('[data-role-access]').forEach((el) => {
+    const allowedRoles = el.getAttribute('data-role-access').split(',').map(normalizeAppRole);
+    const allowed = allowedRoles.includes(role);
+    el.classList.toggle('hidden', !allowed);
+    el.style.display = allowed ? '' : 'none';
+  });
 }
 
 function toggleNotifications(ev) {
@@ -797,8 +796,12 @@ async function openNotifTarget(id, tab) {
 }
 
 function switchTab(tab, subTab) {
-  const role = saas.auth?.role || localStorage.getItem('cliniqo_user_role') || 'owner';
-  const roleCfg = ROLE_SPACES_CONFIG[role] || ROLE_SPACES_CONFIG.owner;
+  const role = normalizeAppRole(saas.auth?.role || localStorage.getItem('cliniqo_user_role') || '');
+  const roleCfg = ROLE_SPACES_CONFIG[role];
+  if (!roleCfg) {
+    window.location.replace('index.html?auth=required');
+    return;
+  }
   const isOwner = (role === 'owner' || role === 'saas_owner');
 
   // Si Owner tente d'accéder aux onglets de gestion clinique (Tableau de bord, RDV, DME, etc.)
@@ -821,15 +824,41 @@ function switchTab(tab, subTab) {
 
   const validTabs = ['overview', 'patients', 'labs', 'finance', 'stock', 'reports', 'saas-owner'];
   if (!validTabs.includes(tab)) tab = roleCfg.defaultTab || 'overview';
+  if (!roleCfg.allowedTabs.includes(tab)) {
+    const activeTabIsRestricted = !roleCfg.allowedTabs.includes(saas.activeTab);
+    showRoleAccessDenied({
+      attemptedSpace: tab === 'finance' || tab === 'stock' ? 'Gestion financière du cabinet' : 'Espace réservé',
+      currentRoleLabel: roleCfg.title,
+      requiredRoleLabel: tab === 'saas-owner' ? 'Propriétaire SaaS' : 'Administrateur ou médecin autorisé',
+      reason: 'Cet espace ne fait pas partie des autorisations de votre profil.',
+      redirectTab: roleCfg.defaultTab
+    });
+    if (activeTabIsRestricted) switchTab(roleCfg.defaultTab);
+    return;
+  }
+
+  if (tab === saas.activeTab) return;
 
   saas.activeTab = tab;
-  document.querySelectorAll('.saas-view').forEach(s => s.classList.add('hidden'));
-  if (tab === 'stock') {
-    document.getElementById('view-finance')?.classList.remove('hidden');
-  } else if (tab === 'saas-owner') {
-    document.getElementById('view-saas-owner')?.classList.remove('hidden');
+  const updateActiveView = () => {
+    document.querySelectorAll('.saas-view').forEach(view => view.classList.add('hidden'));
+    const viewId = tab === 'stock' ? 'view-finance' : `view-${tab}`;
+    document.getElementById(viewId)?.classList.remove('hidden');
+  };
+  const activeView = document.querySelector('.saas-view:not(.hidden)');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (activeView && typeof document.startViewTransition === 'function' && !prefersReducedMotion) {
+    activeView.style.viewTransitionName = 'workspace-panel';
+    const transition = document.startViewTransition(() => {
+      updateActiveView();
+      document.querySelector('.saas-view:not(.hidden)')?.style.setProperty('view-transition-name', 'workspace-panel');
+    });
+    const clearTransitionNames = () => {
+      document.querySelectorAll('.saas-view').forEach(view => view.style.removeProperty('view-transition-name'));
+    };
+    transition.finished.then(clearTransitionNames, clearTransitionNames);
   } else {
-    document.getElementById(`view-${tab}`)?.classList.remove('hidden');
+    updateActiveView();
   }
 
   document.querySelectorAll('.saas-tab').forEach(btn => {
@@ -838,7 +867,14 @@ function switchTab(tab, subTab) {
   const activeBtn = document.getElementById(`tab-${tab}`);
   if (activeBtn) {
     activeBtn.className = 'saas-tab px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow transition-all flex items-center gap-1';
+    const nav = activeBtn.closest('nav[aria-label="Navigation Principale"]');
+    const buttonRect = activeBtn.getBoundingClientRect();
+    const navRect = nav?.getBoundingClientRect();
+    if (nav && navRect && (buttonRect.left < navRect.left || buttonRect.right > navRect.right)) {
+      activeBtn.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'auto' });
+    }
   }
+  applyRoleNavVisibility(role);
 
   const headings = {
     overview: 'Surveillance Diagnostique & Activité Réelle',
@@ -886,6 +922,17 @@ function switchTab(tab, subTab) {
     document.querySelectorAll('.saas-view').forEach(v => v.classList.add('hidden'));
     document.getElementById('view-saas-owner')?.classList.remove('hidden');
     if (typeof renderSaasOwnerConsole === 'function') renderSaasOwnerConsole();
+  }
+}
+
+async function logoutStaff() {
+  try {
+    await apiCall('/auth/logout', 'POST');
+  } catch (error) {
+    console.error('Échec de révocation de la session sur le serveur.', error);
+  } finally {
+    clearStaffSession();
+    window.location.replace('index.html');
   }
 }
 
@@ -1530,7 +1577,7 @@ async function openDmeDrawer(patientId) {
       ${pDocs.map(d => `
         <div class="p-2 rounded-xl bg-surface-container-low flex items-center justify-between text-xs">
           <div><strong class="font-mono text-on-surface">${escHtml(d.reference)}</strong><span class="block text-[10.5px] text-outline">${escHtml(d.title)}</span></div>
-          <span class="text-[10px] font-bold ${Number(d.shared_with_patient) ? 'text-primary' : 'text-outline'}">${Number(d.shared_with_patient) ? 'Portail OK' : 'Interne'}</span>
+          <span class="text-[10px] font-bold text-outline">Document clinique</span>
         </div>
       `).join('') || '<div class="text-[11px] text-outline">Aucun document.</div>'}
     </div>
@@ -1588,14 +1635,14 @@ async function printQrPrescription() {
     doc_type: 'prescription',
     title: `Ordonnance Médicale — ${p.first} ${p.last}`,
     body_text: noteText,
-    shared_with_patient: true
+    shared_with_patient: false
   });
   applyBackendState(res.data || res);
   const createdDoc = saas.documents[0];
   if (createdDoc) {
     CliniqoPdf.printDocument(saas.tenant, createdDoc, saas.currency);
   }
-  showToast('Ordonnance générée et partagée sur le Portail Patient');
+  showToast('Ordonnance générée et prête pour impression');
 }
 
 function renderLabsView() {
@@ -1706,7 +1753,14 @@ function openModal(id) {
       drSel.innerHTML = saas.doctors.map(d => `<option value="${d.name}">${escHtml(d.name)} \u2014 ${escHtml(d.specialty)}</option>`).join('');
     }
   }
-  document.getElementById(id)?.classList.remove('hidden');
+  const modal = document.getElementById(id);
+  modal?.classList.remove('hidden');
+  if (['saas-payment-modal', 'saas-plan-modal', 'saas-plan-edit-modal', 'saas-clinic-modal'].includes(id)) {
+    modal.scrollTop = 0;
+    window.requestAnimationFrame(() => {
+      modal.querySelector('form input:not([type="hidden"]):not([disabled]), form select, form textarea')?.focus();
+    });
+  }
   if (id === 'search-modal') {
     setTimeout(() => document.getElementById('global-search-input')?.focus(), 50);
     renderGlobalSearch('');
@@ -1972,20 +2026,32 @@ window.submitFamilyLink = async function(ev) {
 function renderAll() {
   document.getElementById('view-saas-owner')?.classList.add('hidden');
   document.querySelectorAll('.saas-view').forEach(v => v.classList.add('hidden'));
-  document.getElementById(`view-${saas.activeTab}`)?.classList.remove('hidden');
+  const activeViewId = saas.activeTab === 'stock' ? 'view-finance' : `view-${saas.activeTab}`;
+  document.getElementById(activeViewId)?.classList.remove('hidden');
 
   renderHeaderAndBranches();
-  renderOverview();
-  renderPatientsView();
-  renderLabsView();
-  if (typeof renderFinanceHub === 'function') renderFinanceHub();
-  if (typeof populateReportFilterDropdowns === 'function') populateReportFilterDropdowns();
+  if (saas.activeTab === 'saas-owner') {
+    if (typeof renderSaasOwnerConsole === 'function') renderSaasOwnerConsole();
+  } else if (saas.activeTab === 'overview') {
+    renderOverview();
+  } else if (saas.activeTab === 'patients') {
+    renderPatientsView();
+  } else if (saas.activeTab === 'labs') {
+    renderLabsView();
+  } else if (saas.activeTab === 'finance' || saas.activeTab === 'stock') {
+    if (typeof switchFinanceSubTab === 'function') {
+      switchFinanceSubTab(saas.activeTab === 'stock' ? 'stock' : 'invoices');
+    } else if (typeof renderFinanceHub === 'function') {
+      renderFinanceHub();
+    }
+  } else if (saas.activeTab === 'reports' && typeof populateReportFilterDropdowns === 'function') {
+    populateReportFilterDropdowns();
+  }
 }
 
 document.addEventListener('click', () => {
   document.getElementById('branch-menu')?.classList.add('hidden');
   document.getElementById('notif-popover')?.classList.add('hidden');
-  document.getElementById('quick-role-menu')?.classList.add('hidden');
 });
 
 document.addEventListener('keydown', e => {
@@ -1993,9 +2059,8 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
     openModal('search-modal');
   } else if (e.key === 'Escape') {
-    ['search-modal', 'settings-modal', 'patient-modal', 'doctor-modal', 'lab-modal', 'invoice-modal', 'payment-modal', 'refund-modal', 'expense-modal', 'stock-modal', 'document-modal', 'saas-clinic-modal', 'quick-role-menu'].forEach(closeModal);
+    ['search-modal', 'settings-modal', 'patient-modal', 'doctor-modal', 'lab-modal', 'invoice-modal', 'payment-modal', 'refund-modal', 'expense-modal', 'stock-modal', 'document-modal', 'saas-payment-modal', 'saas-plan-modal', 'saas-plan-edit-modal', 'saas-clinic-modal', 'edit-cabinet-modal'].forEach(closeModal);
     closeDmeDrawer();
-    document.getElementById('quick-role-menu')?.classList.add('hidden');
   }
 });
 
@@ -2010,15 +2075,13 @@ window.renderPatientsView = renderPatientsView;
 window.openDmeDrawer = openDmeDrawer;
 window.switchDmeTab = switchDmeTab;
 window.closeDmeDrawer = closeDmeDrawer;
+window.logoutStaff = logoutStaff;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.switchTenant = switchTenant;
 window.switchBranch = switchBranch;
-window.switchAuthProfile = switchAuthProfile;
 window.toggleBranchMenu = toggleBranchMenu;
 window.toggleNotifications = toggleNotifications;
-window.toggleRoleSelector = toggleRoleSelector;
-window.switchRoleFast = switchRoleFast;
 window.markNotifRead = markNotifRead;
 window.markAllNotifsRead = markAllNotifsRead;
 window.advanceAptStatus = advanceAptStatus;
@@ -2084,6 +2147,10 @@ window.switchOwnerSection = function(sec) {
   const secSubs = document.getElementById('owner-sec-subs');
   const secPlans = document.getElementById('owner-sec-plans');
   const secBackups = document.getElementById('owner-sec-backups');
+  const sectionIds = ['owner-sec-subs', 'owner-sec-plans', 'owner-sec-backups'];
+  const targetId = sec === 'plans' ? 'owner-sec-plans' : sec === 'backups' ? 'owner-sec-backups' : 'owner-sec-subs';
+  const activeSection = document.querySelector(sectionIds.map(id => `#${id}:not(.hidden)`).join(','));
+  if (activeSection?.id === targetId) return;
 
   document.querySelectorAll('.saas-owner-nav-btn').forEach(b => {
     b.className = 'saas-owner-nav-btn px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1.5';
@@ -2094,18 +2161,21 @@ window.switchOwnerSection = function(sec) {
     activeBtn.className = 'saas-owner-nav-btn px-4 py-1.5 rounded-full text-[11.5px] font-bold bg-gradient-to-r from-primary to-primary-container text-white shadow-emeraldGlow flex items-center gap-1.5 transition-all';
   }
 
-  if (sec === 'plans') {
-    if (secSubs) secSubs.classList.add('hidden');
-    if (secPlans) secPlans.classList.remove('hidden');
-    if (secBackups) secBackups.classList.add('hidden');
-  } else if (sec === 'backups') {
-    if (secSubs) secSubs.classList.add('hidden');
-    if (secPlans) secPlans.classList.add('hidden');
-    if (secBackups) secBackups.classList.remove('hidden');
+  const updateSection = () => {
+    sectionIds.forEach(id => document.getElementById(id)?.classList.toggle('hidden', id !== targetId));
+  };
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (activeSection && typeof document.startViewTransition === 'function' && !prefersReducedMotion) {
+    activeSection.style.viewTransitionName = 'owner-panel';
+    const transition = document.startViewTransition(() => {
+      updateSection();
+      document.getElementById(targetId)?.style.setProperty('view-transition-name', 'owner-panel');
+    });
+    const clearTransitionNames = () => {
+      sectionIds.forEach(id => document.getElementById(id)?.style.removeProperty('view-transition-name'));
+    };
+    transition.finished.then(clearTransitionNames, clearTransitionNames);
   } else {
-    // subscriptions
-    if (secSubs) secSubs.classList.remove('hidden');
-    if (secPlans) secPlans.classList.add('hidden');
-    if (secBackups) secBackups.classList.add('hidden');
+    updateSection();
   }
 };

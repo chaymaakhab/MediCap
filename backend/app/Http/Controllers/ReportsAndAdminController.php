@@ -18,6 +18,13 @@ class ReportsAndAdminController
     // =========================================================================
     public function listAuthProfiles(): JsonResponse
     {
+        if (!app()->environment(['local', 'testing'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La connexion rapide est désactivée. Utilisez votre adresse e-mail et votre mot de passe.',
+            ], 403);
+        }
+
         $pdo = CliniqoDatabase::connection();
         $st = $pdo->query("
             SELECT u.id, u.tenant_id, u.name, u.email, u.role, u.title, u.avatar, u.all_branches,
@@ -41,7 +48,10 @@ class ReportsAndAdminController
         $password = (string) $request->input('password', '');
 
         if ($userId > 0) {
-            // Quick profile switch in demo/workspace mode (issues a real server-side token!)
+            if (!app()->environment(['local', 'testing'])) {
+                return response()->json(['success' => false, 'message' => 'La connexion rapide est désactivée. Utilisez votre adresse e-mail et votre mot de passe.'], 403);
+            }
+
             $st = $pdo->prepare('SELECT * FROM users WHERE id = ? AND is_active = 1 LIMIT 1');
             $st->execute([$userId]);
             $user = $st->fetch();
@@ -81,6 +91,13 @@ class ReportsAndAdminController
             'user' => $ctx['user'],
             'state' => SaasWorkspaceController::buildWorkspaceState($ctx),
         ]);
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        CliniqoAuthService::revokeStaffToken($request);
+
+        return response()->json(['success' => true, 'message' => 'Déconnexion réussie.']);
     }
 
     // =========================================================================
