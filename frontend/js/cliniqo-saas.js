@@ -380,7 +380,7 @@ function applyBackendState(st) {
 
 function getTargetTabFromUrl() {
   const hash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
-  const validTabs = ['overview', 'patients', 'labs', 'finance', 'reports', 'stock', 'expenses', 'suppliers', 'invoices', 'quotes', 'caisse', 'saas-owner'];
+  const validTabs = ['overview', 'patients', 'consultations', 'labs', 'finance', 'reports', 'stock', 'expenses', 'suppliers', 'invoices', 'quotes', 'caisse', 'saas-owner'];
   if (['saas-owner', 'abonnements', 'subscription'].includes(hash)) return { tab: 'saas-owner' };
   if (hash === 'expenses') return { tab: 'stock', subTab: 'expenses' };
   if (hash === 'suppliers') return { tab: 'stock', subTab: 'suppliers' };
@@ -409,12 +409,13 @@ async function initWorkspace() {
     const res = await apiCall('/state', 'GET');
     applyBackendState(res.data || res.state || res);
   } catch (e) {
+    console.error('Erreur chargement workspace:', e);
     if (e.status === 401 || e.status === 403) {
       clearStaffSession();
       window.location.replace('index.html?auth=expired');
       return;
     }
-    showWorkspaceLoadError(e.message || 'Impossible de charger votre espace. Vérifiez la connexion à l’API.');
+    showWorkspaceLoadError(e.message || 'Impossible de charger votre espace. Vérifiez la connexion à l’API.', e.stack);
     return;
   }
 
@@ -444,26 +445,39 @@ function clearStaffSession() {
   saas.token = '';
 }
 
-function showWorkspaceLoadError(message) {
+function showWorkspaceLoadError(message, stack = '') {
   const panel = document.createElement('main');
   panel.className = 'min-h-screen flex items-center justify-center bg-slate-50 p-6';
   const card = document.createElement('section');
-  card.className = 'max-w-lg rounded-3xl bg-white p-8 text-center shadow-xl';
+  card.className = 'max-w-xl rounded-3xl bg-white p-8 text-center shadow-xl';
   const title = document.createElement('h1');
   title.className = 'text-xl font-extrabold text-slate-900';
   title.textContent = 'Espace indisponible';
   const details = document.createElement('p');
   details.className = 'mt-3 text-sm text-slate-600';
   details.textContent = message;
+  card.append(title, details);
+
+  if (stack) {
+    const pre = document.createElement('pre');
+    pre.className = 'mt-4 p-3 rounded-xl bg-slate-100 text-left text-[11px] font-mono text-rose-700 overflow-auto max-h-40 whitespace-pre-wrap';
+    pre.textContent = String(stack);
+    card.append(pre);
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'mt-6 flex items-center justify-center gap-3';
   const retry = document.createElement('button');
-  retry.className = 'mt-6 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white';
+  retry.className = 'rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-800 transition-colors shadow-sm';
   retry.textContent = 'Réessayer';
   retry.addEventListener('click', () => window.location.reload());
   const home = document.createElement('a');
-  home.className = 'ml-3 text-sm font-bold text-emerald-800';
+  home.className = 'rounded-xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-200 transition-colors';
   home.href = 'index.html';
   home.textContent = 'Retour à l’accueil';
-  card.append(title, details, retry, home);
+  actions.append(retry, home);
+  card.append(actions);
+
   panel.append(card);
   document.body.replaceChildren(panel);
 }
@@ -1421,13 +1435,20 @@ async function advanceAptStatus(id, status) {
 function openDoctorModal(doctorId = null) {
   saas.editingDoctorId = doctorId;
   const doc = doctorId ? saas.doctors.find(d => d.id === doctorId) : null;
-  document.getElementById('doc-modal-title').textContent = doc ? 'Modifier Praticien & Horaires' : 'Ajouter un Médecin';
-  document.getElementById('doc-name').value = doc ? doc.name : '';
-  document.getElementById('doc-specialty').value = doc ? doc.specialty : 'Cardiologue';
-  document.getElementById('doc-room').value = doc ? doc.room : 'Salle 108';
-  document.getElementById('doc-fee').value = doc ? doc.fee_mad : 600;
-  document.getElementById('doc-inpe').value = doc ? (doc.inpe || '') : '';
-  document.getElementById('doc-phone').value = doc ? (doc.phone || '+212 661-506070') : '+212 661-506070';
+  const titleEl = document.getElementById('doc-modal-title');
+  if (titleEl) titleEl.textContent = doc ? 'Modifier Praticien & Horaires' : 'Ajouter un Médecin';
+  const nameEl = document.getElementById('doc-name');
+  if (nameEl) nameEl.value = doc ? doc.name : '';
+  const specEl = document.getElementById('doc-specialty');
+  if (specEl) specEl.value = doc ? doc.specialty : 'Médecine Générale';
+  const roomEl = document.getElementById('doc-room');
+  if (roomEl) roomEl.value = doc ? doc.room : 'Cabinet 1';
+  const feeEl = document.getElementById('doc-fee');
+  if (feeEl) feeEl.value = doc ? doc.fee_mad : 300;
+  const inpeEl = document.getElementById('doc-inpe');
+  if (inpeEl) inpeEl.value = doc ? (doc.inpe || '') : '';
+  const phoneEl = document.getElementById('doc-phone');
+  if (phoneEl) phoneEl.value = doc ? (doc.phone || '+212 661-506070') : '+212 661-506070';
   const wsEl = document.getElementById('doc-work-start');
   const weEl = document.getElementById('doc-work-end');
   const durEl = document.getElementById('doc-duration');
@@ -1548,16 +1569,26 @@ async function openDmeDrawer(patientId) {
   if (!p) return;
 
   saas.activePatientId = p.id;
-  document.getElementById('dme-avatar').src = p.avatar || makeInitialsAvatar(`${p.first} ${p.last}`);
-  document.getElementById('dme-name').textContent = `${p.first} ${p.last}`;
-  document.getElementById('dme-code').textContent = `#${p.code}`;
-  document.getElementById('dme-meta').textContent = `${p.age} ans • CIN ${p.cin} • Groupe ${p.blood}`;
-  document.getElementById('dme-allergy-input').value = p.allergy || 'Aucune';
-  document.getElementById('dme-coverage').textContent = p.coverage || 'Particulier';
-  document.getElementById('dme-bp-input').value = p.bp || '120/80';
-  document.getElementById('dme-spo2-input').value = p.spo2 || '98%';
-  document.getElementById('dme-hr-input').value = p.hr || '72 bpm';
-  document.getElementById('dme-note').value = '';
+  const avEl = document.getElementById('dme-avatar');
+  if (avEl) avEl.src = p.avatar || makeInitialsAvatar(`${p.first} ${p.last}`);
+  const nmEl = document.getElementById('dme-name');
+  if (nmEl) nmEl.textContent = `${p.first} ${p.last}`;
+  const cdEl = document.getElementById('dme-code');
+  if (cdEl) cdEl.textContent = `#${p.code}`;
+  const mtEl = document.getElementById('dme-meta');
+  if (mtEl) mtEl.textContent = `${p.age} ans • CIN ${p.cin} • Groupe ${p.blood}`;
+  const alEl = document.getElementById('dme-allergy-input');
+  if (alEl) alEl.value = p.allergy || 'Aucune';
+  const cvEl = document.getElementById('dme-coverage');
+  if (cvEl) cvEl.textContent = p.coverage || 'Particulier';
+  const bpEl = document.getElementById('dme-bp-input');
+  if (bpEl) bpEl.value = p.bp || '120/80';
+  const spEl = document.getElementById('dme-spo2-input');
+  if (spEl) spEl.value = p.spo2 || '98%';
+  const hrEl = document.getElementById('dme-hr-input');
+  if (hrEl) hrEl.value = p.hr || '72 bpm';
+  const ntEl = document.getElementById('dme-note');
+  if (ntEl) ntEl.value = '';
 
   const histEl = document.getElementById('dme-panel-history');
   const encs = dme.encounters || [];

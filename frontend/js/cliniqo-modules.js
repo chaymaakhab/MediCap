@@ -255,10 +255,14 @@
     const inv = saas.invoices.find(x => x.id === invId);
     if (!inv) return;
     saas.activeInvoiceId = inv.id;
-    document.getElementById('pay-modal-num').textContent = inv.num;
-    document.getElementById('pay-modal-pat').textContent = inv.patient;
-    document.getElementById('pay-modal-rem').textContent = fmtMoney(inv.remaining, true);
-    document.getElementById('pay-modal-amount').value = Math.max(1, Number(inv.remaining || 100));
+    const numEl = document.getElementById('pay-modal-num');
+    if (numEl) numEl.textContent = inv.num;
+    const patEl = document.getElementById('pay-modal-pat');
+    if (patEl) patEl.textContent = inv.patient;
+    const remEl = document.getElementById('pay-modal-rem');
+    if (remEl) remEl.textContent = fmtMoney(inv.remaining, true);
+    const amtEl = document.getElementById('pay-modal-amount');
+    if (amtEl) amtEl.value = Math.max(1, Number(inv.remaining || 100));
     openModal('payment-modal');
   };
 
@@ -278,12 +282,18 @@
     const inv = saas.invoices.find(x => x.id === invId);
     if (!inv) return;
     saas.activeInvoiceId = inv.id;
-    document.getElementById('ref-modal-num').textContent = inv.num;
-    document.getElementById('ref-modal-pat').textContent = inv.patient;
+    const rNumEl = document.getElementById('ref-modal-num');
+    if (rNumEl) rNumEl.textContent = inv.num;
+    const rPatEl = document.getElementById('ref-modal-pat');
+    if (rPatEl) rPatEl.textContent = inv.patient;
     const netP = Number(inv.net_paid ?? inv.paid ?? 0);
-    document.getElementById('ref-modal-max').textContent = fmtMoney(netP, true);
-    document.getElementById('ref-modal-amount').value = netP;
-    document.getElementById('ref-modal-amount').max = netP;
+    const rMaxEl = document.getElementById('ref-modal-max');
+    if (rMaxEl) rMaxEl.textContent = fmtMoney(netP, true);
+    const rAmtEl = document.getElementById('ref-modal-amount');
+    if (rAmtEl) {
+      rAmtEl.value = netP;
+      rAmtEl.max = netP;
+    }
     openModal('refund-modal');
   };
 
@@ -1694,15 +1704,24 @@
     const plans = saas.saasConsole?.plans || [];
     const p = plans.find(x => Number(x.id) === Number(planId));
     if (!p) return;
-    document.getElementById('edit-plan-id').value = p.id;
-    document.getElementById('edit-plan-subtitle').textContent = p.name + ' (' + p.code + ')';
-    document.getElementById('edit-plan-price').value = p.monthly_price_mad;
-    document.getElementById('edit-plan-max-users').value = p.max_users;
-    document.getElementById('edit-plan-max-branches').value = p.max_branches;
-    document.getElementById('edit-plan-max-doctors').value = p.max_doctors;
-    document.getElementById('edit-plan-feat-lab').checked = Boolean(Number(p.enable_lab_feature));
-    document.getElementById('edit-plan-feat-stock').checked = Boolean(Number(p.enable_inventory_feature));
-    document.getElementById('edit-plan-feat-multi').checked = Boolean(Number(p.enable_multibranch_feature));
+    const idEl = document.getElementById('edit-plan-id');
+    if (idEl) idEl.value = p.id;
+    const subEl = document.getElementById('edit-plan-subtitle');
+    if (subEl) subEl.textContent = p.name + ' (' + p.code + ')';
+    const prEl = document.getElementById('edit-plan-price');
+    if (prEl) prEl.value = p.monthly_price_mad;
+    const muEl = document.getElementById('edit-plan-max-users');
+    if (muEl) muEl.value = p.max_users;
+    const mbEl = document.getElementById('edit-plan-max-branches');
+    if (mbEl) mbEl.value = p.max_branches;
+    const mdEl = document.getElementById('edit-plan-max-doctors');
+    if (mdEl) mdEl.value = p.max_doctors;
+    const flEl = document.getElementById('edit-plan-feat-lab');
+    if (flEl) flEl.checked = Boolean(Number(p.enable_lab_feature));
+    const fsEl = document.getElementById('edit-plan-feat-stock');
+    if (fsEl) fsEl.checked = Boolean(Number(p.enable_inventory_feature));
+    const fmEl = document.getElementById('edit-plan-feat-multi');
+    if (fmEl) fmEl.checked = Boolean(Number(p.enable_multibranch_feature));
     openModal('saas-plan-edit-modal');
   };
 
