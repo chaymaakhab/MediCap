@@ -344,6 +344,7 @@
       const f = report.filters || {};
       const as = report.appointments_summary || {};
       const fs = report.financial_summary || {};
+      const ps = report.patients_summary || {};
 
       const docRows = (report.doctor_activity || []).map(d => `
         <tr>
@@ -356,47 +357,76 @@
         </tr>
       `).join('');
 
-      const branchRows = (report.branch_comparison || []).map(b => `
+      const unpaidRows = (report.unpaid_invoices || []).slice(0, 10).map(u => `
         <tr>
-          <td><strong>${esc(b.branch_name)}</strong> (${esc(b.code)})</td>
-          <td>${b.appointments_total} (${b.completed} vus)</td>
-          <td>${b.attendance_pct}%</td>
-          <td style="text-align:right;color:#176B45;font-weight:700;">${fmtMad(b.revenue_collected, currency)}</td>
-          <td style="text-align:right;">${fmtMad(b.expenses_total, currency)}</td>
-          <td style="text-align:right;font-weight:800;">${fmtMad(b.net_margin, currency)}</td>
+          <td><strong style="color:#176B45;">${esc(u.num)}</strong></td>
+          <td>${esc(u.patient_name)}</td>
+          <td>${esc(u.issued_date)}</td>
+          <td style="text-align:right;">${fmtMad(u.total, currency)}</td>
+          <td style="text-align:right;color:#176B45;">${fmtMad(u.paid, currency)}</td>
+          <td style="text-align:right;font-weight:800;color:#ba1a1a;">${fmtMad(u.remaining, currency)}</td>
+        </tr>
+      `).join('');
+
+      const reasonsRows = (report.top_reasons || []).slice(0, 5).map(r => `
+        <tr>
+          <td><strong>${esc(r.reason)}</strong></td>
+          <td style="text-align:center;">${r.count}</td>
+          <td style="text-align:center;color:#176B45;font-weight:700;">${r.completed}</td>
+          <td style="text-align:right;font-weight:700;">${r.share_pct}%</td>
         </tr>
       `).join('');
 
       const body = `
-        <p style="font-size:11.5px;color:#3f4942;margin-top:0;">
-          Période analysée : <strong>${esc(f.date_from)}</strong> au <strong>${esc(f.date_to)}</strong>
-          • Médecin : <strong>${esc(f.doctor || 'Tous')}</strong>
-          • Spécialité : <strong>${esc(f.specialty || 'Toutes')}</strong>
-        </p>
-        <div class="kpi-grid">
-          <div class="kpi-box"><span class="kpi-lbl">Volume RDV</span><span class="kpi-val">${as.total || 0} (${as.completed || 0} terminés)</span></div>
-          <div class="kpi-box"><span class="kpi-lbl">Annulation / No-Show</span><span class="kpi-val">${as.cancellation_rate_pct || 0}% / ${as.no_show_rate_pct || 0}%</span></div>
-          <div class="kpi-box"><span class="kpi-lbl">Recettes Encaissées</span><span class="kpi-val" style="color:#176B45;">${fmtMad(fs.revenue_collected, currency)}</span></div>
-          <div class="kpi-box"><span class="kpi-lbl">Trésorerie Nette</span><span class="kpi-val">${fmtMad(fs.net_cashflow, currency)}</span></div>
-        </div>
-        <div class="kpi-grid">
-          <div class="kpi-box"><span class="kpi-lbl">Total Facturé</span><span class="kpi-val">${fmtMad(fs.invoiced_amount, currency)}</span></div>
-          <div class="kpi-box"><span class="kpi-lbl">Soldes Impayés</span><span class="kpi-val">${fmtMad(fs.outstanding_global, currency)}</span></div>
-          <div class="kpi-box"><span class="kpi-lbl">Dépenses &amp; Charges</span><span class="kpi-val">${fmtMad(fs.expenses_total, currency)}</span></div>
-          <div class="kpi-box"><span class="kpi-lbl">Paiements Partiels</span><span class="kpi-val">${fs.partial_payments?.invoices_count || 0} dossiers</span></div>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11.5px;color:#176B45;">
+          <strong>Période du Rapport :</strong> du <strong>${esc(f.date_from)}</strong> au <strong>${esc(f.date_to)}</strong>
+          • <strong>Médecin :</strong> ${esc(f.doctor === 'all' ? 'Tous les médecins' : f.doctor)}
+          • <strong>Spécialité :</strong> Médecine Générale
+          • <strong>Généré le :</strong> ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </div>
 
-        <h3 style="font-size:12.5px;font-weight:800;color:#176B45;margin:16px 0 6px 0;">Activité Médicale par Praticien</h3>
+        <h3 style="font-size:12.5px;font-weight:800;color:#176B45;margin:12px 0 6px 0;">1. Synthèse de l'Activité Médicale &amp; Patientèle (KPIs)</h3>
+        <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="kpi-box"><span class="kpi-lbl">Volume des RDV</span><span class="kpi-val">${as.total || 0} RDV</span></div>
+          <div class="kpi-box"><span class="kpi-lbl">RDV Terminés</span><span class="kpi-val" style="color:#176B45;">${as.completed || 0}</span></div>
+          <div class="kpi-box"><span class="kpi-lbl">Annulations / No-Show</span><span class="kpi-val" style="color:#ba1a1a;">${as.cancelled || 0} (${as.cancellation_rate_pct || 0}%) / ${as.no_show || 0}</span></div>
+          <div class="kpi-box"><span class="kpi-lbl">Taux de Présence</span><span class="kpi-val">${as.attendance_rate_pct || 0}%</span></div>
+        </div>
+        <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr); margin-top: 8px;">
+          <div class="kpi-box"><span class="kpi-lbl">Nouveaux Patients Enregistrés</span><span class="kpi-val">${ps.new_patients_count || 0} dossiers</span></div>
+          <div class="kpi-box"><span class="kpi-lbl">Consultations Réalisées</span><span class="kpi-val" style="color:#176B45;">${as.completed || 0} actes</span></div>
+        </div>
+
+        <h3 style="font-size:12.5px;font-weight:800;color:#176B45;margin:16px 0 6px 0;">2. Synthèse Financière &amp; Trésorerie (Cohérence Stricte MAD)</h3>
+        <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <div class="kpi-box"><span class="kpi-lbl">Total Facturé</span><span class="kpi-val">${fmtMad(fs.invoiced_amount, currency)}</span></div>
+          <div class="kpi-box"><span class="kpi-lbl">Total Encaissé Réel</span><span class="kpi-val" style="color:#176B45;">${fmtMad(fs.revenue_collected, currency)}</span></div>
+          <div class="kpi-box"><span class="kpi-lbl">Soldes Impayés Période</span><span class="kpi-val" style="color:#ba1a1a;">${fmtMad(fs.outstanding_period, currency)}</span></div>
+        </div>
+        <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr); margin-top: 8px;">
+          <div class="kpi-box"><span class="kpi-lbl">Total des Dépenses &amp; Charges</span><span class="kpi-val">${fmtMad(fs.expenses_total, currency)}</span></div>
+          <div class="kpi-box"><span class="kpi-lbl">Trésorerie / Solde Net (Encaissé - Dépenses)</span><span class="kpi-val" style="color:${(fs.net_cashflow || 0) >= 0 ? '#176B45' : '#ba1a1a'};">${fmtMad(fs.net_cashflow, currency)}</span></div>
+        </div>
+
+        ${reasonsRows ? `
+          <h3 style="font-size:12.5px;font-weight:800;color:#176B45;margin:16px 0 6px 0;">3. Motifs de Consultation les Plus Fréquents (Médecine Générale)</h3>
+          <table>
+            <thead><tr><th>Motif Clinique</th><th style="text-align:center;">Volume</th><th style="text-align:center;">Terminés</th><th style="text-align:right;">Part (%)</th></tr></thead>
+            <tbody>${reasonsRows}</tbody>
+          </table>
+        ` : ''}
+
+        <h3 style="font-size:12.5px;font-weight:800;color:#176B45;margin:16px 0 6px 0;">4. Activité par Praticien</h3>
         <table>
-          <thead><tr><th>Praticien</th><th>Spécialité</th><th>RDV</th><th>Terminés</th><th>Annulés / Absents</th><th style="text-align:right;">Honoraires</th></tr></thead>
+          <thead><tr><th>Praticien</th><th>Discipline</th><th>RDV</th><th>Terminés</th><th>Annulés / Absents</th><th style="text-align:right;">Honoraires MAD</th></tr></thead>
           <tbody>${docRows || '<tr><td colspan="6">Aucune consultation sur la période sélectionnée.</td></tr>'}</tbody>
         </table>
 
-        ${branchRows ? `
-          <h3 style="font-size:12.5px;font-weight:800;color:#176B45;margin:16px 0 6px 0;">Comparatif Multi-Branches</h3>
+        ${unpaidRows ? `
+          <h3 style="font-size:12.5px;font-weight:800;color:#ba1a1a;margin:16px 0 6px 0;">5. Factures Impayées de la Période</h3>
           <table>
-            <thead><tr><th>Branche</th><th>Volume RDV</th><th>Présence</th><th style="text-align:right;">Encaissé</th><th style="text-align:right;">Dépenses</th><th style="text-align:right;">Marge Nette</th></tr></thead>
-            <tbody>${branchRows}</tbody>
+            <thead><tr><th>N° Facture</th><th>Patient</th><th>Date</th><th style="text-align:right;">Total</th><th style="text-align:right;">Payé</th><th style="text-align:right;">Reste Dû</th></tr></thead>
+            <tbody>${unpaidRows}</tbody>
           </table>
         ` : ''}
       `;

@@ -211,40 +211,22 @@
             <span id="nav-rdv-badge" class="text-[9.5px] font-extrabold px-1.5 py-0.2 rounded-full bg-white/20 text-white">17</span>
           </a>
           <a href="dashboard.html#patients" data-role-access="admin,docteur" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
-            Patients &amp; DME
+            Patients &amp; Dossiers Médicaux
           </a>
-          <a href="dashboard.html#labs" data-role-access="admin,docteur" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
-            Laboratoire
-            <span id="nav-labs-badge" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-error-container text-error">1 URGENT</span>
+          <a href="dashboard.html#consultations" data-role-access="admin,docteur" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
+            <span>Consultations</span>
+            <span id="nav-consultations-badge" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/80 text-primary">3</span>
           </a>
-          <a href="dashboard.html#finance" data-role-access="admin" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
-            Facturation &amp; CNSS
+          <!-- Facturation & CNSS -->
+          <a href="dashboard.html#finance" data-role-access="admin" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Facturation, Paiements &amp; CNSS/AMO">
+            <span>Facturation &amp; CNSS</span>
           </a>
 
           <!-- Dépenses & Stock -->
-          <div class="relative group" data-role-access="admin">
-            <a href="dashboard.html#stock" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Dépenses & Pharmacie / Stock">
-              <span>Dépenses &amp; Stock</span>
-              <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary group-hover:scale-105 transition-transform">12</span>
-              <span class="material-symbols-outlined text-[13px] text-outline transition-transform duration-200 group-hover:rotate-180">expand_more</span>
-            </a>
-            <div class="absolute top-full left-1/2 -translate-x-1/2 pt-1.5 w-52 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
-              <div class="bg-surface-container-lowest/98 backdrop-blur-xl border border-outline-variant/35 rounded-2xl shadow-xl p-1.5 space-y-0.5 text-left">
-                <a href="dashboard.html#stock" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
-                  <span class="material-symbols-outlined text-[15px] text-primary">inventory_2</span>
-                  <span>Stock Médical</span>
-                </a>
-                <a href="dashboard.html#expenses" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
-                  <span class="material-symbols-outlined text-[15px] text-primary">receipt_long</span>
-                  <span>Dépenses &amp; Charges</span>
-                </a>
-                <a href="dashboard.html#stock" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
-                  <span class="material-symbols-outlined text-[15px] text-primary">description</span>
-                  <span>Pièces &amp; Documents</span>
-                </a>
-              </div>
-            </div>
-          </div>
+          <a href="dashboard.html#stock" data-role-access="admin" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Dépenses, Charges &amp; Stock Pharmacie">
+            <span>Dépenses &amp; Stock</span>
+            <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary group-hover:scale-105 transition-transform">12</span>
+          </a>
 
           <a href="dashboard.html#reports" data-role-access="admin,docteur" class="px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Rapports
@@ -328,40 +310,6 @@
         <button onclick="openDaySheetForAdd(rdvApp.selectedDate)" class="bg-secondary-container hover:bg-primary text-primary hover:text-white rounded-full px-3.5 py-1.5 text-[11.5px] font-bold flex items-center gap-1 shadow-pill transition-all">
           <span class="material-symbols-outlined text-[15px]">add</span>
           <span>Nouveau Rendez-vous</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- ========================================================================= -->
-    <!-- CALENDRIER MÉDICAL — EN TÊTE DE L'AGENDA -->
-    <!-- ========================================================================= -->
-    <div class="bento-card rounded-2xl p-4 shadow-bento mb-3">
-      <div class="flex items-center justify-between mb-3">
-        <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-primary block">Calendrier Médical</span>
-          <h2 id="cal-month-title" class="text-[15px] font-extrabold text-on-surface leading-tight mt-0.5">Novembre 2026</h2>
-        </div>
-        <div class="flex items-center gap-1">
-          <button onclick="changeCalendarMonth(-1)" title="Mois précédent" class="w-7 h-7 rounded-lg bg-surface-container-low hover:bg-secondary-container text-on-surface-variant hover:text-primary flex items-center justify-center">
-            <span class="material-symbols-outlined text-[16px]">chevron_left</span>
-          </button>
-          <button onclick="jumpCalendarToday(false)" class="px-2.5 h-7 rounded-lg bg-secondary-container/80 hover:bg-primary hover:text-white text-primary text-[10.5px] font-bold">Aujourd’hui</button>
-          <button onclick="changeCalendarMonth(1)" title="Mois suivant" class="w-7 h-7 rounded-lg bg-surface-container-low hover:bg-secondary-container text-on-surface-variant hover:text-primary flex items-center justify-center">
-            <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-          </button>
-        </div>
-      </div>
-      <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-outline uppercase mb-1.5">
-        <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
-      </div>
-      <div id="calendar-days-grid" class="grid grid-cols-7 gap-1"></div>
-      <div class="mt-3 pt-2.5 border-t border-surface-container flex items-center justify-between text-[10.5px]">
-        <span class="flex items-center gap-1.5 text-on-surface-variant font-medium">
-          <span class="w-2 h-2 rounded-full bg-brand-soft-green"></span>
-          Cliquez sur un jour pour ouvrir sa <strong>Fiche RDV</strong>
-        </span>
-        <button onclick="openDaySheet(rdvApp.selectedDate)" class="font-extrabold text-primary hover:underline flex items-center gap-0.5">
-          Ouvrir Fiche <span class="material-symbols-outlined text-[13px]">open_in_new</span>
         </button>
       </div>
     </div>
@@ -452,8 +400,44 @@
     <!-- ========================================================================= -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
 
-      <!-- COLONNE GAUCHE : FILTRAGE PAR PRATICIEN -->
-      <div class="lg:col-span-3 space-y-3">
+      <!-- COLONNE GAUCHE : CALENDRIER ET FILTRAGE PAR PRATICIEN -->
+      <div class="lg:col-span-4 space-y-3">
+        <div class="bento-card rounded-2xl p-3 shadow-bento border border-white/80">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-[16px]">calendar_month</span>
+              </span>
+              <div>
+                <h2 id="cal-month-title" class="text-[13px] font-extrabold text-on-surface leading-tight">Novembre 2026</h2>
+                <p id="cal-month-summary" class="text-[8px] font-medium text-outline mt-0.5">Chargement des rendez-vous…</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-0.5 p-0.5 rounded-lg bg-surface-container-low/80 border border-outline-variant/20">
+              <button onclick="changeCalendarMonth(-1)" title="Mois précédent" aria-label="Mois précédent" class="w-6 h-6 rounded-md bg-white hover:bg-secondary-container text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined text-[14px]">chevron_left</span>
+              </button>
+              <button onclick="jumpCalendarToday(false)" class="px-1.5 h-6 rounded-md bg-primary/10 hover:bg-primary hover:text-white text-primary text-[8px] font-bold transition-colors">Aujourd’hui</button>
+              <button onclick="changeCalendarMonth(1)" title="Mois suivant" aria-label="Mois suivant" class="w-6 h-6 rounded-md bg-white hover:bg-secondary-container text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-7 gap-0.5 text-center text-[8px] font-extrabold text-outline uppercase tracking-wide mb-1">
+            <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+          </div>
+          <div id="calendar-days-grid" class="grid grid-cols-7 gap-0.5"></div>
+          <div class="mt-2 pt-2 border-t border-surface-container flex flex-wrap items-center justify-between gap-1 text-[8px]">
+            <span class="flex items-center gap-2 text-on-surface-variant font-medium">
+              <span class="inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Sélection</span>
+              <span class="inline-flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-error"></span>Urgence</span>
+            </span>
+            <button onclick="openDaySheet(rdvApp.selectedDate)" class="px-2 py-1 rounded-full bg-secondary-container/70 hover:bg-primary hover:text-white font-extrabold text-primary flex items-center gap-0.5 transition-colors">
+              Ouvrir la journée <span class="material-symbols-outlined text-[11px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Carte Filtrage par Praticien & Gestion des Médecins -->
         <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
           <div class="flex items-center justify-between gap-2">
@@ -477,7 +461,7 @@
       </div>
 
       <!-- COLONNE DROITE : PLANNING DU JOUR (LISTE & GRILLE HORAIRE) -->
-      <div class="lg:col-span-9 bento-card rounded-2xl p-4 shadow-bento space-y-3">
+      <div class="lg:col-span-8 bento-card rounded-2xl p-4 shadow-bento space-y-3">
 
         <!-- Sélecteur Principal Espace Docteur : Planning des Consultations VS Fiches Patients & Historique Médical (DME) -->
         <div class="flex items-center gap-1.5 p-1 bg-surface-container-low rounded-2xl text-xs font-bold border border-outline-variant/30">
@@ -1128,6 +1112,24 @@
       return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
     }
 
+    function escapeHtmlAttribute(value) {
+      return String(value || '').replace(/[&"'<>]/g, character => ({
+        '&': '&amp;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '<': '&lt;',
+        '>': '&gt;'
+      })[character]);
+    }
+
+    function patientAvatarMarkup(patient, sizeClass, extraClasses = '') {
+      const initialsAvatar = makeInitialsAvatar(`${patient.first || ''} ${patient.last || ''}`);
+      const avatar = escapeHtmlAttribute(patient.avatar || initialsAvatar);
+      const fallback = escapeHtmlAttribute(initialsAvatar);
+      const alt = escapeHtmlAttribute(patient.first || 'Patient');
+      return `<img src="${avatar}" data-fallback="${fallback}" onerror="this.onerror=null;this.src=this.dataset.fallback" alt="${alt}" class="${sizeClass} rounded-full object-cover flex-shrink-0 ring-2 ring-primary/20 ${extraClasses}"/>`;
+    }
+
     const fallbackDoctors = [
       { id: 1, name: 'Dr. Jackson', specialty: 'Médecin Fondateur / Généraliste', room: 'Salle 101', fee_mad: 600, inpe: 'INPE-0412890', phone: '+212 661-102030', avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=120' },
       { id: 2, name: 'Dr. Alimi Jan', specialty: 'Cardiologue Praticien', room: 'Salle 102', fee_mad: 650, inpe: 'INPE-0591124', phone: '+212 661-334455', avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120' },
@@ -1277,6 +1279,11 @@
       const y = rdvApp.calYear;
       const m = rdvApp.calMonth;
       document.getElementById('cal-month-title').textContent = `${moisFr[m]} ${y}`;
+      const monthPrefix = `${y}-${String(m + 1).padStart(2, '0')}`;
+      const monthAppointments = rdvApp.appointments.filter(apt => String(apt.date || '').startsWith(monthPrefix));
+      const urgentCount = monthAppointments.filter(apt => apt.channel === 'Urgence' || apt.priority === 'urgent').length;
+      document.getElementById('cal-month-summary').textContent =
+        `${monthAppointments.length} rendez-vous ce mois · ${urgentCount} urgence${urgentCount > 1 ? 's' : ''}`;
 
       const grid = document.getElementById('calendar-days-grid');
       grid.innerHTML = '';
@@ -1287,36 +1294,42 @@
       const daysInMonth = new Date(y, m + 1, 0).getDate();
 
       for (let i = 0; i < firstMondayOffset; i++) {
-        grid.insertAdjacentHTML('beforeend', `<div class="h-10"></div>`);
+        grid.insertAdjacentHTML('beforeend', `<div class="min-h-[34px]"></div>`);
       }
 
       for (let day = 1; day <= daysInMonth; day++) {
         const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const count = getAppointmentsForDate(iso).length;
+        const appointments = getAppointmentsForDate(iso);
+        const count = appointments.length;
+        const hasUrgency = appointments.some(apt => apt.channel === 'Urgence' || apt.priority === 'urgent');
         const isSelected = iso === rdvApp.selectedDate;
         const isToday = iso === TODAY_ISO;
 
-        let cls = 'text-on-surface hover:bg-secondary-container/70 bg-surface-container-low/45';
+        let cls = 'text-on-surface hover:bg-secondary-container/70 bg-surface-container-low/45 hover:-translate-y-0.5';
         if (isSelected) {
-          cls = 'bg-gradient-to-br from-primary to-primary-container text-white font-extrabold shadow-emeraldGlow';
+          cls = 'bg-gradient-to-br from-primary to-primary-container text-white font-extrabold shadow-emeraldGlow ring-2 ring-primary/15';
         } else if (isToday) {
-          cls = 'bg-secondary-container text-primary font-extrabold ring-1 ring-primary/35';
+          cls = 'bg-secondary-container text-primary font-extrabold ring-2 ring-primary/25';
         } else if (count > 0) {
           cls = 'bg-secondary-container/45 text-on-surface font-bold hover:bg-secondary-container';
         }
 
         const badge = count > 0
-          ? `<span class="text-[8.5px] font-extrabold px-1 rounded-full leading-tight ${isSelected ? 'bg-white/25 text-white' : 'bg-primary/12 text-primary'}">${count} rdv</span>`
-          : `<span class="h-3"></span>`;
-
-        const tip = count > 0 ? `${day} ${moisFr[m]} : ${count} rendez-vous (Cliquer pour gérer)` : `${day} ${moisFr[m]} : Aucun RDV (Cliquer pour ajouter)`;
+          ? `<span class="text-[7px] font-extrabold leading-none ${isSelected ? 'text-white/90' : 'text-primary'}">${count} RDV</span>`
+          : '';
+        const urgencyDot = hasUrgency
+          ? `<span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-error'}"></span>`
+          : '';
+        const label = count > 0
+          ? `${day} ${moisFr[m]} : ${count} rendez-vous${hasUrgency ? ', dont une urgence' : ''}`
+          : `${day} ${moisFr[m]} : Aucun rendez-vous`;
 
         grid.insertAdjacentHTML('beforeend', `
-          <button onclick="onSelectCalendarDay('${iso}', true)"
-                  onmousemove="showTip(event, '${tip.replace(/'/g, "\\'")}')"
-                  onmouseleave="hideTip()"
-                  class="h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 text-[11.5px] transition-all ${cls}">
-            <span>${day}</span>
+          <button type="button" onclick="onSelectCalendarDay('${iso}', true)"
+                  aria-label="${label}" aria-pressed="${isSelected}"
+                  class="relative min-h-[34px] rounded-xl flex items-center justify-center gap-1.5 text-[10px] transition-all duration-150 ${cls}">
+            ${urgencyDot}
+            <span class="w-5 h-5 rounded-full flex items-center justify-center ${isSelected ? 'bg-white/15' : ''}">${day}</span>
             ${badge}
           </button>
         `);
@@ -1581,7 +1594,7 @@
               <div class="px-2.5 py-1.5 rounded-xl bg-white text-center shadow-2xs flex-shrink-0">
                 <span class="block font-mono text-xs font-extrabold text-primary">${apt.time}</span>
               </div>
-              <img src="${pat.avatar}" alt="${pat.first}" class="w-9 h-9 rounded-full object-cover ring-1 ring-primary/20 flex-shrink-0"/>
+              ${patientAvatarMarkup(pat, 'w-9 h-9')}
               <div class="min-w-0 leading-tight">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <span class="text-[12.5px] font-extrabold text-on-surface group-hover:text-primary truncate">${pat.first} ${pat.last}</span>
@@ -1699,7 +1712,7 @@
             <div class="flex items-start justify-between gap-2">
               <div onclick="openDmeDrawer(${pat.id})" class="flex items-center gap-2.5 min-w-0 cursor-pointer group">
                 <span class="px-2 py-1 rounded-lg bg-white font-mono text-[11px] font-extrabold text-primary shadow-2xs">${apt.time}</span>
-                <img src="${pat.avatar}" alt="${pat.first}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-1 ring-primary/20"/>
+                ${patientAvatarMarkup(pat, 'w-8 h-8')}
                 <div class="min-w-0 leading-tight">
                   <span class="block text-xs font-extrabold text-on-surface group-hover:text-primary truncate">${pat.first} ${pat.last}</span>
                   <span class="block text-[10px] text-outline font-mono">#${pat.code} • ${pat.cin}</span>
@@ -2364,15 +2377,13 @@
       }
 
       container.innerHTML = filtered.map(p => {
-        const initialsAv = makeInitialsAvatar(`${p.first} ${p.last}`);
-        const avatarSrc = p.avatar || initialsAv;
         const lastNote = (p.notes && p.notes.length > 0) ? p.notes[p.notes.length - 1] : null;
 
         return `
           <div class="p-3.5 rounded-2xl bg-surface-container-low/85 hover:bg-secondary-container/35 border border-outline-variant/30 hover:border-primary/40 transition-all space-y-2.5">
             <div class="flex items-start justify-between gap-2.5">
               <div class="flex items-center gap-3 min-w-0">
-                <img src="${avatarSrc}" onerror="this.onerror=null;this.src='${initialsAv}'" alt="${p.first}" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20 flex-shrink-0"/>
+                ${patientAvatarMarkup(p, 'w-10 h-10')}
                 <div class="min-w-0 leading-tight">
                   <div class="flex items-center gap-2 flex-wrap">
                     <strong class="text-xs font-extrabold text-on-surface">${p.first} ${p.last}</strong>

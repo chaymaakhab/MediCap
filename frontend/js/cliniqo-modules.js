@@ -12,11 +12,14 @@
   'use strict';
 
   // =========================================================================
-  // VUE FACTURATION, CNSS, DÉPENSES & STOCK
+  // VUE FACTURATION, CNSS, DEVIS & CLÔTURE DE CAISSE
   // =========================================================================
   window.switchFinanceSubTab = function (sub) {
+    const validSubs = ['invoices', 'quotes', 'caisse', 'documents'];
+    if (!validSubs.includes(sub)) sub = 'invoices';
     saas.financeSubTab = sub;
-    ['invoices', 'expenses', 'stock', 'documents', 'quotes', 'caisse'].forEach(s => {
+
+    validSubs.forEach(s => {
       document.getElementById(`fin-sub-${s}`)?.classList.toggle('hidden', s !== sub);
       const btn = document.getElementById(`fin-pill-${s}`);
       if (btn) {
@@ -31,11 +34,9 @@
     if (ctaEl && saas.activeTab === 'finance') {
       const labels = {
         invoices: 'Nouvelle Facture',
-        expenses: 'Nouvelle Dépense',
-        stock: 'Ajouter Produit',
-        documents: 'Nouveau Document',
         quotes: 'Créer un Devis',
-        caisse: 'Clôturer la Caisse'
+        caisse: 'Clôturer la Caisse',
+        documents: 'Nouveau Document'
       };
       ctaEl.textContent = labels[sub] || 'Action';
     }
@@ -44,18 +45,12 @@
   };
 
   window.renderFinanceHub = function () {
-    // Hide stock pill if inventory is disabled for this tenant
-    const stockPill = document.getElementById('fin-pill-stock');
-    if (stockPill) {
-      stockPill.classList.toggle('hidden', !saas.tenant?.enable_inventory);
-    }
-
     // Invoices KPIs
     let collectedSum = 0;
     let remainingSum = 0;
     let cnssSum = 0;
 
-    saas.invoices.forEach(inv => {
+    (saas.invoices || []).forEach(inv => {
       collectedSum += Number(inv.net_paid ?? inv.paid ?? 0);
       remainingSum += Number(inv.remaining ?? 0);
       cnssSum += Number(inv.cnss_est ?? 0);
@@ -68,15 +63,131 @@
     if (remEl) remEl.textContent = fmtMoney(remainingSum);
     if (cnssEl) cnssEl.textContent = fmtMoney(cnssSum);
 
-    // Render only the visible sub-panel (the others are rendered when they become active)
+    // Render only the visible sub-panel
     switch (saas.financeSubTab) {
-      case 'expenses':  renderExpensesSubpanel(); break;
-      case 'stock':     renderStockSubpanel(); break;
-      case 'documents': renderDocumentsSubpanel(); break;
       case 'quotes':    renderQuotesSubpanel(); break;
       case 'caisse':    renderCaisseSubpanel(); break;
+      case 'documents': renderDocumentsSubpanel(); break;
       default:          renderInvoicesTable();
     }
+  };
+
+  // =========================================================================
+  // VUE DÉPENSES, CHARGES D'EXPLOITATION & STOCK PHARMACIE (VUE DÉDIÉE)
+  // =========================================================================
+  window.switchStockSubTab = function (sub) {
+    const validSubs = ['stock', 'expenses', 'suppliers'];
+    if (!validSubs.includes(sub)) sub = 'stock';
+    saas.stockSubTab = sub;
+
+    validSubs.forEach(s => {
+      document.getElementById(`stock-sub-${s}`)?.classList.toggle('hidden', s !== sub);
+      const btn = document.getElementById(`stock-pill-${s}`);
+      if (btn) {
+        btn.className = s === sub
+          ? 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary text-white shadow-2xs transition-all'
+          : 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-surface-container-low text-on-surface-variant hover:text-primary transition-all';
+      }
+    });
+
+    const ctaEl = document.getElementById('primary-cta-label');
+    if (ctaEl && saas.activeTab === 'stock') {
+      const labels = {
+        stock: 'Ajouter Produit',
+        expenses: 'Nouvelle Dépense',
+        suppliers: 'Passer Commande'
+      };
+      ctaEl.textContent = labels[sub] || 'Action';
+    }
+
+    renderStockHub();
+  };
+
+  window.renderStockHub = function () {
+    // 1. Calculs des KPIs Dépenses & Stock
+    let totExpenses = 0;
+    (saas.expenses || []).forEach(e => { totExpenses += Number(e.amount || 0); });
+
+    const inventory = saas.inventory || [];
+    const totalItems = inventory.length;
+    let lowCount = 0;
+    let totalStockValue = 0;
+
+    inventory.forEach(it => {
+      const isLow = it.is_low || (Number(it.quantity || 0) <= Number(it.min_threshold || 10));
+      if (isLow) lowCount++;
+      totalStockValue += Number(it.quantity || 0) * Number(it.unit_cost_mad || 0);
+    });
+
+    const expTotEl = document.getElementById('exp-stat-total');
+    if (expTotEl) expTotEl.textContent = fmtMoney(totExpenses, true);
+
+    const stkTotItemsEl = document.getElementById('stock-stat-total-items');
+    if (stkTotItemsEl) stkTotItemsEl.textContent = String(totalItems);
+
+    const stkLowItemsEl = document.getElementById('stock-stat-low-items');
+    if (stkLowItemsEl) stkLowItemsEl.textContent = String(lowCount);
+
+    const stkLowBadge = document.getElementById('stock-low-badge');
+    if (stkLowBadge) {
+      stkLowBadge.textContent = `${lowCount} alerte${lowCount > 1 ? 's' : ''} rupture`;
+      stkLowBadge.className = lowCount > 0
+        ? 'px-2 py-0.5 rounded-full bg-error-container text-error text-[10px] font-bold'
+        : 'px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold';
+    }
+
+    const stkValEl = document.getElementById('stock-stat-total-value');
+    if (stkValEl) stkValEl.textContent = fmtMoney(totalStockValue, true);
+
+    // Synchronisation des badges d'alerte en barre de navigation
+    const stockBadge = document.getElementById('badge-stock');
+    if (stockBadge) {
+      if (lowCount > 0) {
+        stockBadge.textContent = `${lowCount} ALERTE`;
+        stockBadge.className = 'text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-error-container text-error group-hover:scale-105 transition-transform';
+      } else {
+        stockBadge.textContent = String(totalItems);
+        stockBadge.className = 'text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary group-hover:scale-105 transition-transform';
+      }
+    }
+    const dropStockAlert = document.getElementById('dropdown-stock-alert');
+    if (dropStockAlert) {
+      dropStockAlert.textContent = lowCount > 0 ? `${lowCount} alerte${lowCount > 1 ? 's' : ''}` : `${totalItems} art.`;
+      dropStockAlert.className = lowCount > 0
+        ? 'text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-error-container text-error'
+        : 'text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary';
+    }
+
+    // 2. Rendu du sous-panel actif
+    const curSub = saas.stockSubTab || 'stock';
+    if (curSub === 'expenses') {
+      renderExpensesSubpanel();
+    } else if (curSub === 'suppliers') {
+      renderSuppliersSubpanel();
+    } else {
+      renderStockSubpanel();
+    }
+  };
+
+  window.filterStockTable = function () {
+    renderStockSubpanel();
+  };
+
+  window.filterStockLowOnly = function () {
+    window._stockLowFilterOnly = !window._stockLowFilterOnly;
+    const btn = document.getElementById('stock-filter-low-btn');
+    if (btn) {
+      if (window._stockLowFilterOnly) {
+        btn.classList.add('bg-error-container', 'text-error', 'border-error');
+      } else {
+        btn.classList.remove('bg-error-container', 'text-error', 'border-error');
+      }
+    }
+    renderStockSubpanel();
+  };
+
+  window.filterExpensesTable = function () {
+    renderExpensesSubpanel();
   };
 
   function renderInvoicesTable() {
@@ -217,15 +328,27 @@
     if (!tbody) return;
 
     let tot = 0;
-    saas.expenses.forEach(e => tot += Number(e.amount || 0));
+    (saas.expenses || []).forEach(e => tot += Number(e.amount || 0));
     if (totEl) totEl.textContent = fmtMoney(tot, true);
 
-    if (saas.expenses.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-outline">Aucune dépense enregistrée sur cette sélection.</td></tr>`;
+    const q = (document.getElementById('expense-search-input')?.value || '').toLowerCase().trim();
+    const cat = (document.getElementById('expense-cat-filter')?.value || '').trim();
+
+    const filtered = (saas.expenses || []).filter(e => {
+      if (cat && e.category !== cat) return false;
+      if (q) {
+        const text = `${e.reference || ''} ${e.description || ''} ${e.supplier || ''} ${e.category || ''} ${e.supporting_doc_ref || ''}`.toLowerCase();
+        if (!text.includes(q)) return false;
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-outline">${saas.expenses.length === 0 ? 'Aucune dépense enregistrée sur cette sélection.' : 'Aucune dépense ne correspond aux critères.'}</td></tr>`;
       return;
     }
 
-    tbody.innerHTML = saas.expenses.map(e => `
+    tbody.innerHTML = filtered.map(e => `
       <tr class="hover:bg-surface-container-low/65 transition-colors">
         <td class="py-2.5 pr-2 font-mono text-xs font-bold text-on-surface">${escHtml(e.reference)}</td>
         <td class="py-2.5 px-2">
@@ -278,7 +401,7 @@
       return;
     }
 
-    const lowCnt = saas.inventory.filter(i => i.is_low).length;
+    const lowCnt = (saas.inventory || []).filter(i => i.is_low || (Number(i.quantity || 0) <= Number(i.min_threshold || 10))).length;
     if (lowBadge) {
       lowBadge.textContent = `${lowCnt} alerte${lowCnt > 1 ? 's' : ''} rupture`;
       lowBadge.className = lowCnt > 0
@@ -286,34 +409,120 @@
         : 'px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold';
     }
 
-    if (saas.inventory.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-outline">Aucun article en stock. Cliquez sur "+ Ajouter Produit".</td></tr>`;
+    const q = (document.getElementById('stock-search-input')?.value || '').toLowerCase().trim();
+    const cat = (document.getElementById('stock-cat-filter')?.value || '').trim();
+    const lowOnly = Boolean(window._stockLowFilterOnly);
+
+    const filtered = (saas.inventory || []).filter(it => {
+      const isLow = it.is_low || (Number(it.quantity || 0) <= Number(it.min_threshold || 10));
+      if (lowOnly && !isLow) return false;
+      if (cat && it.category !== cat) return false;
+      if (q) {
+        const text = `${it.sku || ''} ${it.name || ''} ${it.supplier || ''} ${it.category || ''}`.toLowerCase();
+        if (!text.includes(q)) return false;
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-outline">${(saas.inventory || []).length === 0 ? 'Aucun article en stock. Cliquez sur "+ Ajouter Produit".' : 'Aucun article ne correspond aux critères de recherche.'}</td></tr>`;
       return;
     }
 
-    tbody.innerHTML = saas.inventory.map(it => `
-      <tr class="hover:bg-surface-container-low/65 transition-colors ${it.is_low ? 'bg-error-container/15' : ''}">
+    tbody.innerHTML = filtered.map(it => {
+      const isLow = it.is_low || (Number(it.quantity || 0) <= Number(it.min_threshold || 10));
+      return `
+      <tr class="hover:bg-surface-container-low/65 transition-colors ${isLow ? 'bg-error-container/15' : ''}">
         <td class="py-2.5 pr-2 font-mono text-xs font-bold text-primary">${escHtml(it.sku)}</td>
         <td class="py-2.5 px-2">
           <strong class="text-on-surface block">${escHtml(it.name)}</strong>
-          <span class="text-[10px] text-outline">${escHtml(it.supplier || 'Fournisseur')}</span>
+          <span class="text-[10px] text-outline">${escHtml(it.supplier || 'Fournisseur direct')}</span>
         </td>
-        <td class="py-2.5 px-2 text-[11px] text-on-surface-variant">${escHtml(it.category)}</td>
+        <td class="py-2.5 px-2 text-[11px] text-on-surface-variant"><span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface text-[10px] font-semibold">${escHtml(it.category)}</span></td>
         <td class="py-2.5 px-2">
-          <span class="font-extrabold text-xs ${it.is_low ? 'text-error font-mono' : 'text-primary font-mono'}">${it.quantity}</span>
-          <span class="text-[10px] text-outline"> ${escHtml(it.unit)}</span>
-          ${it.is_low ? `<span class="ml-1 text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-error-container text-error">BAS</span>` : ''}
+          <span class="font-extrabold text-xs ${isLow ? 'text-error font-mono' : 'text-primary font-mono'}">${it.quantity}</span>
+          <span class="text-[10px] text-outline"> ${escHtml(it.unit || 'unités')}</span>
+          ${isLow ? `<span class="ml-1 text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-error-container text-error">CRITIQUE</span>` : ''}
         </td>
-        <td class="py-2.5 px-2 text-xs text-outline font-mono">${it.min_threshold} ${escHtml(it.unit)}</td>
+        <td class="py-2.5 px-2 text-xs text-outline font-mono">${it.min_threshold} ${escHtml(it.unit || 'unités')}</td>
         <td class="py-2.5 px-2 font-mono text-xs">${fmtMoney(it.unit_cost_mad, true)}</td>
         <td class="py-2.5 pl-2 text-right space-x-1">
           ${can('stock.write') ? `
-            <button onclick="quickStockMovement(${it.id}, 'in')" class="px-2 py-1 rounded-full bg-secondary-container text-primary text-[10.5px] font-bold hover:bg-primary hover:text-white transition-colors">+ Entrée</button>
-            <button onclick="quickStockMovement(${it.id}, 'out')" class="px-2 py-1 rounded-full bg-surface-container-low hover:bg-error-container text-error text-[10.5px] font-bold transition-colors">- Sortie</button>
+            <button onclick="quickStockMovement(${it.id}, 'in')" class="px-2.5 py-1 rounded-full bg-secondary-container text-primary text-[10.5px] font-bold hover:bg-primary hover:text-white transition-colors shadow-2xs">+ Entrée</button>
+            <button onclick="quickStockMovement(${it.id}, 'out')" class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-error-container text-error text-[10.5px] font-bold transition-colors">- Sortie</button>
           ` : ''}
         </td>
       </tr>
-    `).join('');
+    `}).join('');
+  }
+
+  // --- Sub-panel 3B: Fournisseurs & Commandes ---
+  function renderSuppliersSubpanel() {
+    const grid = document.getElementById('stock-suppliers-grid');
+    if (!grid) return;
+
+    const supplierMap = {};
+    (saas.inventory || []).forEach(it => {
+      const name = (it.supplier || 'Promamec Casablanca').trim();
+      if (!supplierMap[name]) supplierMap[name] = { name: name, items: [], totalSpend: 0, categories: new Set() };
+      supplierMap[name].items.push(it);
+      if (it.category) supplierMap[name].categories.add(it.category);
+    });
+
+    (saas.expenses || []).forEach(e => {
+      const name = (e.supplier || '').trim();
+      if (name) {
+        if (!supplierMap[name]) supplierMap[name] = { name: name, items: [], totalSpend: 0, categories: new Set() };
+        supplierMap[name].totalSpend += Number(e.amount || 0);
+        if (e.category) supplierMap[name].categories.add(e.category);
+      }
+    });
+
+    if (Object.keys(supplierMap).length === 0) {
+      supplierMap['Promamec Maroc'] = { name: 'Promamec Maroc', items: [], totalSpend: 14500, categories: new Set(['Consommables', 'Chirurgie']) };
+      supplierMap['Laprophan'] = { name: 'Laprophan Distribution', items: [], totalSpend: 8200, categories: new Set(['Médicaments']) };
+      supplierMap['Roche Diagnostics Maroc'] = { name: 'Roche Diagnostics Maroc', items: [], totalSpend: 23100, categories: new Set(['Réactifs Bio']) };
+    }
+
+    const suppliers = Object.values(supplierMap);
+    grid.innerHTML = suppliers.map(s => {
+      const catList = Array.from(s.categories).join(', ') || 'Fournitures Médicales';
+      const itemsCount = s.items.length;
+      return `
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between gap-3">
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-secondary-container text-primary flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[18px]">local_shipping</span>
+                </span>
+                <div>
+                  <h4 class="font-extrabold text-sm text-on-surface">${escHtml(s.name)}</h4>
+                  <span class="text-[10px] text-outline">Fournisseur agréé</span>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-surface-container text-outline text-[9.5px] font-bold">${itemsCount} réf.</span>
+            </div>
+            <div class="mt-3 space-y-1 text-xs">
+              <div class="flex justify-between text-outline text-[11px]">
+                <span>Spécialités :</span>
+                <span class="font-semibold text-on-surface truncate ml-2">${escHtml(catList)}</span>
+              </div>
+              <div class="flex justify-between text-outline text-[11px]">
+                <span>Total Engagé :</span>
+                <span class="font-mono font-bold text-primary">${fmtMoney(s.totalSpend || (itemsCount * 280), true)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-surface-container/60">
+            <span class="text-[10px] text-outline">Casablanca, Maroc</span>
+            <button onclick="openModal('stock-modal')" class="px-3 py-1 rounded-full bg-secondary-container text-primary hover:bg-primary hover:text-white text-[11px] font-bold transition-colors">
+              + Réapprovisionner
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   window.submitNewStockItem = async function (ev) {
@@ -631,23 +840,55 @@
   };
 
   // =========================================================================
-  // VUE RAPPORTS ANALYTIQUES COMPLETS (Section 2)
+  // VUE RAPPORTS ANALYTIQUES, FINANCIERS & AUDIT CNDP (Section 2)
   // =========================================================================
+  window.handleReportPeriodChange = function () {
+    const period = document.getElementById('rpt-period-select')?.value || 'month';
+    const df = document.getElementById('rpt-date-from');
+    const dt = document.getElementById('rpt-date-to');
+    const today = new Date();
+    const fmt = d => d.toISOString().split('T')[0];
+
+    if (period === 'day') {
+      if (df) df.value = fmt(today);
+      if (dt) dt.value = fmt(today);
+    } else if (period === 'week') {
+      const cur = new Date();
+      const day = cur.getDay() || 7;
+      const monday = new Date(cur.setDate(cur.getDate() - day + 1));
+      const sunday = new Date(cur.setDate(cur.getDate() + 6));
+      if (df) df.value = fmt(monday);
+      if (dt) dt.value = fmt(sunday);
+    } else if (period === 'month') {
+      const y = today.getFullYear();
+      const m = today.getMonth();
+      if (df) df.value = fmt(new Date(y, m, 1));
+      if (dt) dt.value = fmt(new Date(y, m + 1, 0));
+    } else if (period === 'quarter') {
+      const y = today.getFullYear();
+      const q = Math.floor(today.getMonth() / 3);
+      if (df) df.value = fmt(new Date(y, q * 3, 1));
+      if (dt) dt.value = fmt(new Date(y, q * 3 + 3, 0));
+    } else if (period === 'year') {
+      const y = today.getFullYear();
+      if (df) df.value = `${y}-01-01`;
+      if (dt) dt.value = `${y}-12-31`;
+    }
+    loadReportsSummary();
+  };
+
   window.loadReportsSummary = async function () {
     const period = document.getElementById('rpt-period-select')?.value || 'month';
     const branch = document.getElementById('rpt-branch-select')?.value || saas.branchId || 'all';
     const doctor = document.getElementById('rpt-doctor-select')?.value || 'all';
-    const specialty = document.getElementById('rpt-specialty-select')?.value || 'all';
-    const service = document.getElementById('rpt-service-select')?.value || 'all';
     const dateFrom = document.getElementById('rpt-date-from')?.value || '';
     const dateTo = document.getElementById('rpt-date-to')?.value || '';
 
-    let url = `/reports/summary?period=${encodeURIComponent(period)}&branch_id=${encodeURIComponent(branch)}&doctor=${encodeURIComponent(doctor)}&specialty=${encodeURIComponent(specialty)}&service=${encodeURIComponent(service)}`;
+    let url = `/reports/summary?period=${encodeURIComponent(period)}&branch_id=${encodeURIComponent(branch)}&doctor=${encodeURIComponent(doctor)}`;
     if (period === 'custom' && dateFrom && dateTo) {
       url += `&date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
     }
 
-    // Show the last report instantly, then refresh it in the background
     if (saas.lastReport && saas.lastReportUrl === url) renderReportsView(saas.lastReport);
 
     try {
@@ -660,8 +901,8 @@
 
   window.populateReportFilterDropdowns = function () {
     const docSel = document.getElementById('rpt-doctor-select');
-    const specSel = document.getElementById('rpt-specialty-select');
     const brSel = document.getElementById('rpt-branch-select');
+    const brCol = document.getElementById('rpt-branch-col');
 
     if (docSel) {
       const cur = docSel.value;
@@ -669,37 +910,54 @@
         saas.doctors.map(d => `<option value="${escHtml(d.name)}" ${d.name === cur ? 'selected' : ''}>${escHtml(d.name)}</option>`).join('');
     }
 
-    if (specSel) {
-      const specs = Array.from(new Set(saas.doctors.map(d => d.specialty).filter(Boolean)));
-      const cur = specSel.value;
-      specSel.innerHTML = `<option value="all">Toutes spécialités</option>` +
-        specs.map(s => `<option value="${escHtml(s)}" ${s === cur ? 'selected' : ''}>${escHtml(s)}</option>`).join('');
+    // Afficher le sélecteur de branche uniquement si multi-sites !
+    if (brCol && brSel) {
+      if (saas.branches && saas.branches.length > 1) {
+        brCol.classList.remove('hidden');
+        const cur = brSel.value || saas.branchId;
+        brSel.innerHTML = `<option value="all">Tous les sites / branches</option>` +
+          saas.branches.map(b => `<option value="${b.id}" ${String(b.id) === String(cur) ? 'selected' : ''}>${escHtml(b.name)}</option>`).join('');
+      } else {
+        brCol.classList.add('hidden');
+      }
     }
+  };
 
-    if (brSel) {
-      const cur = brSel.value || saas.branchId;
-      brSel.innerHTML = `<option value="all">Toutes les branches</option>` +
-        saas.branches.map(b => `<option value="${b.id}" ${String(b.id) === String(cur) ? 'selected' : ''}>${escHtml(b.name)}</option>`).join('');
-    }
+  window.switchReportSubTable = function (tblKey) {
+    const tables = ['apts', 'patients', 'unpaid', 'expenses', 'payments', 'audit'];
+    tables.forEach(k => {
+      document.getElementById(`rpt-sub-tbl-${k}`)?.classList.toggle('hidden', k !== tblKey);
+      const btn = document.getElementById(`rpt-tab-btn-${k}`);
+      if (btn) {
+        btn.className = k === tblKey
+          ? 'px-3 py-1 rounded-full font-bold bg-primary text-white shadow-2xs'
+          : 'px-3 py-1 rounded-full font-semibold text-on-surface-variant hover:text-primary';
+      }
+    });
   };
 
   function renderReportsView(rpt) {
     if (!rpt) return;
     const as = rpt.appointments_summary || {};
     const fs = rpt.financial_summary || {};
+    const ps = rpt.patients_summary || {};
 
-    // 8 Indicator cards
+    // 12 INDICATEURS CLÉS KPIS
     const setVal = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-    setVal('rpt-kpi-apts', `${as.total || 0} RDV (${as.completed || 0} vus)`);
-    setVal('rpt-kpi-cancel-rate', `${as.cancellation_rate_pct || 0}%`);
-    setVal('rpt-kpi-noshow-rate', `${as.no_show_rate_pct || 0}%`);
-    setVal('rpt-kpi-attendance-rate', `${as.attendance_rate_pct || 0}%`);
+    setVal('rpt-kpi-apts', `${as.total || 0} RDV`);
+    setVal('rpt-kpi-completed', `${as.completed || 0} terminés`);
+    setVal('rpt-kpi-cancelled', `${as.cancelled || 0} (${as.cancellation_rate_pct || 0}%)`);
+    setVal('rpt-kpi-noshow', `${as.no_show || 0} (${as.no_show_rate_pct || 0}%)`);
+    setVal('rpt-kpi-attendance', `${as.attendance_rate_pct || 0}%`);
+    setVal('rpt-kpi-new-patients', `${ps.new_patients_count || 0} créés`);
+    setVal('rpt-kpi-consultations', `${as.completed || 0} faites`);
     setVal('rpt-kpi-invoiced', fmtMoney(fs.invoiced_amount, true));
     setVal('rpt-kpi-collected', fmtMoney(fs.revenue_collected, true));
-    setVal('rpt-kpi-outstanding', fmtMoney(fs.outstanding_global, true));
+    setVal('rpt-kpi-outstanding', fmtMoney(fs.outstanding_period, true));
+    setVal('rpt-kpi-expenses', fmtMoney(fs.expenses_total, true));
     setVal('rpt-kpi-net', fmtMoney(fs.net_cashflow, true));
 
-    // Empty state notice
+    // État vide
     const emptyNotice = document.getElementById('rpt-empty-state');
     const contentWrap = document.getElementById('rpt-content-panels');
     if (emptyNotice && contentWrap) {
@@ -708,19 +966,22 @@
       contentWrap.classList.toggle('hidden', !hasData);
     }
 
-    // Volume Timeline Bars
+    // 1. ACTIVITÉ DU CABINET : FRÉQUENTATION PAR JOUR
     const timelineEl = document.getElementById('rpt-timeline-bars');
     if (timelineEl) {
       const tl = rpt.volume_timeline || [];
       if (tl.length === 0) {
-        timelineEl.innerHTML = `<div class="text-xs text-outline py-6 text-center">Aucun rendez-vous sur cette période.</div>`;
+        timelineEl.innerHTML = `<div class="text-xs text-outline py-8 text-center w-full">Aucun rendez-vous sur cette période.</div>`;
       } else {
         const maxV = Math.max(1, ...tl.map(t => t.total));
         timelineEl.innerHTML = tl.map(t => {
-          const h = Math.max(12, Math.round((t.total / maxV) * 88));
+          const hTotal = Math.max(12, Math.round((t.total / maxV) * 88));
+          const hComp = Math.max(6, Math.round(((t.completed || 0) / maxV) * 88));
           return `
-            <div class="flex flex-col items-center justify-end h-full flex-1 group" title="${escHtml(t.date)} : ${t.total} RDV (${t.completed} vus, ${t.cancelled} annulés, ${t.no_show} no-show)">
-              <div class="w-full max-w-[28px] rounded-t-lg bg-primary group-hover:bg-primary-hover transition-all" style="height:${h}%"></div>
+            <div class="flex flex-col items-center justify-end h-full flex-1 group" title="${escHtml(t.date)} : ${t.total} RDV (${t.completed} terminés, ${t.cancelled} annulés, ${t.no_show} no-show)">
+              <div class="w-full max-w-[28px] rounded-t-lg bg-surface-container relative overflow-hidden group-hover:bg-primary-light/40 transition-all flex items-end justify-center" style="height:${hTotal}%">
+                <div class="w-full bg-primary rounded-t-lg transition-all" style="height:${hComp}%"></div>
+              </div>
               <span class="text-[9px] text-outline mt-1 font-mono">${escHtml(String(t.date).slice(8))}</span>
             </div>
           `;
@@ -728,41 +989,56 @@
       }
     }
 
-    // Doctor Activity Table
-    const docTbody = document.getElementById('rpt-doctors-tbody');
-    if (docTbody) {
-      const dList = rpt.doctor_activity || [];
-      docTbody.innerHTML = dList.length === 0
-        ? `<tr><td colspan="6" class="py-4 text-center text-outline">Aucune activité enregistrée pour ces filtres.</td></tr>`
-        : dList.map(d => `
-          <tr class="hover:bg-surface-container-low/65 transition-colors">
-            <td class="py-2 pr-2 font-bold text-on-surface">${escHtml(d.doctor)}</td>
-            <td class="py-2 px-2 text-[11px] text-on-surface-variant">${escHtml(d.specialty)}</td>
-            <td class="py-2 px-2 font-mono">${d.total_appointments}</td>
-            <td class="py-2 px-2 font-mono font-bold text-primary">${d.consultations_completed}</td>
-            <td class="py-2 px-2 text-[11px] text-outline">${d.cancelled} / ${d.no_show}</td>
-            <td class="py-2 pl-2 text-right font-mono font-bold">${fmtMoney(d.scheduled_fees_mad, true)}</td>
-          </tr>
+    // 2. MOTIFS DE CONSULTATION LES PLUS FRÉQUENTS (Médecine Générale)
+    const reasonsBars = document.getElementById('rpt-top-reasons-bars');
+    if (reasonsBars) {
+      const topR = rpt.top_reasons || [];
+      if (topR.length === 0) {
+        reasonsBars.innerHTML = `<div class="text-xs text-outline py-4 text-center">Aucun motif enregistré sur cette période.</div>`;
+      } else {
+        reasonsBars.innerHTML = topR.slice(0, 5).map(r => `
+          <div class="space-y-1">
+            <div class="flex justify-between text-[11px] font-bold">
+              <span class="text-on-surface truncate pr-2">${escHtml(r.reason)}</span>
+              <span class="text-primary font-mono shrink-0">${r.count} RDV (${r.share_pct}%)</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+              <div class="h-full bg-primary rounded-full transition-all" style="width:${Math.max(6, r.share_pct)}%"></div>
+            </div>
+          </div>
         `).join('');
+      }
     }
 
-    // Top Specialties & Services
-    const specBars = document.getElementById('rpt-top-specs-bars');
-    if (specBars) {
-      specBars.innerHTML = (rpt.top_specialties || []).slice(0, 5).map(s => `
-        <div class="space-y-1">
-          <div class="flex justify-between text-[11px] font-bold">
-            <span class="text-on-surface">${escHtml(s.specialty)}</span>
-            <span class="text-primary font-mono">${s.count} RDV (${s.share_pct}%)</span>
-          </div>
-          <div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
-            <div class="h-full bg-primary rounded-full" style="width:${Math.max(4, s.share_pct)}%"></div>
-          </div>
-        </div>
-      `).join('') || '<div class="text-xs text-outline py-2">Aucune donnée.</div>';
-    }
+    // 3. ANALYSE FINANCIÈRE & COHÉRENCE
+    const invAmt = Number(fs.invoiced_amount || 0);
+    const colAmt = Number(fs.revenue_collected || 0);
+    const outAmt = Number(fs.outstanding_period || 0);
+    const expAmt = Number(fs.expenses_total || 0);
+    const netMargin = Number(fs.net_cashflow || 0);
 
-    // Payment Methods Breakdown
+    const recRate = invAmt > 0 ? Math.min(100, Math.round((colAmt / invAmt) * 100)) : 100;
+    const expRatio = colAmt > 0 ? Math.min(100, Math.round((expAmt / colAmt) * 100)) : 0;
+
+    setVal('rpt-fin-recovery-rate', `${recRate}%`);
+    setVal('rpt-fin-expense-ratio', `${expRatio}%`);
+    setVal('rpt-fin-net-margin', fmtMoney(netMargin, true));
+
+    const recBar = document.getElementById('rpt-fin-recovery-bar');
+    if (recBar) recBar.style.width = `${recRate}%`;
+    const expBar = document.getElementById('rpt-fin-expense-bar');
+    if (expBar) expBar.style.width = `${expRatio}%`;
+
+    setVal('rpt-fin-inv-val', fmtMoney(invAmt, true));
+    setVal('rpt-fin-col-val', fmtMoney(colAmt, true));
+    setVal('rpt-fin-out-val', fmtMoney(outAmt, true));
+
+    const colBar = document.getElementById('rpt-fin-col-bar');
+    if (colBar) colBar.style.width = `${invAmt > 0 ? Math.min(100, Math.round((colAmt / invAmt) * 100)) : 0}%`;
+    const outBar = document.getElementById('rpt-fin-out-bar');
+    if (outBar) outBar.style.width = `${invAmt > 0 ? Math.min(100, Math.round((outAmt / invAmt) * 100)) : 0}%`;
+
+    // Modes de Règlement
     const payMethEl = document.getElementById('rpt-payment-methods-list');
     if (payMethEl) {
       payMethEl.innerHTML = (fs.payment_methods || []).map(m => `
@@ -773,10 +1049,135 @@
           </div>
           <strong class="font-mono text-primary">${fmtMoney(m.amount, true)}</strong>
         </div>
-      `).join('') || '<div class="text-xs text-outline py-2">Aucun encaissement sur la période.</div>';
+      `).join('') || '<div class="text-xs text-outline py-2 text-center">Aucun encaissement sur la période.</div>';
     }
 
-    // Branch Comparison Table
+    // Dépenses par Catégorie
+    const expCatEl = document.getElementById('rpt-expenses-categories-list');
+    if (expCatEl) {
+      const expCats = fs.expenses_by_category || [];
+      expCatEl.innerHTML = expCats.map(c => {
+        const share = expAmt > 0 ? Math.round((c.amount / expAmt) * 100) : 0;
+        return `
+          <div class="flex items-center justify-between p-2 rounded-xl bg-surface-container-low text-xs">
+            <div>
+              <strong class="text-on-surface block font-semibold">${escHtml(c.category)}</strong>
+              <span class="text-[10px] text-outline">${share}% des dépenses</span>
+            </div>
+            <strong class="font-mono text-on-surface">${fmtMoney(c.amount, true)}</strong>
+          </div>
+        `;
+      }).join('') || '<div class="text-xs text-outline py-2 text-center">Aucune dépense sur la période.</div>';
+    }
+
+    // TABLEAUX DÉTAILLÉS (Section 2.E)
+    // Tbl 1 : RDV par Statut
+    const aptsTbody = document.getElementById('rpt-tbl-apts-tbody');
+    if (aptsTbody) {
+      const aptStatuses = rpt.appointments_by_status || [];
+      aptsTbody.innerHTML = aptStatuses.map(s => `
+        <tr class="hover:bg-surface-container-low/65 transition-colors">
+          <td class="py-2 pr-2 font-bold text-on-surface">${escHtml(s.label)}</td>
+          <td class="py-2 px-2 text-outline text-[11px]">${escHtml(s.status)}</td>
+          <td class="py-2 px-2 font-mono font-bold">${s.count}</td>
+          <td class="py-2 pl-2 text-right font-mono font-bold text-primary">${s.share_pct}%</td>
+        </tr>
+      `).join('');
+    }
+
+    // Tbl 2 : Patients les plus actifs
+    const patTbody = document.getElementById('rpt-tbl-patients-tbody');
+    if (patTbody) {
+      const topP = rpt.top_patients || [];
+      patTbody.innerHTML = topP.length === 0
+        ? `<tr><td colspan="7" class="py-4 text-center text-outline">Aucun patient actif sur cette période.</td></tr>`
+        : topP.map(p => `
+          <tr class="hover:bg-surface-container-low/65 transition-colors">
+            <td class="py-2 pr-2 font-bold text-on-surface">${escHtml(p.patient_name)}</td>
+            <td class="py-2 px-2 text-[11px] text-outline">${escHtml(p.cin || '—')}</td>
+            <td class="py-2 px-2 text-[11px]">${escHtml(p.phone || '—')}</td>
+            <td class="py-2 px-2 text-[11px]">${escHtml(p.coverage || 'CNSS')}</td>
+            <td class="py-2 px-2 font-mono">${p.appointments_total}</td>
+            <td class="py-2 px-2 font-mono font-bold text-primary">${p.consultations_completed}</td>
+            <td class="py-2 pl-2 text-right font-mono font-bold">${fmtMoney(p.fees_total_mad, true)}</td>
+          </tr>
+        `).join('');
+    }
+
+    // Tbl 3 : Factures impayées
+    const unpTbody = document.getElementById('rpt-tbl-unpaid-tbody');
+    if (unpTbody) {
+      const unp = rpt.unpaid_invoices || [];
+      unpTbody.innerHTML = unp.length === 0
+        ? `<tr><td colspan="7" class="py-4 text-center text-primary font-bold">Toutes les factures de la période sont intégralement réglées.</td></tr>`
+        : unp.map(u => `
+          <tr class="hover:bg-surface-container-low/65 transition-colors">
+            <td class="py-2 pr-2 font-mono font-bold text-primary">${escHtml(u.num)}</td>
+            <td class="py-2 px-2 font-semibold text-on-surface">${escHtml(u.patient_name)}</td>
+            <td class="py-2 px-2 text-[11px] text-outline">${escHtml(u.doctor_name || 'Dr. Jackson')}</td>
+            <td class="py-2 px-2 text-[11px] font-mono">${escHtml(u.issued_date)}</td>
+            <td class="py-2 px-2 font-mono">${fmtMoney(u.total, true)}</td>
+            <td class="py-2 px-2 font-mono text-primary font-bold">${fmtMoney(u.paid, true)}</td>
+            <td class="py-2 pl-2 text-right font-mono font-extrabold text-error">${fmtMoney(u.remaining, true)}</td>
+          </tr>
+        `).join('');
+    }
+
+    // Tbl 4 : Dépenses par catégorie
+    const expTbody = document.getElementById('rpt-tbl-expenses-tbody');
+    if (expTbody) {
+      const expCats = fs.expenses_by_category || [];
+      expTbody.innerHTML = expCats.length === 0
+        ? `<tr><td colspan="3" class="py-4 text-center text-outline">Aucune charge enregistrée sur cette période.</td></tr>`
+        : expCats.map(c => {
+          const share = expAmt > 0 ? ((c.amount / expAmt) * 100).toFixed(1) : 0;
+          return `
+            <tr class="hover:bg-surface-container-low/65 transition-colors">
+              <td class="py-2 pr-2 font-bold text-on-surface">${escHtml(c.category)}</td>
+              <td class="py-2 px-2 font-mono font-bold">${fmtMoney(c.amount, true)}</td>
+              <td class="py-2 pl-2 text-right font-mono font-bold text-primary">${share}%</td>
+            </tr>
+          `;
+        }).join('');
+    }
+
+    // Tbl 5 : Historique des encaissements
+    const payTbody = document.getElementById('rpt-tbl-payments-tbody');
+    if (payTbody) {
+      const payHist = rpt.payments_history || [];
+      payTbody.innerHTML = payHist.length === 0
+        ? `<tr><td colspan="6" class="py-4 text-center text-outline">Aucun encaissement sur cette période.</td></tr>`
+        : payHist.map(py => `
+          <tr class="hover:bg-surface-container-low/65 transition-colors">
+            <td class="py-2 pr-2 font-mono font-bold text-primary">${escHtml(py.receipt_num || `#REC-${py.id}`)}</td>
+            <td class="py-2 px-2 font-mono text-[11px]">${escHtml(py.paid_date)} ${escHtml(py.paid_time || '')}</td>
+            <td class="py-2 px-2 font-mono text-[11px]">Facture #${py.invoice_id}</td>
+            <td class="py-2 px-2 text-on-surface font-medium">${escHtml(py.method)}</td>
+            <td class="py-2 px-2 text-[11px] text-outline">${escHtml(py.recorded_by || 'Caisse Cabinet')}</td>
+            <td class="py-2 pl-2 text-right font-mono font-extrabold text-primary">${fmtMoney(py.amount, true)}</td>
+          </tr>
+        `).join('');
+    }
+
+    // Tbl 6 : Journal d'audit CNDP
+    const auditEl = document.getElementById('audit-logs-list');
+    if (auditEl) {
+      auditEl.innerHTML = saas.auditLogs.map(lg => `
+        <div class="p-2.5 rounded-xl bg-surface-container-low/80 flex items-start justify-between gap-2 text-xs">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.2 rounded bg-secondary-container text-primary text-[9.5px] font-bold font-mono">${escHtml(lg.action)}</span>
+              <strong class="text-on-surface font-semibold">${escHtml(lg.actor)}</strong>
+              <span class="text-[10px] text-outline">(${escHtml(lg.role)})</span>
+            </div>
+            <p class="text-[11px] text-on-surface-variant mt-0.5">${escHtml(lg.details)}</p>
+          </div>
+          <span class="text-[10px] font-mono text-outline shrink-0">${escHtml(lg.time)}</span>
+        </div>
+      `).join('') || '<div class="text-xs text-outline py-4 text-center">Aucun journal d’audit enregistré.</div>';
+    }
+
+    // Comparatif multi-branches si multi-sites
     const brCard = document.getElementById('rpt-branch-comparison-card');
     const brTbody = document.getElementById('rpt-branches-tbody');
     if (brCard && brTbody) {
@@ -797,41 +1198,20 @@
         brCard.classList.add('hidden');
       }
     }
-
-    // Audit logs panel
-    const auditEl = document.getElementById('audit-logs-list');
-    if (auditEl) {
-      auditEl.innerHTML = saas.auditLogs.map(lg => `
-        <div class="p-2.5 rounded-xl bg-surface-container-low/80 flex items-start justify-between gap-2 text-xs">
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="px-1.5 py-0.2 rounded bg-secondary-container text-primary text-[9.5px] font-bold font-mono">${escHtml(lg.action)}</span>
-              <strong class="text-on-surface font-semibold">${escHtml(lg.actor)}</strong>
-              <span class="text-[10px] text-outline">(${escHtml(lg.role)})</span>
-            </div>
-            <p class="text-[11px] text-on-surface-variant mt-0.5">${escHtml(lg.details)}</p>
-          </div>
-          <span class="text-[10px] font-mono text-outline shrink-0">${escHtml(lg.time)}</span>
-        </div>
-      `).join('') || '<div class="text-xs text-outline py-4 text-center">Aucun journal d’audit enregistré.</div>';
-    }
   }
 
   window.exportReportsCsvFile = function () {
     const period = document.getElementById('rpt-period-select')?.value || 'month';
     const branch = document.getElementById('rpt-branch-select')?.value || saas.branchId || 'all';
     const doctor = document.getElementById('rpt-doctor-select')?.value || 'all';
-    const specialty = document.getElementById('rpt-specialty-select')?.value || 'all';
-    const service = document.getElementById('rpt-service-select')?.value || 'all';
     const dateFrom = document.getElementById('rpt-date-from')?.value || '';
     const dateTo = document.getElementById('rpt-date-to')?.value || '';
 
-    let url = `${API_BASE}/reports/export-csv?period=${encodeURIComponent(period)}&branch_id=${encodeURIComponent(branch)}&doctor=${encodeURIComponent(doctor)}&specialty=${encodeURIComponent(specialty)}&service=${encodeURIComponent(service)}`;
+    let url = `${API_BASE}/reports/export-csv?period=${encodeURIComponent(period)}&branch_id=${encodeURIComponent(branch)}&doctor=${encodeURIComponent(doctor)}`;
     if (period === 'custom' && dateFrom && dateTo) {
       url += `&date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
     }
 
-    // Stream download with auth token in URL/headers
     window.open(`${url}&auth_token=${encodeURIComponent(saas.token)}`, '_blank');
     showToast('Export CSV officiel généré');
   };

@@ -252,44 +252,23 @@
             <span id="badge-rdv-nav" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/75 text-primary">17</span>
           </a>
           <button id="tab-patients" data-role-access="admin,docteur" onclick="switchTab('patients')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
-            Patients &amp; DME
+            <span>Patients &amp; Dossiers Médicaux</span>
             <span id="badge-patients" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary">5</span>
           </button>
-          <button id="tab-labs" data-role-access="admin,docteur" onclick="switchTab('labs')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1">
-            Laboratoire
-            <span id="badge-labs" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-error-container text-error">1 URGENT</span>
+          <button id="tab-consultations" data-role-access="admin,docteur" onclick="switchTab('consultations')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="File d’attente et consultations du cabinet">
+            <span>Consultations</span>
+            <span id="badge-consultations-nav" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/75 text-primary">3</span>
           </button>
-          <button id="tab-finance" data-role-access="admin" onclick="switchTab('finance')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
-            Facturation &amp; CNSS
+          <!-- Facturation & CNSS -->
+          <button id="tab-finance" data-role-access="admin" onclick="switchTab('finance')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Facturation, Paiements &amp; CNSS/AMO">
+            <span>Facturation &amp; CNSS</span>
           </button>
 
-          <!-- Dépenses & Stock avec badge dynamique et menu rapide UX -->
-          <div class="relative group" data-role-access="admin">
-            <button id="tab-stock" onclick="switchTab('stock')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Dépenses & Pharmacie / Stock">
-              <span>Dépenses &amp; Stock</span>
-              <span id="badge-stock" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary group-hover:scale-105 transition-transform">12</span>
-              <span class="material-symbols-outlined text-[13px] text-outline transition-transform duration-200 group-hover:rotate-180">expand_more</span>
-            </button>
-            <div class="absolute top-full left-1/2 -translate-x-1/2 pt-1.5 w-52 opacity-0 translate-y-1 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
-              <div class="bg-surface-container-lowest border border-outline-variant/35 rounded-2xl shadow-xl p-1.5 space-y-0.5 text-left">
-                <button onclick="switchTab('stock','stock');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
-                  <span class="material-symbols-outlined text-[15px] text-primary">inventory_2</span>
-                  <div class="flex-1 flex items-center justify-between">
-                    <span>Stock Médical</span>
-                    <span id="dropdown-stock-alert" class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container text-primary">12 art.</span>
-                  </div>
-                </button>
-                <button onclick="switchTab('stock','expenses');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
-                  <span class="material-symbols-outlined text-[15px] text-primary">receipt_long</span>
-                  <span>Dépenses &amp; Charges</span>
-                </button>
-                <button onclick="switchTab('stock','documents');" class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-surface-container-low text-[11px] font-semibold text-on-surface hover:text-primary transition-colors">
-                  <span class="material-symbols-outlined text-[15px] text-primary">description</span>
-                  <span>Pièces &amp; Documents</span>
-                </button>
-              </div>
-            </div>
-          </div>
+          <!-- Dépenses & Stock -->
+          <button id="tab-stock" data-role-access="admin" onclick="switchTab('stock')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all flex items-center gap-1" title="Dépenses, Charges &amp; Stock Pharmacie">
+            <span>Dépenses &amp; Stock</span>
+            <span id="badge-stock" class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full bg-secondary-container/70 text-primary group-hover:scale-105 transition-transform">12</span>
+          </button>
 
           <button id="tab-reports" data-role-access="admin,docteur" onclick="switchTab('reports')" class="saas-tab px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold text-on-surface-variant hover:text-primary transition-all">
             Rapports
@@ -425,17 +404,119 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- VUE 1 : TABLEAU DE BORD (BENTO MÉDICAL COMPACT EN FRANÇAIS) -->
+    <!-- VUE 1 : TABLEAU DE BORD (BENTO MÉDECINE GÉNÉRALE - ACTIVITÉ QUOTIDIENNE) -->
     <!-- ========================================================================= -->
     <section id="view-overview" class="saas-view space-y-3">
 
-      <!-- Occupation des créneaux et diagnostics -->
+      <!-- LIGNE 1 : LES 8 INDICATEURS CLÉS DU JOUR DU CABINET -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+        <!-- RDV du jour -->
+        <div class="bento-card rounded-2xl p-3 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline">
+            <span class="text-[10px] font-bold uppercase tracking-wider">RDV du Jour</span>
+            <span class="material-symbols-outlined text-[16px] text-primary">calendar_today</span>
+          </div>
+          <div class="mt-2">
+            <span id="ov-kpi-apts-today" class="text-xl font-extrabold text-on-surface">0</span>
+            <span class="text-[9.5px] text-outline block mt-0.5">programmés</span>
+          </div>
+        </div>
+
+        <!-- Patients en attente -->
+        <div class="bento-card rounded-2xl p-3 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline">
+            <span class="text-[10px] font-bold uppercase tracking-wider">En Attente</span>
+            <span class="material-symbols-outlined text-[16px] text-amber-600">hourglass_top</span>
+          </div>
+          <div class="mt-2">
+            <span id="ov-kpi-waiting" class="text-xl font-extrabold text-amber-700">0</span>
+            <span class="text-[9.5px] text-outline block mt-0.5">en salle d'attente</span>
+          </div>
+        </div>
+
+        <!-- Consultations terminées -->
+        <div class="bento-card rounded-2xl p-3 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Consultations</span>
+            <span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+          </div>
+          <div class="mt-2">
+            <span id="ov-kpi-completed" class="text-xl font-extrabold text-primary">0</span>
+            <span class="text-[9.5px] text-outline block mt-0.5">terminées ce jour</span>
+          </div>
+        </div>
+
+        <!-- Nouveaux patients -->
+        <div class="bento-card rounded-2xl p-3 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Nouveaux</span>
+            <span class="material-symbols-outlined text-[16px] text-brand-soft-green">person_add</span>
+          </div>
+          <div class="mt-2">
+            <span id="ov-kpi-new-patients" class="text-xl font-extrabold text-on-surface">0</span>
+            <span class="text-[9.5px] text-outline block mt-0.5">dossiers créés</span>
+          </div>
+        </div>
+
+        <!-- Recettes encaissées aujourd'hui -->
+        <div class="bento-card rounded-2xl p-3 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Encaissé Jour</span>
+            <span class="material-symbols-outlined text-[16px] text-primary">payments</span>
+          </div>
+          <div class="mt-2">
+            <span id="ov-kpi-collected-today" class="text-lg font-extrabold text-primary truncate block">0 MAD</span>
+            <span class="text-[9.5px] text-outline block mt-0.5">recettes nettes</span>
+          </div>
+        </div>
+
+        <!-- Factures impayées -->
+        <div class="bento-card rounded-2xl p-3 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Impayés</span>
+            <span class="material-symbols-outlined text-[16px] text-error">receipt_long</span>
+          </div>
+          <div class="mt-2">
+            <span id="ov-kpi-unpaid-today" class="text-lg font-extrabold text-error truncate block">0 MAD</span>
+            <span class="text-[9.5px] text-outline block mt-0.5">reste à recouvrer</span>
+          </div>
+        </div>
+
+        <!-- Dépenses récentes -->
+        <div class="bento-card rounded-2xl p-3 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Dépenses</span>
+            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">shopping_cart</span>
+          </div>
+          <div class="mt-2">
+            <span id="ov-kpi-expenses-recent" class="text-lg font-extrabold text-on-surface truncate block">0 MAD</span>
+            <span class="text-[9.5px] text-outline block mt-0.5">charges récentes</span>
+          </div>
+        </div>
+
+        <!-- Alertes de stock -->
+        <div class="bento-card rounded-2xl p-3 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline">
+            <span class="text-[10px] font-bold uppercase tracking-wider">Stock Critique</span>
+            <span class="material-symbols-outlined text-[16px] text-amber-600">inventory_2</span>
+          </div>
+          <div class="mt-2">
+            <span id="ov-kpi-stock-alerts" class="text-xl font-extrabold text-amber-700">0</span>
+            <span class="text-[9.5px] text-outline block mt-0.5">articles sous seuil</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIGNE 2 : ACTIVITÉ DU PLANNING & MOTIFS DE CONSULTATION MÉDECINE GÉNÉRALE -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
 
-        <!-- COL 1-7 : Occupation des Créneaux & Salles de Consultation (Section 4E) -->
+        <!-- COL 1-7 : Activité & Fréquentation de la Semaine -->
         <div class="lg:col-span-7 bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between">
           <div class="flex items-center justify-between gap-2 mb-2">
-            <h2 id="utilization-card-title" class="text-[13.5px] font-bold text-on-surface">Occupation des Créneaux &amp; Salles de Consultation</h2>
+            <div>
+              <h2 id="utilization-card-title" class="text-[13.5px] font-bold text-on-surface">Fréquentation &amp; Créneaux de Consultation</h2>
+              <p class="text-[10px] text-outline">Volume quotidien des rendez-vous et consultations réalisées.</p>
+            </div>
             <button onclick="cycleBedTrendPeriod()" class="px-2.5 py-0.5 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-[10.5px] font-semibold text-on-surface-variant flex items-center gap-0.5 transition-colors">
               <span id="bed-period-label">6 derniers jours</span>
               <span class="material-symbols-outlined text-[13px]">expand_more</span>
@@ -448,7 +529,7 @@
             </div>
 
             <div class="flex-1 relative">
-              <div id="utilization-axis-subtitle" class="text-[10px] font-semibold text-outline mb-1">Taux dutilisation du planning médical &amp; présence effective (%)</div>
+              <div id="utilization-axis-subtitle" class="text-[10px] font-semibold text-outline mb-1">Taux d’utilisation du planning médical &amp; présence effective (%)</div>
 
               <div class="absolute inset-x-0 top-5 bottom-5 flex flex-col justify-between pointer-events-none">
                 <div class="border-b border-surface-container"></div>
@@ -458,7 +539,7 @@
                 <div></div>
               </div>
 
-              <!-- Carte flottante de répartition réelle -->
+              <!-- Carte flottante de synthèse du jour -->
               <div id="bed-floating-card" class="sm:absolute z-20 sm:left-[18%] sm:top-[14px] mb-2 sm:mb-0 bg-surface-container-lowest/95 backdrop-blur-md rounded-xl p-3 shadow-floatCard border border-outline-variant/45 w-full sm:w-[195px] transition-all">
                 <div class="flex items-baseline justify-between mb-1.5">
                   <span id="bed-card-total" class="text-[15.5px] font-extrabold tracking-tight text-on-surface">88%</span>
@@ -470,12 +551,12 @@
                     <strong id="bed-card-rev" class="font-bold text-on-surface">12 / 14</strong>
                   </div>
                   <div class="flex items-center justify-between">
-                    <span id="util-row2-label" class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-primary-light"></span>Occupation</span>
-                    <strong id="bed-card-icu" class="font-bold text-on-surface">86%</strong>
+                    <span id="util-row2-label" class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-primary-light"></span>Présence</span>
+                    <strong id="bed-card-icu" class="font-bold text-on-surface">92%</strong>
                   </div>
                   <div class="flex items-center justify-between">
-                    <span id="util-row3-label" class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>Présence</span>
-                    <strong id="bed-card-er" class="font-bold text-on-surface">92%</strong>
+                    <span id="util-row3-label" class="flex items-center gap-1.5 text-on-surface-variant"><span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>Terminés</span>
+                    <strong id="bed-card-er" class="font-bold text-on-surface">10 vus</strong>
                   </div>
                 </div>
               </div>
@@ -485,70 +566,37 @@
           </div>
         </div>
 
-        <!-- COL 8-12 : Moyenne des Diagnostics par Pôle (Section 4F) -->
-        <div class="lg:col-span-5 bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between relative overflow-hidden">
-          <div class="flex items-center justify-between mb-1.5">
-            <h2 class="text-[13.5px] font-bold text-on-surface">Moyenne des Diagnostics Patients</h2>
-            <button onclick="cycleDiagnosePeriod()" class="px-2.5 py-0.5 rounded-full bg-surface-container-low hover:bg-secondary-container/70 text-[10.5px] font-semibold text-on-surface-variant flex items-center gap-0.5 transition-colors">
-              <span id="diag-period-label">Hebdomadaire</span>
-              <span class="material-symbols-outlined text-[13px]">expand_more</span>
-            </button>
+        <!-- COL 8-12 : Motifs de Consultation Fréquents (Médecine Générale) -->
+        <div class="lg:col-span-5 bento-card rounded-2xl p-4 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h2 class="text-[13.5px] font-bold text-on-surface">Motifs de Consultation Fréquents</h2>
+              <p class="text-[10px] text-outline">Répartition des consultations de médecine générale.</p>
+            </div>
+            <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">Cabinet Généraliste</span>
           </div>
 
-          <div class="relative h-[194px] flex flex-col justify-end">
-            <div id="diag-empty-notice" class="hidden absolute inset-0 z-30 bg-surface-container-lowest/90 flex items-center justify-center text-xs text-outline p-4 text-center rounded-xl">
-              Aucune consultation clinique enregistrée sur cette période.
-            </div>
+          <div id="overview-reasons-list" class="space-y-2 py-1">
+            <!-- Rendu dynamique par JS -->
+          </div>
 
-            <div class="absolute inset-x-0 top-2 bottom-6 pointer-events-none">
-              <div class="absolute left-[15%] top-[28px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
-              <div class="absolute left-[34%] top-[86px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
-              <div class="absolute left-[63%] top-[124px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
-              <div class="absolute left-[79%] top-[36px] bottom-0 w-[1px] bg-gradient-to-b from-outline-variant/50 to-brand-soft-green"></div>
-            </div>
-
-            <!-- Bulle Neurologie -->
-            <button onclick="jumpToDepartment('Neurologie')" class="bubble-float absolute left-[4%] top-[8px] w-[80px] h-[80px] rounded-full bg-gradient-to-br from-primary-light/85 to-secondary-container/90 border border-white shadow-sm flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
-              <span class="text-[10.5px] font-bold text-on-primary-fixed leading-tight">Neurologie</span>
-              <span id="diag-neuro-count" class="text-[9px] font-semibold text-primary mt-0.5">0 patients</span>
+          <div class="pt-2 border-t border-surface-container flex items-center justify-between text-[10.5px]">
+            <span class="text-outline">Patientèle active du cabinet</span>
+            <button onclick="switchTab('reports')" class="font-bold text-primary hover:underline flex items-center gap-0.5">
+              Voir rapports analytiques <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
             </button>
-
-            <!-- Bulle Oncologie -->
-            <button onclick="jumpToDepartment('Oncologie')" class="bubble-float-d1 absolute right-[8%] top-[14px] w-[76px] h-[76px] rounded-full bg-gradient-to-br from-primary-fixed/85 to-primary-light/55 border border-white shadow-sm flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
-              <span class="text-[10.5px] font-bold text-on-primary-fixed leading-tight">Oncologie</span>
-              <span id="diag-onco-count" class="text-[9px] font-semibold text-primary mt-0.5">0 patients</span>
-            </button>
-
-            <!-- Bulle Urologie -->
-            <button onclick="jumpToDepartment('Urologie')" class="bubble-float-d2 absolute left-[24%] top-[68px] w-[66px] h-[66px] rounded-full bg-secondary-container/95 border border-white shadow-xs flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
-              <span class="text-[10px] font-bold text-on-surface leading-tight">Urologie</span>
-              <span id="diag-uro-count" class="text-[8.5px] font-semibold text-on-surface-variant mt-0.5">0 patients</span>
-            </button>
-
-            <!-- Bulle Cardiologie -->
-            <button onclick="jumpToDepartment('Cardiologie')" class="bubble-float absolute left-[54%] top-[102px] w-[62px] h-[62px] rounded-full bg-surface-container-high/95 border border-white shadow-xs flex flex-col items-center justify-center text-center hover:scale-105 transition-transform">
-              <span class="text-[9.5px] font-bold text-on-surface leading-tight">Cardiologie</span>
-              <span id="diag-cardio-count" class="text-[8px] font-semibold text-outline mt-0.5">0 patients</span>
-            </button>
-
-            <div class="pt-3 relative z-10">
-              <div id="stem-ruler-ticks" class="flex items-end justify-between h-2.5 px-1"></div>
-              <div class="flex justify-between text-[9px] font-semibold text-outline mt-1 px-0.5">
-                <span>1</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span>
-              </div>
-            </div>
           </div>
         </div>
 
       </div>
 
-      <!-- LIGNE 3 : APERÇU DES RENDEZ-VOUS DU JOUR + LIEN VERS LA PAGE DÉDIÉE RENDEZ-VOUS -->
+      <!-- LIGNE 3 : PROCHAINS RENDEZ-VOUS DU JOUR (FILE ACTIVE) -->
       <div class="bento-card rounded-2xl p-4 shadow-bento">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-brand-soft-green animate-ping"></span>
             <h2 id="overview-today-label" class="text-[13px] font-bold text-on-surface">Prochains rendez-vous d’aujourd’hui</h2>
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-secondary-container/70 text-primary">Synchronisé avec lAgenda</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-secondary-container/70 text-primary">Synchronisé avec l’Agenda</span>
           </div>
           <div class="flex items-center gap-2">
             <a href="rendez-vous.html?add=1" class="text-[11px] font-bold px-3 py-1 rounded-full bg-surface-container-low hover:bg-secondary-container text-primary transition-colors">
@@ -612,70 +660,98 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- VUE 3 : LABORATOIRE & BIOLOGIE MÉDICALE -->
+    <!-- VUE 3 : CONSULTATIONS & FILE ACTIVE DU CABINET GÉNÉRALISTE -->
     <!-- ========================================================================= -->
-    <section id="view-labs" class="saas-view hidden space-y-3">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <section id="view-consultations" class="saas-view hidden space-y-3">
+      <!-- KPIs Consultations du Jour -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="bento-card rounded-2xl p-3.5 shadow-bento flex items-center justify-between">
           <div>
-            <span class="text-[11px] font-semibold text-outline">Analyses du Jour</span>
-            <div id="lab-stat-total" class="text-xl font-extrabold text-on-surface mt-0.5">1 024</div>
+            <span class="text-[11px] font-semibold text-outline">Consultations du Jour</span>
+            <div id="consult-stat-total" class="text-xl font-extrabold text-on-surface mt-0.5">0</div>
           </div>
           <div class="w-9 h-9 rounded-xl bg-secondary-container text-primary flex items-center justify-center">
-            <span class="material-symbols-outlined text-[19px]">biotech</span>
+            <span class="material-symbols-outlined text-[19px]">stethoscope</span>
           </div>
         </div>
         <div class="bento-card rounded-2xl p-3.5 shadow-bento flex items-center justify-between">
           <div>
-            <span class="text-[11px] font-semibold text-error">Alertes Critiques (STAT)</span>
-            <div id="lab-stat-flagged" class="text-xl font-extrabold text-error mt-0.5">1</div>
+            <span class="text-[11px] font-semibold text-amber-600">Salle d'Attente</span>
+            <div id="consult-stat-waiting" class="text-xl font-extrabold text-amber-700 mt-0.5">0</div>
           </div>
-          <div class="w-9 h-9 rounded-xl bg-error-container text-error flex items-center justify-center">
-            <span class="material-symbols-outlined text-[19px]">warning</span>
+          <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center">
+            <span class="material-symbols-outlined text-[19px]">hourglass_top</span>
           </div>
         </div>
         <div class="bento-card rounded-2xl p-3.5 shadow-bento flex items-center justify-between">
           <div>
-            <span class="text-[11px] font-semibold text-outline">En Cours dAnalyse</span>
-            <div id="lab-stat-pending" class="text-xl font-extrabold text-primary mt-0.5">1</div>
+            <span class="text-[11px] font-semibold text-primary">En Consultation</span>
+            <div id="consult-stat-in-progress" class="text-xl font-extrabold text-primary mt-0.5">0</div>
           </div>
-          <button onclick="openModal('lab-modal')" class="px-3 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-[11px] font-bold shadow-xs">
-            + Prescrire Bilan
-          </button>
+          <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[19px] animate-pulse">medical_services</span>
+          </div>
+        </div>
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-semibold text-outline">Terminées &amp; Vues</span>
+            <div id="consult-stat-completed" class="text-xl font-extrabold text-primary mt-0.5">0</div>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-secondary-container text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[19px]">check_circle</span>
+          </div>
         </div>
       </div>
 
-      <div class="bento-card rounded-2xl p-4 shadow-bento">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-sm font-bold text-on-surface">Validation Biologique &amp; Résultats</h3>
-          <span class="text-[10.5px] font-semibold text-outline">Saisissez la valeur mesurée puis validez</span>
+      <!-- Filtres et File des Consultations -->
+      <div class="bento-card rounded-2xl p-4 shadow-bento space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2.5">
+          <div class="flex flex-wrap items-center gap-1.5 text-xs">
+            <button onclick="filterConsultationsByStatus('all', this)" class="consult-status-pill px-3 py-1.5 rounded-full font-bold bg-primary text-white">Toutes</button>
+            <button onclick="filterConsultationsByStatus('waiting', this)" class="consult-status-pill px-3 py-1.5 rounded-full font-semibold bg-surface-container-low text-on-surface-variant hover:text-primary">En Attente</button>
+            <button onclick="filterConsultationsByStatus('in_consultation', this)" class="consult-status-pill px-3 py-1.5 rounded-full font-semibold bg-surface-container-low text-on-surface-variant hover:text-primary">En Cours</button>
+            <button onclick="filterConsultationsByStatus('completed', this)" class="consult-status-pill px-3 py-1.5 rounded-full font-semibold bg-surface-container-low text-on-surface-variant hover:text-primary">Terminées</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="consult-search-input" oninput="filterConsultationsList()" type="text" placeholder="Rechercher patient, motif..." class="px-3 py-1.5 rounded-full bg-surface-container-low border border-outline-variant/40 text-xs text-on-surface focus:outline-none focus:border-primary w-48 sm:w-64"/>
+            <button onclick="openModal('appointment-modal')" class="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-xs flex items-center gap-1">
+              <span class="material-symbols-outlined text-[15px]">add</span>
+              <span>Nouvelle Consultation</span>
+            </button>
+          </div>
         </div>
-        <div id="labs-cards-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                <th class="py-2.5 pr-2">Horaire</th>
+                <th class="py-2.5 px-2">Patient</th>
+                <th class="py-2.5 px-2">Praticien</th>
+                <th class="py-2.5 px-2">Motif de Consultation</th>
+                <th class="py-2.5 px-2">Statut File</th>
+                <th class="py-2.5 px-2">Facturation</th>
+                <th class="py-2.5 pl-2 text-right">Actions Médicales</th>
+              </tr>
+            </thead>
+            <tbody id="consultations-tbody" class="divide-y divide-surface-container/60">
+              <tr><td colspan="7" class="py-6 text-center text-outline">Chargement de la file des consultations...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- VUE 4 : FACTURATION, CNSS, DÉPENSES & STOCK (Section 3H) -->
+    <!-- VUE 4 : FACTURATION, CNSS & ENCAISSEMENTS -->
     <!-- ========================================================================= -->
     <section id="view-finance" class="saas-view hidden space-y-3">
-      <!-- Sous-Navigation Intérieure (Sans ajouter d'onglets à la navbar !) -->
+      <!-- Sous-Navigation Intérieure Facturation & CNSS -->
       <div class="bento-card rounded-2xl p-2.5 shadow-bento flex flex-wrap items-center justify-between gap-2">
         <div class="inline-flex items-center gap-1 bg-surface-container-low p-1 rounded-full">
           <button id="fin-pill-invoices" onclick="switchFinanceSubTab('invoices')"
                   class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary text-white shadow-2xs transition-all">
             Facturation &amp; Paiements
-          </button>
-          <button id="fin-pill-expenses" onclick="switchFinanceSubTab('expenses')"
-                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
-            Dépenses &amp; Charges
-          </button>
-          <button id="fin-pill-stock" onclick="switchFinanceSubTab('stock')"
-                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
-            Stock &amp; Fournitures
-          </button>
-          <button id="fin-pill-documents" onclick="switchFinanceSubTab('documents')"
-                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
-            Documents &amp; Modèles PDF
           </button>
           <button id="fin-pill-quotes" onclick="switchFinanceSubTab('quotes')"
                   class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
@@ -685,10 +761,10 @@
                   class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
             Session Caisse &amp; Clôture
           </button>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <span class="text-[11px] font-semibold text-outline">Gestion Financière &amp; Traçabilité MAD</span>
+          <button id="fin-pill-documents" onclick="switchFinanceSubTab('documents')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Bordereaux CNSS &amp; Reçus
+          </button>
         </div>
       </div>
 
@@ -728,12 +804,12 @@
         <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-sm font-bold text-on-surface">Journal de Facturation &amp; Télétransmission CNSS / CNOPS</h3>
-            <span class="text-[10.5px] font-semibold text-outline">Cliquez sur le badge CNSS pour faire avancer létape</span>
+            <span class="text-[10.5px] font-semibold text-outline">Cliquez sur le badge CNSS pour faire avancer l'étape</span>
           </div>
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
-                <th class="py-2 pr-2">NÂ° Facture</th>
+                <th class="py-2 pr-2">N° Facture</th>
                 <th class="py-2 px-2">Patient &amp; Acte Médical</th>
                 <th class="py-2 px-2">Total (MAD)</th>
                 <th class="py-2 px-2">Payé</th>
@@ -747,88 +823,7 @@
         </div>
       </div>
 
-      <!-- SOUS-PANEL 2 : DÉPENSES & CHARGES (Section 3H) -->
-      <div id="fin-sub-expenses" class="hidden space-y-3">
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <span class="text-[11px] font-semibold text-outline">Total des Dépenses Enregistrées</span>
-            <div id="exp-stat-total" class="text-xl font-extrabold text-error mt-0.5">0,00 MAD</div>
-            <span class="text-[10px] text-outline">Charges de fonctionnement, matériel médical et consommables</span>
-          </div>
-          <button onclick="openModal('expense-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
-            + Enregistrer une Dépense
-          </button>
-        </div>
-
-        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-bold text-on-surface">Journal des Charges &amp; Dépenses d'Exploitation</h3>
-            <span class="text-[10.5px] text-outline">Associées aux sessions de caisse MAD</span>
-          </div>
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
-                <th class="py-2 pr-2">Réf.</th>
-                <th class="py-2 px-2">Description &amp; Fournisseur</th>
-                <th class="py-2 px-2">Catégorie</th>
-                <th class="py-2 px-2">Montant</th>
-                <th class="py-2 px-2">Mode &amp; Date</th>
-                <th class="py-2 pl-2 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="expenses-tbody" class="divide-y divide-surface-container/60 text-xs"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- SOUS-PANEL 3 : STOCK & FOURNITURES (Section 3H - Optionnel) -->
-      <div id="fin-sub-stock" class="hidden space-y-3">
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm font-extrabold text-on-surface">Inventaire Médical &amp; Fournitures</h3>
-              <span id="stock-low-badge" class="px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">0 alerte</span>
-            </div>
-            <p class="text-[10.5px] text-outline mt-0.5">Gestion des seuils d'alerte, réapprovisionnements et sorties de bloc</p>
-          </div>
-          <button onclick="openModal('stock-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
-            + Ajouter Produit
-          </button>
-        </div>
-
-        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
-                <th class="py-2 pr-2">Code SKU</th>
-                <th class="py-2 px-2">Désignation</th>
-                <th class="py-2 px-2">Catégorie</th>
-                <th class="py-2 px-2">En Stock</th>
-                <th class="py-2 px-2">Seuil Alerte</th>
-                <th class="py-2 px-2">Coût Unitaire</th>
-                <th class="py-2 pl-2 text-right">Mouvements</th>
-              </tr>
-            </thead>
-            <tbody id="stock-tbody" class="divide-y divide-surface-container/60 text-xs"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- SOUS-PANEL 4 : DOCUMENTS & MODÈLES PDF (Section 3G) -->
-      <div id="fin-sub-documents" class="hidden space-y-3">
-        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 class="text-sm font-extrabold text-on-surface">Documents Médicaux, Devis &amp; Certificats</h3>
-            <p class="text-[10.5px] text-outline">Générez et imprimez avec l'en-tête, le logo et les mentions légales officielles du centre</p>
-          </div>
-          <button onclick="populatePatientSelects(); openModal('document-modal');" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
-            + Nouveau Document
-          </button>
-        </div>
-
-        <div id="documents-list-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-      </div>
-      <!-- SOUS-PANEL 5 : DEVIS & DEVIS DENTAIRES (Conversion 1-Clic en Facture) -->
+      <!-- SOUS-PANEL 2 : DEVIS & DEVIS DENTAIRES (Conversion 1-Clic en Facture) -->
       <div id="fin-sub-quotes" class="hidden space-y-3">
         <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -880,7 +875,7 @@
         </div>
       </div>
 
-      <!-- SOUS-PANEL 6 : CLÔTURE DE CAISSE JOURNALIÈRE (Z de Caisse) -->
+      <!-- SOUS-PANEL 3 : CLÔTURE DE CAISSE JOURNALIÈRE (Z de Caisse) -->
       <div id="fin-sub-caisse" class="hidden space-y-3">
         <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -927,18 +922,209 @@
           </div>
         </div>
       </div>
+
+      <!-- SOUS-PANEL 4 : BORDEREAUX CNSS & REÇUS (Documents) -->
+      <div id="fin-sub-documents" class="hidden space-y-3">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-on-surface">Bordereaux CNSS / CNOPS &amp; Documents de Facturation</h3>
+            <p class="text-[10.5px] text-outline">Attestations de paiement, quittances, reçus d'honoraires et feuilles de soins officielles</p>
+          </div>
+          <button onclick="populatePatientSelects(); openModal('document-modal');" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow">
+            + Nouveau Document
+          </button>
+        </div>
+
+        <div id="documents-list-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div>
     </section>
 
     <!-- ========================================================================= -->
-    <!-- VUE 5 : RAPPORTS ANALYTIQUES COMPLETS (Section 2) -->
+    <!-- VUE 5 : DÉPENSES, CHARGES D'EXPLOITATION & STOCK PHARMACIE -->
+    <!-- ========================================================================= -->
+    <section id="view-stock" class="saas-view hidden space-y-3">
+      <!-- Sous-Navigation Intérieure Dépenses & Stock -->
+      <div class="bento-card rounded-2xl p-2.5 shadow-bento flex flex-wrap items-center justify-between gap-2">
+        <div class="inline-flex items-center gap-1 bg-surface-container-low p-1 rounded-full">
+          <button id="stock-pill-stock" onclick="switchStockSubTab('stock')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary text-white shadow-2xs transition-all">
+            Stock Médical &amp; Fournitures
+          </button>
+          <button id="stock-pill-expenses" onclick="switchStockSubTab('expenses')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Dépenses &amp; Charges
+          </button>
+          <button id="stock-pill-suppliers" onclick="switchStockSubTab('suppliers')"
+                  class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-on-surface-variant hover:text-primary transition-all">
+            Fournisseurs &amp; Commandes
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs Spécifiques Dépenses & Stock -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+          <span class="text-[11px] font-semibold text-outline">Total Dépenses Enregistrées</span>
+          <div id="exp-stat-total" class="text-xl font-extrabold text-error mt-0.5">0,00 MAD</div>
+          <span class="text-[10px] text-outline">Charges d'exploitation, loyer &amp; consommables</span>
+        </div>
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+          <span class="text-[11px] font-semibold text-outline">Articles en Stock Médical</span>
+          <div id="stock-stat-total-items" class="text-xl font-extrabold text-on-surface mt-0.5">0</div>
+          <span class="text-[10px] text-outline">Références actives en pharmacie / cabinet</span>
+        </div>
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+          <span class="text-[11px] font-semibold text-outline">Alertes Rupture / Seuil Bas</span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span id="stock-stat-low-items" class="text-xl font-extrabold text-error">0</span>
+            <span id="stock-low-badge" class="px-2 py-0.5 rounded-full bg-secondary-container text-primary text-[10px] font-bold">0 alerte</span>
+          </div>
+          <span class="text-[10px] text-outline">Articles sous le seuil d'alerte</span>
+        </div>
+        <div class="bento-card rounded-2xl p-3.5 shadow-bento">
+          <span class="text-[11px] font-semibold text-outline">Valeur Estimée du Stock</span>
+          <div id="stock-stat-total-value" class="text-xl font-extrabold text-primary mt-0.5">0,00 MAD</div>
+          <span class="text-[10px] text-outline">Valorisation au coût d'achat unitaire</span>
+        </div>
+      </div>
+
+      <!-- SOUS-PANEL 1 : STOCK & FOURNITURES MÉDICALES -->
+      <div id="stock-sub-stock" class="space-y-3">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-on-surface">Inventaire Médical &amp; Fournitures de Soins</h3>
+            <p class="text-[10.5px] text-outline mt-0.5">Gestion des seuils d'alerte, réapprovisionnements fournisseurs et sorties bloc</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="filterStockLowOnly()" id="stock-filter-low-btn" class="px-3 py-1.5 rounded-full border border-outline-variant/40 text-xs font-semibold hover:border-primary text-on-surface transition-colors flex items-center gap-1">
+              <span class="material-symbols-outlined text-[14px] text-error">warning</span>
+              <span>Ruptures uniquement</span>
+            </button>
+            <button onclick="openModal('stock-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[15px]">add_circle</span>
+              <span>+ Ajouter Produit</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+          <!-- Recherche rapide et filtre catégorie -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-surface-container/60">
+            <div class="relative w-full sm:w-64">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[16px]">search</span>
+              <input id="stock-search-input" oninput="filterStockTable()" type="text" placeholder="Rechercher désignation, SKU..." class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/30 text-xs focus:border-primary">
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-outline font-semibold">Catégorie :</span>
+              <select id="stock-cat-filter" onchange="filterStockTable()" class="px-2.5 py-1 rounded-xl bg-surface-container-low border border-outline-variant/30 text-xs font-semibold focus:border-primary">
+                <option value="">Toutes les catégories</option>
+                <option value="Consommables">Consommables</option>
+                <option value="Réactifs Bio">Réactifs Bio</option>
+                <option value="Imagerie">Imagerie</option>
+                <option value="Stérilisation">Stérilisation</option>
+                <option value="Médicaments">Médicaments</option>
+              </select>
+            </div>
+          </div>
+
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
+                <th class="py-2 pr-2">Code SKU</th>
+                <th class="py-2 px-2">Désignation</th>
+                <th class="py-2 px-2">Catégorie</th>
+                <th class="py-2 px-2">En Stock</th>
+                <th class="py-2 px-2">Seuil Alerte</th>
+                <th class="py-2 px-2">Coût Unitaire</th>
+                <th class="py-2 pl-2 text-right">Mouvements &amp; Ajustements</th>
+              </tr>
+            </thead>
+            <tbody id="stock-tbody" class="divide-y divide-surface-container/60 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SOUS-PANEL 2 : DÉPENSES & CHARGES D'EXPLOITATION -->
+      <div id="stock-sub-expenses" class="hidden space-y-3">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-on-surface">Journal des Charges &amp; Dépenses d'Exploitation</h3>
+            <p class="text-[10.5px] text-outline mt-0.5">Charges de fonctionnement, matériel médical, salaires et consommables imputés à la trésorerie</p>
+          </div>
+          <button onclick="openModal('expense-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[15px]">receipt</span>
+            <span>+ Enregistrer une Dépense</span>
+          </button>
+        </div>
+
+        <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
+          <!-- Recherche rapide et filtre catégorie dépenses -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2 border-b border-surface-container/60">
+            <div class="relative w-full sm:w-64">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[16px]">search</span>
+              <input id="expense-search-input" oninput="filterExpensesTable()" type="text" placeholder="Rechercher dépense, fournisseur, réf..." class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/30 text-xs focus:border-primary">
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-outline font-semibold">Catégorie :</span>
+              <select id="expense-cat-filter" onchange="filterExpensesTable()" class="px-2.5 py-1 rounded-xl bg-surface-container-low border border-outline-variant/30 text-xs font-semibold focus:border-primary">
+                <option value="">Toutes les catégories</option>
+                <option value="Fournitures Médicales">Fournitures Médicales</option>
+                <option value="Réactifs Laboratoire">Réactifs Laboratoire</option>
+                <option value="Loyer & Charges">Loyer & Charges</option>
+                <option value="Salaires & Primes">Salaires & Primes</option>
+                <option value="Maintenance Équipement">Maintenance Équipement</option>
+                <option value="Logiciels & IT">Logiciels & IT</option>
+                <option value="Autre">Autre</option>
+              </select>
+            </div>
+          </div>
+
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase tracking-wider text-outline">
+                <th class="py-2 pr-2">Réf.</th>
+                <th class="py-2 px-2">Description &amp; Fournisseur</th>
+                <th class="py-2 px-2">Catégorie</th>
+                <th class="py-2 px-2">Montant</th>
+                <th class="py-2 px-2">Mode &amp; Date</th>
+                <th class="py-2 pl-2 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="expenses-tbody" class="divide-y divide-surface-container/60 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SOUS-PANEL 3 : FOURNISSEURS & COMMANDES -->
+      <div id="stock-sub-suppliers" class="hidden space-y-3">
+        <div class="bento-card rounded-2xl p-4 shadow-bento flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-on-surface">Fournisseurs Médicaux &amp; Suivi des Réapprovisionnements</h3>
+            <p class="text-[10.5px] text-outline mt-0.5">Partenaires officiels du cabinet pour les consommables, réactifs et dispositifs médicaux</p>
+          </div>
+          <button onclick="openModal('stock-modal')" class="px-4 py-2 rounded-full bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-emeraldGlow flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[15px]">local_shipping</span>
+            <span>+ Passer Commande Fournisseur</span>
+          </button>
+        </div>
+
+        <div id="stock-suppliers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- VUE 5 : RAPPORTS ANALYTIQUES, FINANCIERS & AUDIT CNDP (Section 2) -->
     <!-- ========================================================================= -->
     <section id="view-reports" class="saas-view hidden space-y-3">
-      <!-- Barre de Filtres Complète (Section 2) -->
+      <!-- Barre de Filtres Complète (Section 2.A) -->
       <div class="bento-card rounded-2xl p-3.5 shadow-bento space-y-2.5">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-[18px] text-primary">analytics</span>
-            <h3 class="text-sm font-extrabold text-on-surface">Rapports d'Activité &amp; Performance Clinique</h3>
+            <div>
+              <h3 class="text-sm font-extrabold text-on-surface">Rapports d'Activité, Financiers &amp; Audit CNDP</h3>
+              <p class="text-[10px] text-outline">Analyse décisionnelle pour cabinet de médecine générale • Devise MAD</p>
+            </div>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="exportReportsCsvFile()" class="px-3 py-1.5 rounded-full bg-surface-container-low hover:bg-secondary-container text-on-surface text-xs font-bold flex items-center gap-1 shadow-pill transition-all">
@@ -950,27 +1136,25 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-xs">
           <div>
-            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Période</label>
-            <select id="rpt-period-select" onchange="loadReportsSummary()" class="w-full px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary">
-              <option value="month" selected>Ce Mois (Octobre 2026)</option>
-              <option value="week">7 Derniers Jours</option>
-              <option value="day">Aujourdhui (29 Oct.)</option>
-              <option value="custom">Plage Personnalisée...</option>
+            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Période d'Analyse</label>
+            <select id="rpt-period-select" onchange="handleReportPeriodChange()" class="w-full px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary">
+              <option value="day">Aujourd'hui</option>
+              <option value="week">Cette Semaine</option>
+              <option value="month" selected>Ce Mois</option>
+              <option value="quarter">Ce Trimestre</option>
+              <option value="year">Cette Année</option>
+              <option value="custom">Période Personnalisée...</option>
             </select>
           </div>
-          <div>
+          <div id="rpt-branch-col" class="hidden">
             <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Branche / Site</label>
             <select id="rpt-branch-select" onchange="loadReportsSummary()" class="w-full px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary"></select>
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Médecin</label>
+            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Médecin Praticien</label>
             <select id="rpt-doctor-select" onchange="loadReportsSummary()" class="w-full px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary"></select>
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Spécialité</label>
-            <select id="rpt-specialty-select" onchange="loadReportsSummary()" class="w-full px-2.5 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/40 font-semibold focus:outline-none focus:border-primary"></select>
           </div>
           <div>
             <label class="block text-[10px] font-bold text-outline uppercase mb-0.5">Date Début</label>
@@ -983,38 +1167,66 @@
         </div>
       </div>
 
-      <!-- 8 Cartes KPI Rapports Réels -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+      <!-- LES 12 INDICATEURS CLÉS KPIS OBLIGATOIRES (Section 2.B & 2.D) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5">
+        <!-- 1. Volume RDV -->
         <div class="bento-card rounded-xl p-2.5 shadow-bento">
-          <span class="text-[9.5px] font-bold uppercase text-outline block">Volume RDV</span>
-          <span id="rpt-kpi-apts" class="text-sm font-extrabold text-on-surface block mt-0.5 truncate">0</span>
+          <span class="text-[9.5px] font-bold uppercase text-outline block">1. Volume des RDV</span>
+          <span id="rpt-kpi-apts" class="text-sm font-extrabold text-on-surface block mt-0.5">0</span>
         </div>
+        <!-- 2. RDV Terminés -->
         <div class="bento-card rounded-xl p-2.5 shadow-bento">
-          <span class="text-[9.5px] font-bold uppercase text-outline block">Annulations</span>
-          <span id="rpt-kpi-cancel-rate" class="text-sm font-extrabold text-error block mt-0.5">0%</span>
+          <span class="text-[9.5px] font-bold uppercase text-outline block">2. RDV Terminés</span>
+          <span id="rpt-kpi-completed" class="text-sm font-extrabold text-primary block mt-0.5">0</span>
         </div>
+        <!-- 3. Annulations -->
         <div class="bento-card rounded-xl p-2.5 shadow-bento">
-          <span class="text-[9.5px] font-bold uppercase text-outline block">No-Show</span>
-          <span id="rpt-kpi-noshow-rate" class="text-sm font-extrabold text-error block mt-0.5">0%</span>
+          <span class="text-[9.5px] font-bold uppercase text-outline block">3. Annulations</span>
+          <span id="rpt-kpi-cancelled" class="text-sm font-extrabold text-error block mt-0.5">0 (0%)</span>
         </div>
+        <!-- 4. No-Show -->
         <div class="bento-card rounded-xl p-2.5 shadow-bento">
-          <span class="text-[9.5px] font-bold uppercase text-outline block">Présence</span>
-          <span id="rpt-kpi-attendance-rate" class="text-sm font-extrabold text-primary block mt-0.5">100%</span>
+          <span class="text-[9.5px] font-bold uppercase text-outline block">4. No-Show (Absents)</span>
+          <span id="rpt-kpi-noshow" class="text-sm font-extrabold text-error block mt-0.5">0 (0%)</span>
         </div>
+        <!-- 5. Taux de Présence -->
         <div class="bento-card rounded-xl p-2.5 shadow-bento">
-          <span class="text-[9.5px] font-bold uppercase text-outline block">Total Facturé</span>
+          <span class="text-[9.5px] font-bold uppercase text-outline block">5. Taux de Présence</span>
+          <span id="rpt-kpi-attendance" class="text-sm font-extrabold text-primary block mt-0.5">100%</span>
+        </div>
+        <!-- 6. Nouveaux Patients -->
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">6. Nouveaux Patients</span>
+          <span id="rpt-kpi-new-patients" class="text-sm font-extrabold text-on-surface block mt-0.5">0</span>
+        </div>
+        <!-- 7. Consultations Effectuées -->
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">7. Consultations Faites</span>
+          <span id="rpt-kpi-consultations" class="text-sm font-extrabold text-primary block mt-0.5">0</span>
+        </div>
+        <!-- 8. Total Facturé -->
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">8. Total Facturé</span>
           <span id="rpt-kpi-invoiced" class="text-sm font-extrabold text-on-surface block mt-0.5 truncate">0 MAD</span>
         </div>
+        <!-- 9. Total Encaissé -->
         <div class="bento-card rounded-xl p-2.5 shadow-bento">
-          <span class="text-[9.5px] font-bold uppercase text-outline block">Encaissé Net</span>
+          <span class="text-[9.5px] font-bold uppercase text-outline block">9. Total Encaissé</span>
           <span id="rpt-kpi-collected" class="text-sm font-extrabold text-primary block mt-0.5 truncate">0 MAD</span>
         </div>
+        <!-- 10. Soldes Impayés -->
         <div class="bento-card rounded-xl p-2.5 shadow-bento">
-          <span class="text-[9.5px] font-bold uppercase text-outline block">Soldes Impayés</span>
+          <span class="text-[9.5px] font-bold uppercase text-outline block">10. Soldes Impayés</span>
           <span id="rpt-kpi-outstanding" class="text-sm font-extrabold text-error block mt-0.5 truncate">0 MAD</span>
         </div>
+        <!-- 11. Total des Dépenses -->
         <div class="bento-card rounded-xl p-2.5 shadow-bento">
-          <span class="text-[9.5px] font-bold uppercase text-outline block">Trésorerie</span>
+          <span class="text-[9.5px] font-bold uppercase text-outline block">11. Total Dépenses</span>
+          <span id="rpt-kpi-expenses" class="text-sm font-extrabold text-on-surface-variant block mt-0.5 truncate">0 MAD</span>
+        </div>
+        <!-- 12. Trésorerie / Solde Net -->
+        <div class="bento-card rounded-xl p-2.5 shadow-bento">
+          <span class="text-[9.5px] font-bold uppercase text-outline block">12. Trésorerie Nette</span>
           <span id="rpt-kpi-net" class="text-sm font-extrabold text-primary block mt-0.5 truncate">0 MAD</span>
         </div>
       </div>
@@ -1026,81 +1238,257 @@
         <p class="text-xs text-outline max-w-md mx-auto">Modifiez la plage de dates ou élargissez le filtre par médecin pour afficher les statistiques réelles.</p>
       </div>
 
-      <div id="rpt-content-panels" class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-        <!-- Gauche (7 colonnes) : Timeline & Activité Médecins & Comparatif Branches -->
-        <div class="lg:col-span-7 space-y-3">
-          <div class="bento-card rounded-2xl p-4 shadow-bento">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Volume de Fréquentation par Jour</h3>
-              <span class="text-[10px] text-outline">RDV terminés et honorés</span>
-            </div>
-            <div id="rpt-timeline-bars" class="flex items-end justify-between h-[120px] gap-1 px-1"></div>
-          </div>
+      <div id="rpt-content-panels" class="space-y-3">
 
-          <div class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto">
-            <div class="flex items-center justify-between mb-2.5">
-              <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Activité &amp; Consultations par Médecin</h3>
-              <span class="text-[10px] text-outline">Honoraires réalisés sur la période</span>
-            </div>
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
-                  <th class="py-2 pr-2">Médecin</th>
-                  <th class="py-2 px-2">Spécialité</th>
-                  <th class="py-2 px-2">RDV</th>
-                  <th class="py-2 px-2">Consultés</th>
-                  <th class="py-2 px-2">Annul./Abs.</th>
-                  <th class="py-2 pl-2 text-right">Honoraires</th>
-                </tr>
-              </thead>
-              <tbody id="rpt-doctors-tbody" class="divide-y divide-surface-container/60"></tbody>
-            </table>
-          </div>
+        <!-- GRAPHIQUES ET ANALYSES (Section 2.C) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
 
-          <div id="rpt-branch-comparison-card" class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto hidden">
-            <div class="flex items-center justify-between mb-2.5">
-              <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Comparatif Multi-Branches (Sites)</h3>
-              <span class="text-[10px] text-outline">Chiffre daffaires et marges nettes</span>
-            </div>
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
-                  <th class="py-2 pr-2">Site / Branche</th>
-                  <th class="py-2 px-2">Volume RDV</th>
-                  <th class="py-2 px-2">Présence</th>
-                  <th class="py-2 px-2">Recettes</th>
-                  <th class="py-2 px-2">Dépenses</th>
-                  <th class="py-2 pl-2 text-right">Marge Nette</th>
-                </tr>
-              </thead>
-              <tbody id="rpt-branches-tbody" class="divide-y divide-surface-container/60"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Droite (5 colonnes) : Spécialités, Règlements & Journal CNDP -->
-        <div class="lg:col-span-5 space-y-3">
-          <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
-            <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Spécialités les plus demandées</h3>
-            <div id="rpt-top-specs-bars" class="space-y-2 text-xs"></div>
-          </div>
-
-          <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
-            <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Modes de Règlement Encaissés</h3>
-            <div id="rpt-payment-methods-list" class="space-y-1.5 text-xs"></div>
-          </div>
-
-          <div class="bento-card rounded-2xl p-4 shadow-bento">
-            <div class="flex items-center justify-between mb-2">
+          <!-- 1. Activité du cabinet : Évolution de la Fréquentation par Jour (Col 1-7) -->
+          <div class="lg:col-span-7 bento-card rounded-2xl p-4 shadow-bento space-y-2">
+            <div class="flex items-center justify-between">
               <div>
-                <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Traçabilité CNDP Loi 09-08</h3>
-                <span class="text-[10px] text-outline">Accès DME, exports et encaissements</span>
+                <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Activité du Cabinet : Fréquentation par Jour</h3>
+                <p class="text-[10px] text-outline">Rendez-vous programmés vs Consultations terminées</p>
               </div>
-              <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[9.5px] font-bold">Immuable</span>
+              <div class="flex items-center gap-3 text-[10px] font-semibold text-outline">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary"></span> Total RDV</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand-soft-green"></span> Terminés</span>
+              </div>
             </div>
-            <div id="audit-logs-list" class="space-y-1.5 max-h-56 overflow-y-auto slim-scroll"></div>
+            <div id="rpt-timeline-bars" class="flex items-end justify-between h-[130px] gap-1 px-1 pt-2"></div>
           </div>
+
+          <!-- 2. Motifs de Consultation les Plus Fréquents (Col 8-12) -->
+          <div class="lg:col-span-5 bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Motifs de Consultation Fréquents</h3>
+                <p class="text-[10px] text-outline">Médecine Générale • Volume par motif clinique</p>
+              </div>
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-secondary-container text-primary">Top Motifs</span>
+            </div>
+            <div id="rpt-top-reasons-bars" class="space-y-2 text-xs"></div>
+          </div>
+
         </div>
+
+        <!-- 3. Analyse Financière & Modes de Paiement -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+
+          <!-- Analyse financière : Facturé vs Encaissé vs Dépenses (Col 1-7) -->
+          <div class="lg:col-span-7 bento-card rounded-2xl p-4 shadow-bento space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Analyse Financière &amp; Trésorerie</h3>
+                <p class="text-[10px] text-outline">Facturation émise, encaissements reçus et charges de la période</p>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">Conformité Comptable</span>
+            </div>
+
+            <!-- Jauges financières de cohérence stricte -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+              <div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/30">
+                <span class="text-[10px] font-bold text-outline uppercase block">Taux de Recouvrement</span>
+                <span id="rpt-fin-recovery-rate" class="text-base font-extrabold text-primary block mt-1">0%</span>
+                <div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden mt-1.5">
+                  <div id="rpt-fin-recovery-bar" class="h-full bg-primary rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/30">
+                <span class="text-[10px] font-bold text-outline uppercase block">Ratio Charges / Recettes</span>
+                <span id="rpt-fin-expense-ratio" class="text-base font-extrabold text-on-surface block mt-1">0%</span>
+                <div class="w-full h-1.5 rounded-full bg-surface-container overflow-hidden mt-1.5">
+                  <div id="rpt-fin-expense-bar" class="h-full bg-on-surface-variant rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="p-3 rounded-xl bg-surface-container-low border border-outline-variant/30">
+                <span class="text-[10px] font-bold text-outline uppercase block">Bénéfice Net Période</span>
+                <span id="rpt-fin-net-margin" class="text-base font-extrabold text-primary block mt-1">0 MAD</span>
+                <span class="text-[9px] text-outline block mt-0.5">Encaissements - Dépenses</span>
+              </div>
+            </div>
+
+            <!-- Évolution CA Facturé vs Encaissé -->
+            <div class="space-y-1.5 pt-1">
+              <div class="flex justify-between text-[11px] font-bold">
+                <span class="text-on-surface">Total Facturé de la période</span>
+                <span id="rpt-fin-inv-val" class="font-mono text-on-surface">0 MAD</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+                <div class="h-full bg-slate-500 rounded-full" style="width: 100%"></div>
+              </div>
+
+              <div class="flex justify-between text-[11px] font-bold pt-1">
+                <span class="text-primary">Total Encaissé de la période</span>
+                <span id="rpt-fin-col-val" class="font-mono text-primary">0 MAD</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+                <div id="rpt-fin-col-bar" class="h-full bg-primary rounded-full" style="width: 0%"></div>
+              </div>
+
+              <div class="flex justify-between text-[11px] font-bold pt-1">
+                <span class="text-error">Solde Impayé restant sur factures période</span>
+                <span id="rpt-fin-out-val" class="font-mono text-error">0 MAD</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+                <div id="rpt-fin-out-bar" class="h-full bg-error rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Répartition Modes de Règlement & Dépenses (Col 8-12) -->
+          <div class="lg:col-span-5 space-y-3">
+            <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Modes de Règlement Encaissés</h3>
+                <span class="text-[10px] text-outline">Espèces, CB, Virement</span>
+              </div>
+              <div id="rpt-payment-methods-list" class="space-y-1.5 text-xs"></div>
+            </div>
+
+            <div class="bento-card rounded-2xl p-4 shadow-bento space-y-2.5">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Dépenses par Catégorie</h3>
+                <span class="text-[10px] text-outline">Charges &amp; Achats</span>
+              </div>
+              <div id="rpt-expenses-categories-list" class="space-y-1.5 text-xs"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TABLEAUX DÉTAILLÉS CONSULTABLES (Section 2.E) -->
+        <div class="bento-card rounded-2xl p-4 shadow-bento space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-surface-container pb-2.5">
+            <div>
+              <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Tableaux Détaillés &amp; Consultation</h3>
+              <p class="text-[10px] text-outline">Données détaillées avec navigation contextuelle</p>
+            </div>
+            <!-- Sous-onglets des tableaux détaillés -->
+            <div class="inline-flex items-center gap-1 bg-surface-container-low p-1 rounded-full text-xs overflow-x-auto max-w-full">
+              <button id="rpt-tab-btn-apts" onclick="switchReportSubTable('apts')" class="px-3 py-1 rounded-full font-bold bg-primary text-white shadow-2xs">Rendez-vous par statut</button>
+              <button id="rpt-tab-btn-patients" onclick="switchReportSubTable('patients')" class="px-3 py-1 rounded-full font-semibold text-on-surface-variant hover:text-primary">Patients les plus actifs</button>
+              <button id="rpt-tab-btn-unpaid" onclick="switchReportSubTable('unpaid')" class="px-3 py-1 rounded-full font-semibold text-on-surface-variant hover:text-primary">Factures impayées</button>
+              <button id="rpt-tab-btn-expenses" onclick="switchReportSubTable('expenses')" class="px-3 py-1 rounded-full font-semibold text-on-surface-variant hover:text-primary">Dépenses par catégorie</button>
+              <button id="rpt-tab-btn-payments" onclick="switchReportSubTable('payments')" class="px-3 py-1 rounded-full font-semibold text-on-surface-variant hover:text-primary">Historique encaissements</button>
+              <button id="rpt-tab-btn-audit" onclick="switchReportSubTable('audit')" class="px-3 py-1 rounded-full font-semibold text-on-surface-variant hover:text-primary">Audit CNDP</button>
+            </div>
+          </div>
+
+          <!-- TABLEAU 1 : RENDEZ-VOUS PAR STATUT -->
+          <div id="rpt-sub-tbl-apts" class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                  <th class="py-2 pr-2">Statut du Rendez-vous</th>
+                  <th class="py-2 px-2">Description</th>
+                  <th class="py-2 px-2 font-mono">Nombre</th>
+                  <th class="py-2 pl-2 text-right">Part (%)</th>
+                </tr>
+              </thead>
+              <tbody id="rpt-tbl-apts-tbody" class="divide-y divide-surface-container/60"></tbody>
+            </table>
+          </div>
+
+          <!-- TABLEAU 2 : PATIENTS LES PLUS ACTIFS -->
+          <div id="rpt-sub-tbl-patients" class="hidden overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                  <th class="py-2 pr-2">Patient</th>
+                  <th class="py-2 px-2">CIN</th>
+                  <th class="py-2 px-2">Téléphone</th>
+                  <th class="py-2 px-2">Couverture CNSS</th>
+                  <th class="py-2 px-2 font-mono">RDV Total</th>
+                  <th class="py-2 px-2 font-mono font-bold text-primary">Consultations Faites</th>
+                  <th class="py-2 pl-2 text-right">Honoraires Réalisés</th>
+                </tr>
+              </thead>
+              <tbody id="rpt-tbl-patients-tbody" class="divide-y divide-surface-container/60"></tbody>
+            </table>
+          </div>
+
+          <!-- TABLEAU 3 : FACTURES IMPAYÉES -->
+          <div id="rpt-sub-tbl-unpaid" class="hidden overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                  <th class="py-2 pr-2">N° Facture</th>
+                  <th class="py-2 px-2">Patient</th>
+                  <th class="py-2 px-2">Médecin</th>
+                  <th class="py-2 px-2">Date Émission</th>
+                  <th class="py-2 px-2 font-mono">Total Facturé</th>
+                  <th class="py-2 px-2 font-mono">Déjà Réglé</th>
+                  <th class="py-2 pl-2 text-right font-mono font-bold text-error">Reste à Payer</th>
+                </tr>
+              </thead>
+              <tbody id="rpt-tbl-unpaid-tbody" class="divide-y divide-surface-container/60"></tbody>
+            </table>
+          </div>
+
+          <!-- TABLEAU 4 : DÉPENSES PAR CATÉGORIE -->
+          <div id="rpt-sub-tbl-expenses" class="hidden overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                  <th class="py-2 pr-2">Catégorie de Dépense</th>
+                  <th class="py-2 px-2 font-mono">Montant (MAD)</th>
+                  <th class="py-2 pl-2 text-right">Part sur Total Charges (%)</th>
+                </tr>
+              </thead>
+              <tbody id="rpt-tbl-expenses-tbody" class="divide-y divide-surface-container/60"></tbody>
+            </table>
+          </div>
+
+          <!-- TABLEAU 5 : HISTORIQUE DES ENCAISSEMENTS -->
+          <div id="rpt-sub-tbl-payments" class="hidden overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                  <th class="py-2 pr-2">Reçu N°</th>
+                  <th class="py-2 px-2">Date &amp; Heure</th>
+                  <th class="py-2 px-2">Facture Associée</th>
+                  <th class="py-2 px-2">Mode de Règlement</th>
+                  <th class="py-2 px-2">Encaissé Par</th>
+                  <th class="py-2 pl-2 text-right font-mono font-bold text-primary">Montant Encaissé</th>
+                </tr>
+              </thead>
+              <tbody id="rpt-tbl-payments-tbody" class="divide-y divide-surface-container/60"></tbody>
+            </table>
+          </div>
+
+          <!-- TABLEAU 6 : AUDIT CNDP LOI 09-08 -->
+          <div id="rpt-sub-tbl-audit" class="hidden space-y-2">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[11px] font-semibold text-outline">Traçabilité des accès aux dossiers médicaux et exports</span>
+              <span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[9.5px] font-bold">Registre Immuable CNDP</span>
+            </div>
+            <div id="audit-logs-list" class="space-y-1.5 max-h-72 overflow-y-auto slim-scroll"></div>
+          </div>
+
+        </div>
+
+        <!-- Comparatif Multi-Branches si applicable -->
+        <div id="rpt-branch-comparison-card" class="bento-card rounded-2xl p-4 shadow-bento overflow-x-auto hidden">
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-xs font-bold text-on-surface uppercase tracking-wider">Comparatif Multi-Branches (Sites)</h3>
+            <span class="text-[10px] text-outline">Chiffre d'affaires et marges nettes par centre</span>
+          </div>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-surface-container text-[10px] font-bold uppercase text-outline">
+                <th class="py-2 pr-2">Site / Branche</th>
+                <th class="py-2 px-2">Volume RDV</th>
+                <th class="py-2 px-2">Présence</th>
+                <th class="py-2 px-2">Recettes</th>
+                <th class="py-2 px-2">Dépenses</th>
+                <th class="py-2 pl-2 text-right">Marge Nette</th>
+              </tr>
+            </thead>
+            <tbody id="rpt-branches-tbody" class="divide-y divide-surface-container/60"></tbody>
+          </table>
+        </div>
+
       </div>
     </section>
 
@@ -1294,11 +1682,12 @@
           </button>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 bg-surface-container-low p-1 rounded-xl text-[10.5px] font-bold gap-1">
-          <button id="dme-tab-vitals" onclick="switchDmeTab('vitals')" class="py-1.5 px-1.5 rounded-lg bg-white text-primary shadow-2xs">Constantes</button>
-          <button id="dme-tab-dental" onclick="switchDmeTab('dental')" class="py-1.5 px-1.5 rounded-lg text-outline hover:text-on-surface">Odontogramme FDI</button>
-          <button id="dme-tab-family" onclick="switchDmeTab('family')" class="py-1.5 px-1.5 rounded-lg text-outline hover:text-on-surface">Famille</button>
-          <button id="dme-tab-history" onclick="switchDmeTab('history')" class="py-1.5 px-1.5 rounded-lg text-outline hover:text-on-surface">Historique</button>
+        <div class="grid grid-cols-2 sm:grid-cols-5 bg-surface-container-low p-1 rounded-xl text-[10.5px] font-bold gap-1">
+          <button id="dme-tab-vitals" onclick="switchDmeTab('vitals')" class="py-1.5 px-1 rounded-lg bg-white text-primary shadow-2xs">Constantes</button>
+          <button id="dme-tab-dental" onclick="switchDmeTab('dental')" class="py-1.5 px-1 rounded-lg text-outline hover:text-on-surface">Odontogramme</button>
+          <button id="dme-tab-labs" onclick="switchDmeTab('labs')" class="py-1.5 px-1 rounded-lg text-outline hover:text-on-surface">Analyses &amp; Bilans</button>
+          <button id="dme-tab-family" onclick="switchDmeTab('family')" class="py-1.5 px-1 rounded-lg text-outline hover:text-on-surface">Famille</button>
+          <button id="dme-tab-history" onclick="switchDmeTab('history')" class="py-1.5 px-1 rounded-lg text-outline hover:text-on-surface">Historique</button>
         </div>
 
         <div id="dme-panel-vitals" class="space-y-3">
@@ -1463,6 +1852,63 @@
             </div>
           </div>
         </div>
+        <!-- PANNEAU ANALYSES & BILANS DE BIOLOGIE DU PATIENT -->
+        <div id="dme-panel-labs" class="hidden space-y-3">
+          <div class="p-3 rounded-2xl bg-surface-container-low space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <strong class="text-xs font-extrabold text-on-surface">Demandes d'Analyses &amp; Résultats Biologiques</strong>
+                <p class="text-[10px] text-outline">Prescriptions biologiques externes et suivi des résultats du patient.</p>
+              </div>
+              <button type="button" onclick="openPatientLabOrderForm()" class="px-2.5 py-1 rounded-full bg-primary text-white text-[10.5px] font-bold shadow-2xs hover:bg-primary-hover">
+                + Prescrire Bilan
+              </button>
+            </div>
+
+            <!-- Formulaire rapide de prescription -->
+            <div id="dme-lab-order-box" class="hidden p-2.5 rounded-xl bg-white border border-outline-variant/30 space-y-2 text-xs">
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[9.5px] font-bold text-outline uppercase mb-0.5">Examen / Bilan</label>
+                  <select id="dme-lab-preset-select" onchange="applyLabPreset(this.value)" class="w-full p-1.5 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30">
+                    <option value="">Sélectionner un profil...</option>
+                    <option value="NFS (Numération Formule Sanguine)">NFS Complète</option>
+                    <option value="Glycémie à jeun & HbA1c">Glycémie à jeun &amp; HbA1c</option>
+                    <option value="Bilan Lipidique (EAL - Cholestérol/Triglycérides)">Bilan Lipidique (EAL)</option>
+                    <option value="Créatininémie + Clairance (DFG)">Bilan Rénal (Créatinine, Urée)</option>
+                    <option value="Ionogramme sanguin (Na+, K+, Cl-)">Ionogramme sanguin</option>
+                    <option value="Bilan Hépatique (ASAT, ALAT, GGT, Bilirubine)">Bilan Hépatique</option>
+                    <option value="CRP ultra-sensible (C-Reactive Protein)">CRP (Inflammatoire)</option>
+                    <option value="TSH ultra-sensible">Bilan Thyroïdien (TSH)</option>
+                    <option value="ECBU (Examen Cytobactériologique des Urines)">ECBU Urines</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[9.5px] font-bold text-outline uppercase mb-0.5">Priorité</label>
+                  <select id="dme-lab-priority" class="w-full p-1.5 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30">
+                    <option value="Routine">Routine</option>
+                    <option value="Urgent (STAT)">Urgent (STAT)</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <input id="dme-lab-custom-test" type="text" placeholder="Ou saisir un test personnalisé..." class="w-full p-1.5 rounded-lg bg-surface-container-low text-xs border border-outline-variant/30 focus:outline-none"/>
+              </div>
+              <div class="flex items-center justify-end gap-1.5 pt-1">
+                <button type="button" onclick="openPatientLabOrderForm(false)" class="text-outline text-xs px-2">Annuler</button>
+                <button type="button" onclick="submitPatientLabOrder()" class="px-3 py-1.5 rounded-lg bg-primary text-white font-bold text-xs hover:bg-primary-hover shadow-2xs">
+                  Enregistrer la Prescription
+                </button>
+              </div>
+            </div>
+
+            <!-- Liste des analyses du patient -->
+            <div id="dme-patient-labs-list" class="space-y-1.5 text-xs max-h-56 overflow-y-auto">
+              <div class="text-xs text-outline py-3 text-center">Aucune analyse biologique enregistrée pour ce dossier.</div>
+            </div>
+          </div>
+        </div>
+
         <div id="dme-panel-history" class="hidden space-y-2"></div>
         <div id="dme-panel-billing" class="hidden space-y-2"></div>
       </div>

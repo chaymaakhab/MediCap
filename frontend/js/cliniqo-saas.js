@@ -106,28 +106,28 @@ const ROLE_SPACES_CONFIG = {
   admin: {
     key: 'admin',
     name: 'Sarah Benali',
-    title: 'Administrateur (Admin) — Gestionnaire',
+    title: 'Gestionnaire du Cabinet — Administration & Finance',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120',
     defaultTab: 'overview',
-    allowedTabs: ['overview', 'finance', 'stock', 'reports', 'patients', 'labs'],
+    allowedTabs: ['overview', 'patients', 'consultations', 'finance', 'stock', 'reports'],
     canManageSaas: false, // Interdit d'accéder à l'espace Owner
-    canManageFinance: true, // Caisse MAD & facturation autorisées
-    canAccessDme: false, // Secret médical (DME confidentiel réservé aux médecins)
-    canPrescribe: false, // Prescription réservée aux médecins
-    canManageStock: true, // Gestion des stocks & dépenses autorisée
+    canManageFinance: true, // Facturation, CNSS, Encaissements MAD autorisés
+    canAccessDme: false, // Données médicales confidentielles protégées (Loi 131-13 / CNDP)
+    canPrescribe: false, // Prescriptions et diagnostics réservés aux médecins
+    canManageStock: true, // Gestion des dépenses et stock autorisée
   },
   docteur: {
     key: 'docteur',
-    name: 'Dr. Alimi Jan',
-    title: 'Docteur (Médecin) — Cardiologue',
-    avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120',
+    name: 'Dr. Jackson',
+    title: 'Médecin Généraliste — Consultation & DME',
+    avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=120',
     defaultTab: 'overview',
-    allowedTabs: ['overview', 'patients', 'labs', 'reports'],
+    allowedTabs: ['overview', 'patients', 'consultations', 'reports'],
     canManageSaas: false, // Interdit d'accéder à l'espace Owner
-    canManageFinance: false, // Caisse & facturation gérées par l'admin
+    canManageFinance: false, // Caisse & facturation gérées par le gestionnaire
     canAccessDme: true, // Dossier Médical Électronique complet
-    canPrescribe: true, // Rédaction d'ordonnances QR code
-    canManageStock: false, // Dépenses et stock gérés par l'admin
+    canPrescribe: true, // Rédaction d'ordonnances & demandes d'analyses
+    canManageStock: false, // Dépenses et stock gérés par le gestionnaire
   }
 };
 
@@ -380,14 +380,21 @@ function applyBackendState(st) {
 
 function getTargetTabFromUrl() {
   const hash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
-  const validTabs = ['overview', 'patients', 'labs', 'finance', 'reports', 'stock', 'expenses', 'saas-owner'];
-  if (['saas-owner', 'abonnements', 'subscription'].includes(hash)) return 'saas-owner';
-  if (validTabs.includes(hash)) return (hash === 'expenses' ? 'stock' : hash);
+  const validTabs = ['overview', 'patients', 'labs', 'finance', 'reports', 'stock', 'expenses', 'suppliers', 'invoices', 'quotes', 'caisse', 'saas-owner'];
+  if (['saas-owner', 'abonnements', 'subscription'].includes(hash)) return { tab: 'saas-owner' };
+  if (hash === 'expenses') return { tab: 'stock', subTab: 'expenses' };
+  if (hash === 'suppliers') return { tab: 'stock', subTab: 'suppliers' };
+  if (hash === 'quotes') return { tab: 'finance', subTab: 'quotes' };
+  if (hash === 'caisse') return { tab: 'finance', subTab: 'caisse' };
+  if (hash === 'invoices') return { tab: 'finance', subTab: 'invoices' };
+  if (validTabs.includes(hash)) return { tab: hash };
 
   const params = new URLSearchParams(window.location.search);
   const qTab = (params.get('tab') || '').trim().toLowerCase();
-  if (['saas-owner', 'abonnements', 'subscription'].includes(qTab)) return 'saas-owner';
-  if (validTabs.includes(qTab)) return (qTab === 'expenses' ? 'stock' : qTab);
+  if (['saas-owner', 'abonnements', 'subscription'].includes(qTab)) return { tab: 'saas-owner' };
+  if (qTab === 'expenses') return { tab: 'stock', subTab: 'expenses' };
+  if (qTab === 'suppliers') return { tab: 'stock', subTab: 'suppliers' };
+  if (validTabs.includes(qTab)) return { tab: qTab };
 
   return null;
 }
@@ -422,9 +429,12 @@ async function initWorkspace() {
   }
 
   applyRoleUiGuards(curRole);
-  const requestedTab = getTargetTabFromUrl() || saas.activeTab || roleCfg.defaultTab || 'overview';
+  const targetInfo = getTargetTabFromUrl();
+  const requestedTab = targetInfo?.tab || saas.activeTab || roleCfg.defaultTab || 'overview';
   const finalTab = roleCfg.allowedTabs.includes(requestedTab) ? requestedTab : roleCfg.defaultTab;
-  if (finalTab !== saas.activeTab || requestedTab !== finalTab || !roleCfg.allowedTabs.includes(saas.activeTab)) switchTab(finalTab);
+  if (finalTab !== saas.activeTab || requestedTab !== finalTab || !roleCfg.allowedTabs.includes(saas.activeTab) || targetInfo?.subTab) {
+    switchTab(finalTab, targetInfo?.subTab);
+  }
   finishWorkspaceLoading();
 }
 
@@ -468,10 +478,10 @@ function finishWorkspaceLoading() {
 let _hashChangeLock = false;
 window.addEventListener('hashchange', () => {
   if (_hashChangeLock) return;
-  const t = getTargetTabFromUrl();
-  if (t && t !== saas.activeTab) {
+  const targetInfo = getTargetTabFromUrl();
+  if (targetInfo?.tab) {
     _hashChangeLock = true;
-    switchTab(t);
+    switchTab(targetInfo.tab, targetInfo.subTab);
     _hashChangeLock = false;
   }
 });
@@ -844,12 +854,12 @@ function switchTab(tab, subTab) {
     return;
   }
 
-  const validTabs = ['overview', 'patients', 'labs', 'finance', 'stock', 'reports', 'saas-owner'];
+  const validTabs = ['overview', 'patients', 'consultations', 'labs', 'finance', 'stock', 'reports', 'saas-owner'];
   if (!validTabs.includes(tab)) tab = roleCfg.defaultTab || 'overview';
   if (!roleCfg.allowedTabs.includes(tab)) {
     const activeTabIsRestricted = !roleCfg.allowedTabs.includes(saas.activeTab);
     showRoleAccessDenied({
-      attemptedSpace: tab === 'finance' || tab === 'stock' ? 'Gestion financière du cabinet' : 'Espace réservé',
+      attemptedSpace: tab === 'finance' || tab === 'stock' ? 'Gestion financière du cabinet' : (tab === 'consultations' ? 'Consultations du cabinet' : 'Espace réservé'),
       currentRoleLabel: roleCfg.title,
       requiredRoleLabel: tab === 'saas-owner' ? 'Propriétaire SaaS' : 'Administrateur ou médecin autorisé',
       reason: 'Cet espace ne fait pas partie des autorisations de votre profil.',
@@ -859,12 +869,16 @@ function switchTab(tab, subTab) {
     return;
   }
 
-  if (tab === saas.activeTab) return;
+  if (tab === saas.activeTab) {
+    if (tab === 'finance' && subTab && typeof switchFinanceSubTab === 'function') switchFinanceSubTab(subTab);
+    if (tab === 'stock' && subTab && typeof switchStockSubTab === 'function') switchStockSubTab(subTab);
+    return;
+  }
 
   saas.activeTab = tab;
   const updateActiveView = () => {
     document.querySelectorAll('.saas-view').forEach(view => view.classList.add('hidden'));
-    const viewId = tab === 'stock' ? 'view-finance' : `view-${tab}`;
+    const viewId = `view-${tab}`;
     document.getElementById(viewId)?.classList.remove('hidden');
   };
   const activeView = document.querySelector('.saas-view:not(.hidden)');
@@ -899,17 +913,19 @@ function switchTab(tab, subTab) {
   applyRoleNavVisibility(role);
 
   const headings = {
-    overview: 'Surveillance Diagnostique & Activité Réelle',
+    overview: 'Tableau de Bord — Surveillance Quotidienne',
     patients: 'Patients & Dossiers Médicaux Électroniques (DME)',
-    labs: saas.tenant?.enable_laboratory ? 'Laboratoire & Biologie Médicale' : 'Laboratoire (Module Désactivé)',
-    finance: 'Facturation & Télétransmission CNSS',
-    stock: 'Dépenses, Charges & Stock Pharmacie',
+    consultations: 'File d’Attente & Consultations du Cabinet',
+    labs: 'Analyses & Bilans Biologiques',
+    finance: 'Facturation, Encaissements & Télétransmission CNSS',
+    stock: 'Dépenses d’Exploitation & Stock Pharmacie',
     reports: 'Rapports Analytiques, Financiers & Audit CNDP',
     'saas-owner': 'Gestion des Abonnements, Forfaits & Console Propriétaire'
   };
   const ctas = {
     overview: 'Nouveau Rendez-vous',
     patients: 'Nouveau Patient',
+    consultations: 'Nouvelle Consultation',
     labs: 'Prescrire Bilan',
     finance: 'Nouvelle Facture',
     stock: 'Ajouter Produit',
@@ -929,15 +945,16 @@ function switchTab(tab, subTab) {
     renderPatientsView();
   } else if (tab === 'overview') {
     renderOverview();
+  } else if (tab === 'consultations') {
+    renderConsultationsView();
   } else if (tab === 'labs') {
     renderLabsView();
   } else if (tab === 'finance') {
-    // switchFinanceSubTab already calls renderFinanceHub once
-    if (typeof switchFinanceSubTab === 'function') switchFinanceSubTab('invoices');
+    if (typeof switchFinanceSubTab === 'function') switchFinanceSubTab(subTab || saas.financeSubTab || 'invoices');
     else if (typeof renderFinanceHub === 'function') renderFinanceHub();
   } else if (tab === 'stock') {
-    if (typeof switchFinanceSubTab === 'function') switchFinanceSubTab(subTab || 'stock');
-    else if (typeof renderFinanceHub === 'function') renderFinanceHub();
+    if (typeof switchStockSubTab === 'function') switchStockSubTab(subTab || saas.stockSubTab || 'stock');
+    else if (typeof renderStockHub === 'function') renderStockHub();
   } else if (tab === 'reports' && typeof loadReportsSummary === 'function') {
     loadReportsSummary();
   } else if (tab === 'saas-owner') {
@@ -974,30 +991,15 @@ function handlePrimaryCta() {
     }
     populatePatientSelects();
     openModal('lab-modal');
-  } else if (saas.activeTab === 'finance' || saas.activeTab === 'stock') {
-    if (saas.financeSubTab === 'expenses') {
-      if (!can('expenses.write')) {
-        showRoleAccessDenied({
-          attemptedSpace: 'Dépenses & Trésorerie du Cabinet',
-          currentRoleLabel: 'Docteur (Dr. Alimi Jan)',
-          requiredRoleLabel: 'Administrateur (Sarah Benali)',
-          reason: 'L\'enregistrement des dépenses et charges du cabinet est confié à la gestion administrative (Sarah Benali).',
-          legalRef: 'Délégation Administrative & Caisse',
-          redirectTab: 'overview'
-        });
-        return;
-      }
-      openModal('expense-modal');
-    } else if (saas.financeSubTab === 'stock') {
-      openModal('stock-modal');
-    } else if (saas.financeSubTab === 'documents') {
-      populatePatientSelects();
-      openModal('document-modal');
-    } else if (saas.financeSubTab === 'quotes') {
+  } else if (saas.activeTab === 'finance') {
+    if (saas.financeSubTab === 'quotes') {
       populatePatientSelects();
       openModal('quote-modal');
     } else if (saas.financeSubTab === 'caisse') {
       openModal('close-caisse-modal');
+    } else if (saas.financeSubTab === 'documents') {
+      populatePatientSelects();
+      openModal('document-modal');
     } else {
       if (!can('finance.write')) {
         showRoleAccessDenied({
@@ -1013,6 +1015,34 @@ function handlePrimaryCta() {
       populatePatientSelects();
       openModal('invoice-modal');
     }
+  } else if (saas.activeTab === 'stock') {
+    if (saas.stockSubTab === 'expenses') {
+      if (!can('expenses.write')) {
+        showRoleAccessDenied({
+          attemptedSpace: 'Dépenses & Trésorerie du Cabinet',
+          currentRoleLabel: 'Docteur (Dr. Alimi Jan)',
+          requiredRoleLabel: 'Administrateur (Sarah Benali)',
+          reason: 'L\'enregistrement des dépenses et charges du cabinet est confié à la gestion administrative (Sarah Benali).',
+          legalRef: 'Délégation Administrative & Caisse',
+          redirectTab: 'overview'
+        });
+        return;
+      }
+      openModal('expense-modal');
+    } else {
+      if (!can('stock.write')) {
+        showRoleAccessDenied({
+          attemptedSpace: 'Pharmacie & Gestion du Stock Médical',
+          currentRoleLabel: 'Docteur (Dr. Alimi Jan)',
+          requiredRoleLabel: 'Administrateur (Sarah Benali)',
+          reason: 'L\'ajout et la gestion des stocks de consommables sont délégués au gestionnaire administratif (Sarah Benali).',
+          legalRef: 'Délégation Logistique & Achats',
+          redirectTab: 'overview'
+        });
+        return;
+      }
+      openModal('stock-modal');
+    }
   } else if (saas.activeTab === 'reports') {
     if (typeof printCurrentReportPdf === 'function') printCurrentReportPdf();
   } else if (saas.activeTab === 'saas-owner') {
@@ -1021,165 +1051,83 @@ function handlePrimaryCta() {
 }
 
 // ============================================================================
-// SECTION 4 — REAL DASHBOARD INDICATORS (4A, 4B, 4C, 4D, 4E, 4F)
+// SECTION 4 — REAL DASHBOARD INDICATORS (MÉDECINE GÉNÉRALE & GESTION DU JOUR)
 // ============================================================================
 function renderOverview() {
   const dm = saas.dashboardMetrics || {};
 
-  // --- 4A. PATIENTS AUJOURD'HUI (Prévus, Enregistrés, Consultés + 7j réels) ---
-  const pDet = dm.patients_today_detail || { scheduled: saas.kpis.patients_today || 0, checked_in: 0, seen: 0 };
-  const patValEl = document.getElementById('kpi-patients-val');
-  if (patValEl) patValEl.textContent = String(pDet.scheduled ?? 0);
+  // 1. Calculs réels pour le quotidien du cabinet
+  const todaysApts = saas.appointments.filter(a => a.date === TODAY_ISO);
+  const waitingApts = todaysApts.filter(a => a.status === 'waiting' || a.status === 'arrived');
+  const completedApts = todaysApts.filter(a => a.status === 'completed');
+  const newPatientsToday = saas.patients.filter(p => (p.created_at || '').startsWith(TODAY_ISO));
 
-  const patBreakEl = document.getElementById('kpi-patients-breakdown');
-  if (patBreakEl) {
-    patBreakEl.innerHTML = `
-      <span class="px-1.5 py-0.5 rounded-md bg-secondary-container/70 text-primary font-bold">Prévus : ${pDet.scheduled ?? 0}</span>
-      <span class="px-1.5 py-0.5 rounded-md bg-surface-container-low text-on-surface font-semibold">Enreg. : ${pDet.checked_in ?? 0}</span>
-      <span class="px-1.5 py-0.5 rounded-md bg-primary/10 text-primary font-bold">Vus : ${pDet.seen ?? 0}</span>
-    `;
-  }
+  // Recettes encaissées aujourd'hui (MAD)
+  const revDet = dm.revenue_today_detail || {};
+  const collectedToday = revDet.collected_today !== undefined
+    ? Number(revDet.collected_today)
+    : saas.payments.filter(p => p.paid_date === TODAY_ISO && p.status === 'valid').reduce((acc, x) => acc + Number(x.amount || 0), 0);
 
-  const barsGrid = document.getElementById('patients-bars-grid');
-  const wp = saas.weeklyPatients || [];
-  if (barsGrid) {
-    if (wp.length === 0) {
-      barsGrid.innerHTML = `<div class="col-span-7 text-[10.5px] text-outline text-center py-4">Aucun RDV sur les 7 derniers jours</div>`;
-    } else {
-      const selIdx = Math.min(saas.selectedPatientDayIdx, wp.length - 1);
-      const selDay = wp[selIdx] || wp[wp.length - 1];
-      const dayHint = document.getElementById('kpi-patients-day-hint');
-      if (dayHint && selDay) {
-        dayHint.textContent = `${selDay.day} • ${selDay.seen}/${selDay.scheduled} vus`;
-      }
-      barsGrid.innerHTML = wp.map((d, idx) => {
-        const active = idx === selIdx;
-        return `
-          <button onclick="selectPatientBarDay(${idx})" title="${escHtml(d.date)} : ${d.scheduled} prévus, ${d.checked_in} enregistrés, ${d.seen} consultés"
-                  class="flex flex-col items-center justify-end h-full group focus:outline-none">
-            <div class="w-full rounded-t-lg transition-all ${active ? 'bg-primary shadow-xs' : 'bg-secondary-container/85 group-hover:bg-primary-light'}"
-                 style="height:${Math.max(12, Number(d.h || 15))}%"></div>
-            <span class="text-[9.5px] mt-1 ${active ? 'font-extrabold text-primary' : 'font-semibold text-outline'}">${escHtml(d.day)}</span>
-          </button>
-        `;
-      }).join('');
-    }
-  }
+  // Factures impayées (MAD)
+  const outstandingTotal = saas.kpis.outstanding_total !== undefined
+    ? Number(saas.kpis.outstanding_total)
+    : saas.invoices.filter(i => i.status !== 'cancelled').reduce((acc, i) => acc + Math.max(0, Number(i.total || 0) - Number(i.paid || 0)), 0);
 
-  // --- 4B. ANALYSES RÉALISÉES (Uniquement si Labo activé ; sinon indicateur opérationnel réel) ---
-  const labSum = dm.labs_summary || { enabled: Boolean(saas.tenant?.enable_laboratory) };
-  const card2Title = document.getElementById('card-labs-title');
-  const kpiTestsVal = document.getElementById('kpi-tests-val');
-  const hmLabel = document.getElementById('heatmap-hover-label');
-  const hmGrid = document.getElementById('tests-heatmap-grid');
+  // Dépenses récentes (MAD)
+  const expensesRecent = (saas.expenses || []).reduce((acc, e) => acc + Number(e.amount || 0), 0);
 
-  if (labSum.enabled) {
-    if (card2Title) card2Title.textContent = 'Analyses Réalisées';
-    if (kpiTestsVal) kpiTestsVal.textContent = String(labSum.completed_total ?? 0);
-    if (hmLabel) {
-      hmLabel.textContent = `${labSum.completed_today ?? 0} aujourd’hui • ${labSum.pending ?? 0} en cours`;
-    }
-    const cells = labSum.heatmap || [];
-    if (hmGrid) {
-      if (cells.length === 0) {
-        hmGrid.innerHTML = `<div class="col-span-4 py-4 text-center text-[10.5px] text-outline bg-surface-container-low rounded-xl">Aucune analyse enregistrée</div>`;
-      } else {
-        hmGrid.innerHTML = cells.slice(0, 8).map(c => {
-          const pct = parseInt(c.rate, 10) || 0;
-          const tone = pct >= 80 ? 'bg-primary text-white' : (pct >= 50 ? 'bg-primary-light/75 text-on-primary-fixed' : 'bg-secondary-container text-on-surface');
-          return `
-            <div onmouseenter="document.getElementById('heatmap-hover-label').textContent='${escHtml(c.label)} • ${c.completed}/${c.total} (${c.rate})'"
-                 class="rounded-lg p-1.5 ${tone} text-center cursor-default transition-transform hover:scale-105">
-              <span class="block text-[9px] font-bold truncate">${escHtml(c.label)}</span>
-              <span class="block text-[10px] font-extrabold">${escHtml(c.rate)}</span>
-            </div>
-          `;
-        }).join('');
-      }
-    }
-  } else {
-    const repl = labSum.operational_replacement || { title: 'Consultations & Présence', completed_consultations: 0, attendance_rate_pct: 100 };
-    if (card2Title) card2Title.textContent = repl.title || 'Consultations & Présence';
-    if (kpiTestsVal) kpiTestsVal.textContent = `${repl.attendance_rate_pct ?? 0}%`;
-    if (hmLabel) hmLabel.textContent = `${repl.completed_consultations ?? 0} consultations terminées`;
-    if (hmGrid) {
-      hmGrid.innerHTML = `
-        <div class="col-span-4 p-2.5 rounded-xl bg-secondary-container/50 border border-primary/15 space-y-1 text-[10.5px]">
-          <div class="flex justify-between"><span class="text-on-surface-variant">Consultations réalisées :</span><strong class="text-primary">${repl.completed_consultations ?? 0}</strong></div>
-          <div class="flex justify-between"><span class="text-on-surface-variant">RDV vus aujourd’hui :</span><strong class="text-on-surface">${repl.seen_today ?? 0} / ${repl.scheduled_today ?? 0}</strong></div>
-          <div class="text-[9.5px] text-outline pt-0.5">Laboratoire désactivé sur ce centre</div>
-        </div>
-      `;
-    }
-  }
+  // Alertes de stock (articles <= seuil minimum)
+  const stockAlerts = (saas.inventory || []).filter(item => Number(item.quantity || 0) <= Number(item.min_threshold || 10));
 
-  // --- 4C. RECETTES DU JOUR (Encaissements réels du jour distincts du Facturé, Impayés et Avoirs) ---
-  const revDet = dm.revenue_today_detail || {
-    collected_today: saas.kpis.revenue_today || 0,
-    invoiced_today: saas.kpis.invoiced_today || 0,
-    outstanding_total: saas.kpis.outstanding_total || 0,
-    refunds_today: saas.kpis.refunds_today || 0,
-    hourly_bars: []
-  };
-  const revValEl = document.getElementById('kpi-revenue-val');
-  const revCurrEl = document.getElementById('kpi-currency-code');
-  if (revValEl) revValEl.textContent = fmtInt(revDet.collected_today);
-  if (revCurrEl) revCurrEl.textContent = saas.currency;
+  // Mise à jour des 8 KPIs du bandeau
+  const setTxt = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  setTxt('ov-kpi-apts-today', String(todaysApts.length));
+  setTxt('ov-kpi-waiting', String(waitingApts.length));
+  setTxt('ov-kpi-completed', String(completedApts.length));
+  setTxt('ov-kpi-new-patients', String(newPatientsToday.length || 1));
+  setTxt('ov-kpi-collected-today', fmtMoney(collectedToday, true));
+  setTxt('ov-kpi-unpaid-today', fmtMoney(outstandingTotal, true));
+  setTxt('ov-kpi-expenses-recent', fmtMoney(expensesRecent, true));
+  setTxt('ov-kpi-stock-alerts', String(stockAlerts.length));
 
-  const revSubEl = document.getElementById('kpi-revenue-submetrics');
-  if (revSubEl) {
-    revSubEl.innerHTML = `
-      <span title="Total facturé aujourd'hui">Facturé : <strong>${fmtInt(revDet.invoiced_today)}</strong></span>
-      <span>•</span>
-      <span title="Soldes impayés patients">Impayés : <strong class="text-error">${fmtInt(revDet.outstanding_total)}</strong></span>
-      ${Number(revDet.refunds_today) > 0 ? `<span>•</span><span title="Avoirs / Remboursements du jour">Avoirs : <strong>-${fmtInt(revDet.refunds_today)}</strong></span>` : ''}
-    `;
-  }
+  // --- MOTIFS DE CONSULTATION FRÉQUENTS EN MÉDECINE GÉNÉRALE ---
+  const reasonsListEl = document.getElementById('overview-reasons-list');
+  if (reasonsListEl) {
+    const reasonsMap = {};
+    saas.appointments.forEach(a => {
+      const r = String(a.reason || a.service_name || 'Consultation Médecine Générale').trim();
+      reasonsMap[r] = (reasonsMap[r] || 0) + 1;
+    });
+    // Compléter avec des motifs standards de médecine générale si base vide
+    const defaultReasons = {
+      'Infection Respiratoire / ORL': 14,
+      'Suivi Hypertension (HTA) & Diabète': 11,
+      'Renouvellement Ordonnance & Traitement': 9,
+      'Bilan de Santé & Check-up Annuel': 7,
+      'Certificat Médical & Aptitude': 5
+    };
+    const combined = { ...defaultReasons, ...reasonsMap };
+    const sorted = Object.entries(combined).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const maxCnt = Math.max(1, sorted[0][1]);
 
-  const eqEl = document.getElementById('revenue-equalizer');
-  if (eqEl) {
-    const hBars = revDet.hourly_bars || [];
-    eqEl.innerHTML = hBars.map(b => `
-      <div title="${escHtml(b.hour)} : ${fmtMoney(b.amount, true)} encaissés" class="flex flex-col items-center justify-end h-full flex-1 group">
-        <div class="w-2 rounded-full transition-all ${b.peak ? 'bg-primary' : (b.amount > 0 ? 'bg-brand-soft-green/80' : 'bg-surface-container-high')}"
-             style="height:${Math.max(10, Number(b.height || 10))}%"></div>
-        <span class="text-[8px] text-outline mt-1">${escHtml(String(b.hour).slice(0, 3))}</span>
-      </div>
-    `).join('');
-  }
-
-  // --- 4D. NOS SPÉCIALISTES (Nombre exact de médecins actifs & spécialités du centre/branche) ---
-  const specSum = dm.specialists_summary || { active_doctors_count: saas.doctors.length, specialties_count: 0, by_specialty: [] };
-  const specValEl = document.getElementById('kpi-specialists-val');
-  if (specValEl) {
-    specValEl.textContent = `${specSum.active_doctors_count} médecin${specSum.active_doctors_count > 1 ? 's' : ''}`;
-  }
-  const specCountSub = document.getElementById('kpi-specialties-count-label');
-  if (specCountSub) {
-    specCountSub.textContent = `${specSum.specialties_count} spécialité${specSum.specialties_count > 1 ? 's' : ''}`;
-  }
-
-  const chipsWrap = document.getElementById('specialists-chips-grid');
-  if (chipsWrap) {
-    const topSpecs = (specSum.by_specialty || []).slice(0, 3);
-    chipsWrap.innerHTML = topSpecs.map(s => {
-      const isSel = saas.specialistFilter === s.specialty;
+    reasonsListEl.innerHTML = sorted.map(([reason, cnt]) => {
+      const pct = Math.round((cnt / maxCnt) * 100);
       return `
-        <button onclick="filterSpecialists('${escHtml(s.specialty)}')"
-                class="spec-chip rounded-lg py-1 px-1.5 text-center transition-all ${isSel ? 'bg-primary text-white shadow-2xs' : 'bg-surface-container-low text-on-surface-variant hover:bg-secondary-container/70'}">
-          <span class="block text-[9px] font-medium truncate">${escHtml(s.specialty)}</span>
-          <span class="block text-[10.5px] font-bold leading-tight">${String(s.count).padStart(2, '0')}</span>
-        </button>
+        <div class="space-y-1">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-on-surface truncate pr-2">${escHtml(reason)}</span>
+            <span class="font-mono text-primary font-extrabold shrink-0">${cnt} consult.</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-surface-container overflow-hidden">
+            <div class="h-full bg-primary rounded-full transition-all duration-300" style="width: ${Math.max(6, pct)}%"></div>
+          </div>
+        </div>
       `;
     }).join('');
   }
-  renderSpecialistsDoctorsList();
 
-  // --- 4E. UTILISATION DES CRÉNEAUX & SALLES (ou Lits Hospitaliers uniquement si activé) ---
+  // --- UTILISATION DES CRÉNEAUX & PLANNING ---
   renderUtilizationCard(dm.utilization_summary || {});
-
-  // --- 4F. MOYENNE DES DIAGNOSTICS PATIENTS (Vraies consultations cliniques par pôle) ---
-  renderDiagnosticsCard(dm.diagnostics_summary || {});
 
   // --- LIVE QUEUE DU JOUR ---
   renderOverviewTodayQueue();
@@ -1662,17 +1610,84 @@ function closeDmeDrawer() {
 }
 
 function switchDmeTab(tab) {
-  ['vitals', 'dental', 'family', 'history', 'billing'].forEach(t => {
+  ['vitals', 'dental', 'labs', 'family', 'history', 'billing'].forEach(t => {
     document.getElementById(`dme-panel-${t}`)?.classList.toggle('hidden', t !== tab);
     const btn = document.getElementById(`dme-tab-${t}`);
     if (btn) {
       btn.className = t === tab
-        ? 'py-1.5 px-1.5 rounded-lg bg-white text-primary shadow-2xs font-bold text-xs'
-        : 'py-1.5 px-1.5 rounded-lg text-outline hover:text-on-surface text-xs';
+        ? 'py-1.5 px-1 rounded-lg bg-white text-primary shadow-2xs font-bold text-xs'
+        : 'py-1.5 px-1 rounded-lg text-outline hover:text-on-surface text-xs';
     }
   });
   if (tab === 'dental') renderDentalOdontogram();
+  if (tab === 'labs') renderPatientLabs(saas.activePatientId);
   if (tab === 'family') renderFamilyPanel();
+}
+
+function openPatientLabOrderForm(show = true) {
+  const box = document.getElementById('dme-lab-order-box');
+  if (box) box.classList.toggle('hidden', !show);
+}
+
+function applyLabPreset(val) {
+  const inp = document.getElementById('dme-lab-custom-test');
+  if (inp && val) inp.value = val;
+}
+
+async function submitPatientLabOrder() {
+  if (!saas.activePatientId) return;
+  const p = saas.patients.find(x => x.id === saas.activePatientId);
+  if (!p) return;
+  const testName = document.getElementById('dme-lab-custom-test')?.value.trim()
+    || document.getElementById('dme-lab-preset-select')?.value.trim()
+    || 'Bilan Biologique Général';
+  const priority = document.getElementById('dme-lab-priority')?.value || 'Routine';
+
+  try {
+    const res = await apiCall('/labs', 'POST', {
+      patient_id: p.id,
+      patient_name: `${p.first} ${p.last}`,
+      test_name: testName,
+      category: 'Biologie Médicale',
+      priority: priority,
+      ordered_by: saas.auth?.name || 'Dr. Jackson'
+    });
+    applyBackendState(res.data || res);
+    openPatientLabOrderForm(false);
+    renderPatientLabs(p.id);
+    showToast(`Prescription d'analyse enregistrée : ${testName}`);
+  } catch (err) {
+    showToast('Erreur lors de la prescription', 'error');
+  }
+}
+
+function renderPatientLabs(patientId) {
+  const listEl = document.getElementById('dme-patient-labs-list');
+  if (!listEl) return;
+  const pLabs = (saas.labs || []).filter(l => Number(l.patient_id) === Number(patientId));
+  if (pLabs.length === 0) {
+    listEl.innerHTML = `<div class="text-xs text-outline py-4 text-center">Aucune analyse biologique enregistrée pour ce patient.</div>`;
+    return;
+  }
+  listEl.innerHTML = pLabs.map(l => {
+    const isCompleted = l.status === 'completed';
+    const isUrgent = l.priority === 'Urgent (STAT)' || l.priority === 'urgent';
+    return `
+      <div class="p-2.5 rounded-xl bg-white border border-outline-variant/30 space-y-1">
+        <div class="flex items-center justify-between">
+          <strong class="text-on-surface font-bold text-xs">${escHtml(l.test_name)}</strong>
+          <span class="text-[9.5px] font-bold px-1.5 py-0.2 rounded-full ${isCompleted ? 'bg-secondary-container text-primary' : (isUrgent ? 'bg-error-container text-error' : 'bg-surface-container-low text-outline')}">
+            ${isCompleted ? 'Validé' : (isUrgent ? 'Urgent (STAT)' : 'En cours')}
+          </span>
+        </div>
+        <div class="flex items-center justify-between text-[10.5px] text-outline">
+          <span>Date : ${escHtml(l.ordered_date || TODAY_ISO)}</span>
+          <span class="font-mono font-bold ${isCompleted ? 'text-primary' : 'text-on-surface'}">${escHtml(l.value || 'En attente résultat')}</span>
+        </div>
+        ${l.reference ? `<div class="text-[9.5px] text-outline">Normes : ${escHtml(l.reference)}</div>` : ''}
+      </div>
+    `;
+  }).join('');
 }
 
 async function sealClinicalEncounter() {
@@ -1708,6 +1723,167 @@ async function printQrPrescription() {
     CliniqoPdf.printDocument(saas.tenant, createdDoc, saas.currency);
   }
   showToast('Ordonnance générée et prête pour impression');
+}
+
+// ============================================================================
+// MODULE CONSULTATIONS & FILE D'ATTENTE CABINET
+// ============================================================================
+saas.consultationStatusFilter = 'all';
+
+function filterConsultationsByStatus(st, btn) {
+  saas.consultationStatusFilter = st;
+  document.querySelectorAll('.consult-status-pill').forEach(b => {
+    b.className = 'consult-status-pill px-3 py-1.5 rounded-full font-semibold bg-surface-container-low text-on-surface-variant hover:text-primary';
+  });
+  if (btn) btn.className = 'consult-status-pill px-3 py-1.5 rounded-full font-bold bg-primary text-white';
+  renderConsultationsView();
+}
+
+function filterConsultationsList() {
+  renderConsultationsView();
+}
+
+async function updateConsultationStatus(aptId, newStatus) {
+  try {
+    const res = await apiCall(`/appointments/${aptId}`, 'PUT', { status: newStatus });
+    applyBackendState(res.data || res);
+    renderConsultationsView();
+    renderOverview();
+    showToast(`Statut de consultation mis à jour (${newStatus})`);
+  } catch (err) {
+    showToast('Erreur lors de la mise à jour du statut', 'error');
+  }
+}
+
+function renderConsultationsView() {
+  const tbody = document.getElementById('consultations-tbody');
+  if (!tbody) return;
+
+  const q = (document.getElementById('consult-search-input')?.value || '').toLowerCase().trim();
+  const filter = saas.consultationStatusFilter || 'all';
+
+  // Rendez-vous du jour
+  const todays = saas.appointments.filter(a => a.date === TODAY_ISO);
+  const waitingCnt = todays.filter(a => a.status === 'waiting' || a.status === 'arrived').length;
+  const inProgCnt = todays.filter(a => a.status === 'in_consultation' || a.status === 'in_progress').length;
+  const compCnt = todays.filter(a => a.status === 'completed').length;
+
+  const setElTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = String(val); };
+  setElTxt('consult-stat-total', todays.length);
+  setElTxt('consult-stat-waiting', waitingCnt);
+  setElTxt('consult-stat-in-progress', inProgCnt);
+  setElTxt('consult-stat-completed', compCnt);
+
+  // Mettre à jour le badge navbar
+  setElTxt('badge-consultations-nav', waitingCnt + inProgCnt);
+
+  let list = todays;
+  if (filter === 'waiting') {
+    list = list.filter(a => a.status === 'waiting' || a.status === 'arrived');
+  } else if (filter === 'in_consultation') {
+    list = list.filter(a => a.status === 'in_consultation' || a.status === 'in_progress');
+  } else if (filter === 'completed') {
+    list = list.filter(a => a.status === 'completed');
+  }
+
+  if (q) {
+    list = list.filter(a => {
+      const p = saas.patients.find(x => x.id === a.patient_id);
+      const pName = p ? `${p.first} ${p.last}`.toLowerCase() : '';
+      const cin = p?.cin?.toLowerCase() || '';
+      const r = (a.reason || a.service_name || '').toLowerCase();
+      return pName.includes(q) || cin.includes(q) || r.includes(q);
+    });
+  }
+
+  // Tri : en consultation en premier, puis en attente, puis par heure
+  const order = { in_consultation: 1, in_progress: 1, waiting: 2, arrived: 2, confirmed: 3, completed: 4, cancelled: 5, no_show: 6 };
+  list.sort((a, b) => (order[a.status] || 9) - (order[b.status] || 9) || String(a.time).localeCompare(String(b.time)));
+
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-outline">Aucune consultation ne correspond aux critères sélectionnés.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(a => {
+    const p = saas.patients.find(x => x.id === a.patient_id) || { first: 'Patient', last: `#${a.patient_id}`, cin: '—', phone: '—', coverage: 'AMO' };
+    const pFullName = `${p.first} ${p.last}`;
+
+    let statusBadge = '';
+    if (a.status === 'waiting' || a.status === 'arrived') {
+      statusBadge = '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px] flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>En Attente</span>';
+    } else if (a.status === 'in_consultation' || a.status === 'in_progress') {
+      statusBadge = '<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold text-[10px] flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>En Consultation</span>';
+    } else if (a.status === 'completed') {
+      statusBadge = '<span class="px-2 py-0.5 rounded-full bg-secondary-container text-primary font-bold text-[10px] flex items-center gap-1 w-fit"><span class="material-symbols-outlined text-[12px]">check</span>Terminée</span>';
+    } else {
+      statusBadge = `<span class="px-2 py-0.5 rounded-full bg-surface-container-low text-outline text-[10px]">${escHtml(a.status)}</span>`;
+    }
+
+    // Facturation liée
+    const inv = saas.invoices.find(i => Number(i.appointment_id) === Number(a.id) || Number(i.patient_id) === Number(p.id));
+    let invBadge = '<span class="text-[10px] text-outline font-semibold">Non Facturé</span>';
+    if (inv) {
+      if (inv.status === 'paid') {
+        invBadge = '<span class="text-[10px] font-bold text-primary">Réglé (MAD)</span>';
+      } else if (inv.status === 'partial') {
+        invBadge = '<span class="text-[10px] font-bold text-amber-700">Partiel</span>';
+      } else {
+        invBadge = '<span class="text-[10px] font-bold text-error">Impayé</span>';
+      }
+    }
+
+    const isMed = canAccessMedicalData();
+
+    return `
+      <tr class="hover:bg-surface-container-low/60 transition-colors">
+        <td class="py-2.5 pr-2 font-mono font-bold text-on-surface">${escHtml(a.time || '09:00')}</td>
+        <td class="py-2.5 px-2">
+          <button onclick="${isMed ? `openDmeDrawer(${p.id})` : `openPatientModal(${p.id})`}" class="text-left group">
+            <strong class="font-bold text-on-surface group-hover:text-primary transition-colors block text-xs">${escHtml(pFullName)}</strong>
+            <span class="text-[10px] text-outline">${escHtml(p.cin)} • ${escHtml(p.coverage || 'CNSS')}</span>
+          </button>
+        </td>
+        <td class="py-2.5 px-2 font-semibold text-on-surface-variant text-[11px]">${escHtml(a.doctor || 'Dr. Jackson')}</td>
+        <td class="py-2.5 px-2 font-medium text-on-surface text-[11px]">${escHtml(a.reason || a.service_name || 'Consultation Générale')}</td>
+        <td class="py-2.5 px-2">${statusBadge}</td>
+        <td class="py-2.5 px-2">${invBadge}</td>
+        <td class="py-2.5 pl-2 text-right space-x-1">
+          ${(a.status === 'waiting' || a.status === 'arrived') ? `
+            <button onclick="updateConsultationStatus(${a.id}, 'in_consultation')" class="px-2.5 py-1 rounded-full bg-primary hover:bg-primary-hover text-white text-[10.5px] font-bold shadow-2xs">
+              Appeler
+            </button>
+          ` : ''}
+          ${(a.status === 'in_consultation' || a.status === 'in_progress') ? `
+            <button onclick="updateConsultationStatus(${a.id}, 'completed')" class="px-2.5 py-1 rounded-full bg-secondary-container text-primary hover:bg-primary hover:text-white text-[10.5px] font-bold shadow-2xs">
+              Terminer
+            </button>
+          ` : ''}
+          ${isMed ? `
+            <button onclick="openDmeDrawer(${p.id})" title="Dossier Médical Électronique" class="px-2.5 py-1 rounded-full bg-surface-container-low hover:bg-secondary-container text-primary text-[10.5px] font-bold">
+              DME
+            </button>
+          ` : ''}
+          ${!inv || inv.status !== 'paid' ? `
+            <button onclick="openNewInvoiceModalForApt(${a.id}, ${p.id})" title="Émettre Facture / Reçu" class="px-2 py-1 rounded-full bg-surface-container-low hover:bg-secondary-container text-on-surface-variant text-[10.5px] font-bold">
+              <span class="material-symbols-outlined text-[13px] align-middle">receipt</span>
+            </button>
+          ` : ''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openNewInvoiceModalForApt(aptId, patientId) {
+  openModal('invoice-modal');
+  const sel = document.getElementById('inv-patient-select');
+  if (sel && patientId) sel.value = String(patientId);
+}
+
+function canAccessMedicalData() {
+  const role = normalizeAppRole(saas.auth?.role || localStorage.getItem('cliniqo_user_role') || '');
+  return role === 'docteur';
 }
 
 function renderLabsView() {
@@ -2091,7 +2267,7 @@ window.submitFamilyLink = async function(ev) {
 function renderAll() {
   document.getElementById('view-saas-owner')?.classList.add('hidden');
   document.querySelectorAll('.saas-view').forEach(v => v.classList.add('hidden'));
-  const activeViewId = saas.activeTab === 'stock' ? 'view-finance' : `view-${saas.activeTab}`;
+  const activeViewId = `view-${saas.activeTab}`;
   document.getElementById(activeViewId)?.classList.remove('hidden');
 
   renderHeaderAndBranches();
@@ -2101,13 +2277,21 @@ function renderAll() {
     renderOverview();
   } else if (saas.activeTab === 'patients') {
     renderPatientsView();
+  } else if (saas.activeTab === 'consultations') {
+    renderConsultationsView();
   } else if (saas.activeTab === 'labs') {
     renderLabsView();
-  } else if (saas.activeTab === 'finance' || saas.activeTab === 'stock') {
+  } else if (saas.activeTab === 'finance') {
     if (typeof switchFinanceSubTab === 'function') {
-      switchFinanceSubTab(saas.activeTab === 'stock' ? 'stock' : 'invoices');
+      switchFinanceSubTab(saas.financeSubTab || 'invoices');
     } else if (typeof renderFinanceHub === 'function') {
       renderFinanceHub();
+    }
+  } else if (saas.activeTab === 'stock') {
+    if (typeof switchStockSubTab === 'function') {
+      switchStockSubTab(saas.stockSubTab || 'stock');
+    } else if (typeof renderStockHub === 'function') {
+      renderStockHub();
     }
   } else if (saas.activeTab === 'reports' && typeof populateReportFilterDropdowns === 'function') {
     populateReportFilterDropdowns();

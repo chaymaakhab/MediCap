@@ -114,8 +114,21 @@ class ReportsAndAdminController
             $dateFrom = $today;
             $dateTo = $today;
         } elseif ($period === 'week') {
-            $dateFrom = date('Y-m-d', strtotime("{$today} -6 days"));
-            $dateTo = $today;
+            $ts = strtotime($today);
+            $dayOfWeek = (int) date('N', $ts); // 1 = Lundi, 7 = Dimanche
+            $dateFrom = date('Y-m-d', strtotime('-' . ($dayOfWeek - 1) . ' days', $ts));
+            $dateTo = date('Y-m-d', strtotime('+' . (7 - $dayOfWeek) . ' days', $ts));
+        } elseif ($period === 'quarter') {
+            $m = (int) date('n', strtotime($today));
+            $y = date('Y', strtotime($today));
+            $qStartMonth = sprintf('%02d', floor(($m - 1) / 3) * 3 + 1);
+            $qEndMonth = sprintf('%02d', floor(($m - 1) / 3) * 3 + 3);
+            $dateFrom = "{$y}-{$qStartMonth}-01";
+            $dateTo = date('Y-m-t', strtotime("{$y}-{$qEndMonth}-01"));
+        } elseif ($period === 'year') {
+            $y = date('Y', strtotime($today));
+            $dateFrom = "{$y}-01-01";
+            $dateTo = "{$y}-12-31";
         } elseif ($period === 'custom') {
             $dateFrom = trim((string) $request->query('date_from', substr($today, 0, 8) . '01'));
             $dateTo = trim((string) $request->query('date_to', $today));
@@ -261,12 +274,66 @@ class ReportsAndAdminController
         $doctorActivityList = array_values($doctorStats);
         usort($doctorActivityList, static fn(array $a, array $b): int => $b['consultations_completed'] <=> $a['consultations_completed']);
 
+        // Motifs de consultation les plus fréquents (Médecine Générale)
+        $reasonsStats = [];
+        $patientAptMap = [];
+        foreach ($apts as $a) {
+            $r = trim($a['reason'] ?? '');
+            if ($r === '') {
+                $r = trim($a['service_name'] ?? 'Consultation Générale');
+            }
+            if (!isset($reasonsStats[$r])) {
+                $reasonsStats[$r] = ['reason' => $r, 'count' => 0, 'completed' => 0];
+            }
+            $reasonsStats[$r]['count']++;
+            if ($a['status'] === 'completed') {
+                $reasonsStats[$r]['completed']++;
+            }
+
+            $pid = (int) $a['patient_id'];
+            if ($pid > 0) {
+                if (!isset($patientAptMap[$pid])) {
+                    $patientAptMap[$pid] = ['patient_id' => $pid, 'total' => 0, 'completed' => 0, 'fee' => 0.0];
+                }
+                $patientAptMap[$pid]['total']++;
+                if ($a['status'] === 'completed') {
+                    $patientAptMap[$pid]['completed']++;
+                    $patientAptMap[$pid]['fee'] += (float) $a['fee_mad'];
+                }
+            }
+        }
+        $topReasonsList = array_values($reasonsStats);
+        usort($topReasonsList, static fn(array $a, array $b): int => $b['count'] <=> $a['count']);
+        foreach ($topReasonsList as &$trItem) {
+            $trItem['share_pct'] = $totalApts > 0 ? round(($trItem['count'] / $totalApts) * 100, 1) : 0.0;
+        }
+        unset($trItem);
+
         $specialtiesList = array_values($specialtyStats);
         usort($specialtiesList, static fn(array $a, array $b): int => $b['count'] <=> $a['count']);
         foreach ($specialtiesList as &$spItem) {
             $spItem['share_pct'] = $totalApts > 0 ? round(($spItem['count'] / $totalApts) * 100, 1) : 0.0;
         }
         unset($spItem);
+
+        // Nouveaux patients enregistrés sur la période
+        $stNewPat = $pdo->prepare("SELECT COUNT(*) FROM patients WHERE tenant_id = ? AND date(created_at) >= ? AND date(created_at) <= ? AND branch_id IN ({$bPlaceholders})");
+        $stNewPat->execute(array_merge([$tenantId, $dateFrom, $dateTo], $branchIdsFilter));
+        $newPatientsCount = (int) $stNewPat->fetchColumn();
+
+        // Total patients actifs enregistrés
+        $stTotPat = $pdo->prepare("SELECT COUNT(*) FROM patients WHERE tenant_id = ? AND branch_id IN ({$bPlaceholders})");
+        $stTotPat->execute(array_merge([$tenantId], $branchIdsFilter));
+        $totalRegisteredPatients = (int) $stTotPat->fetchColumn();
+
+        // Répartition des Rendez-vous par statut
+        $appointmentsByStatus = [
+            ['status' => 'completed', 'label' => 'Terminés', 'count' => $completedCnt, 'share_pct' => $totalApts > 0 ? round(($completedCnt / $totalApts) * 100, 1) : 0.0],
+            ['status' => 'waiting_in_progress', 'label' => 'En cours / Salle d’attente', 'count' => $inProgressWaitingCnt, 'share_pct' => $totalApts > 0 ? round(($inProgressWaitingCnt / $totalApts) * 100, 1) : 0.0],
+            ['status' => 'confirmed_upcoming', 'label' => 'Confirmés / À venir', 'count' => $confirmedCnt, 'share_pct' => $totalApts > 0 ? round(($confirmedCnt / $totalApts) * 100, 1) : 0.0],
+            ['status' => 'cancelled', 'label' => 'Annulés', 'count' => $cancelledCnt, 'share_pct' => $totalApts > 0 ? round(($cancelledCnt / $totalApts) * 100, 1) : 0.0],
+            ['status' => 'no_show', 'label' => 'Absents non excusés (No-Show)', 'count' => $noShowCnt, 'share_pct' => $totalApts > 0 ? round(($noShowCnt / $totalApts) * 100, 1) : 0.0],
+        ];
 
         $servicesList = array_values($serviceStats);
         usort($servicesList, static fn(array $a, array $b): int => $b['count'] <=> $a['count']);
@@ -437,6 +504,77 @@ class ReportsAndAdminController
             ];
         }
 
+        // Factures impayées de la période
+        $unpaidInvoicesList = [];
+        foreach ($periodInvoices as $inv) {
+            $tot = (float) $inv['total'];
+            $netP = max(0.0, (float) $inv['paid'] - (float) $inv['refunded']);
+            $rem = max(0.0, $tot - $netP);
+            if ($rem > 0.01) {
+                $unpaidInvoicesList[] = [
+                    'id' => (int) $inv['id'],
+                    'num' => $inv['num'],
+                    'patient_id' => (int) $inv['patient_id'],
+                    'patient_name' => $inv['patient_name'],
+                    'doctor_name' => $inv['doctor_name'],
+                    'service' => $inv['service'],
+                    'issued_date' => $inv['issued_date'],
+                    'total' => round($tot, 2),
+                    'paid' => round($netP, 2),
+                    'remaining' => round($rem, 2),
+                    'status' => $inv['status'],
+                ];
+            }
+        }
+        usort($unpaidInvoicesList, static fn($a, $b) => $b['remaining'] <=> $a['remaining']);
+
+        // Historique des encaissements de la période
+        $paymentsHistoryList = [];
+        foreach ($periodPayments as $py) {
+            $paymentsHistoryList[] = [
+                'id' => (int) $py['id'],
+                'invoice_id' => (int) $py['invoice_id'],
+                'receipt_num' => $py['receipt_num'],
+                'amount' => round((float) $py['amount'], 2),
+                'payment_type' => $py['payment_type'],
+                'method' => $py['method'] ?: 'Espèces',
+                'paid_date' => $py['paid_date'],
+                'paid_time' => $py['paid_time'] ?? '',
+                'recorded_by' => $py['recorded_by'] ?? 'Caisse Cabinet',
+                'notes' => $py['notes'] ?? '',
+            ];
+        }
+        usort($paymentsHistoryList, static fn($a, $b) => strcmp(($b['paid_date'] ?? '') . ($b['paid_time'] ?? ''), ($a['paid_date'] ?? '') . ($a['paid_time'] ?? '')));
+
+        // Patients les plus actifs sur la période
+        $topPatientsList = [];
+        if (!empty($patientAptMap)) {
+            $pIds = array_keys($patientAptMap);
+            $pPlaceholders = implode(',', array_fill(0, count($pIds), '?'));
+            $stPat = $pdo->prepare("SELECT id, code, first, last, cin, phone, coverage FROM patients WHERE id IN ({$pPlaceholders})");
+            $stPat->execute($pIds);
+            $patInfo = [];
+            foreach ($stPat->fetchAll() as $p) {
+                $patInfo[(int)$p['id']] = $p;
+            }
+            foreach ($patientAptMap as $pid => $pData) {
+                $pi = $patInfo[$pid] ?? null;
+                $topPatientsList[] = [
+                    'patient_id' => $pid,
+                    'patient_name' => $pi ? trim($pi['first'] . ' ' . $pi['last']) : "Patient #{$pid}",
+                    'code' => $pi['code'] ?? '',
+                    'cin' => $pi['cin'] ?? '',
+                    'phone' => $pi['phone'] ?? '',
+                    'coverage' => $pi['coverage'] ?? '',
+                    'appointments_total' => $pData['total'],
+                    'consultations_completed' => $pData['completed'],
+                    'fees_total_mad' => round($pData['fee'], 2),
+                ];
+            }
+            usort($topPatientsList, static fn($a, $b) => ($b['consultations_completed'] <=> $a['consultations_completed']) ?: ($b['appointments_total'] <=> $a['appointments_total']));
+            $topPatientsList = array_slice($topPatientsList, 0, 15);
+        }
+
         return [
             'filters' => [
                 'period' => $period,
@@ -459,10 +597,20 @@ class ReportsAndAdminController
                 'no_show_rate_pct' => $noShowRatePct,
                 'attendance_rate_pct' => $attendanceRatePct,
             ],
+            'patients_summary' => [
+                'new_patients_count' => $newPatientsCount,
+                'total_registered' => $totalRegisteredPatients,
+                'active_in_period' => count($patientAptMap),
+            ],
             'volume_timeline' => array_values($volumeByDate),
             'doctor_activity' => $doctorActivityList,
+            'top_reasons' => $topReasonsList,
             'top_specialties' => $specialtiesList,
             'top_services' => $servicesList,
+            'appointments_by_status' => $appointmentsByStatus,
+            'top_patients' => $topPatientsList,
+            'unpaid_invoices' => $unpaidInvoicesList,
+            'payments_history' => $paymentsHistoryList,
             'financial_summary' => [
                 'invoiced_amount' => round($invoicedAmount, 2),
                 'gross_collected' => round($grossCollected, 2),
@@ -527,15 +675,23 @@ class ReportsAndAdminController
             fputcsv($out, []);
 
             $as = $report['appointments_summary'];
-            fputcsv($out, ['--- SYNTHÈSE RENDEZ-VOUS & PRÉSENCE ---']);
-            fputcsv($out, ['Total RDV', 'Consultations Réalisées', 'En cours/Attente', 'Annulés', 'Taux Annulation (%)', 'Absents (No-Show)', 'Taux No-Show (%)', 'Taux Présence (%)']);
-            fputcsv($out, [$as['total'], $as['completed'], $as['in_progress_or_waiting'], $as['cancelled'], $as['cancellation_rate_pct'], $as['no_show'], $as['no_show_rate_pct'], $as['attendance_rate_pct']]);
+            $ps = $report['patients_summary'] ?? ['new_patients_count' => 0, 'total_registered' => 0];
+            fputcsv($out, ['--- SYNTHÈSE ACTIVITÉ & PATIENTÈLE (12 KPIS) ---']);
+            fputcsv($out, ['Total RDV', 'Consultations Réalisées', 'Annulations', 'No-Show', 'Taux Présence (%)', 'Nouveaux Patients', 'Patients Actifs Période']);
+            fputcsv($out, [$as['total'], $as['completed'], $as['cancelled'], $as['no_show'], $as['attendance_rate_pct'], $ps['new_patients_count'], $ps['active_in_period'] ?? 0]);
             fputcsv($out, []);
 
             $fs = $report['financial_summary'];
-            fputcsv($out, ['--- SYNTHÈSE FINANCIÈRE (MAD) ---']);
-            fputcsv($out, ['Total Facturé', 'Encaissements Nets Reçus', 'Remboursements / Avoirs', 'Soldes Impayés', 'Dépenses & Charges', 'Trésorerie Nette', 'Factures Partielles']);
-            fputcsv($out, [$fs['invoiced_amount'], $fs['revenue_collected'], $fs['refunds_amount'], $fs['outstanding_global'], $fs['expenses_total'], $fs['net_cashflow'], $fs['partial_payments']['invoices_count']]);
+            fputcsv($out, ['--- SYNTHÈSE FINANCIÈRE OBLIGATOIRE (MAD) ---']);
+            fputcsv($out, ['Total Facturé', 'Total Encaissé', 'Soldes Impayés Période', 'Soldes Impayés Globaux', 'Total Dépenses', 'Trésorerie Nette Période', 'Remboursements']);
+            fputcsv($out, [$fs['invoiced_amount'], $fs['revenue_collected'], $fs['outstanding_period'], $fs['outstanding_global'], $fs['expenses_total'], $fs['net_cashflow'], $fs['refunds_amount']]);
+            fputcsv($out, []);
+
+            fputcsv($out, ['--- MOTIFS DE CONSULTATION LES PLUS FRÉQUENTS ---']);
+            fputcsv($out, ['Motif de Consultation', 'Occurrences', 'Consultations Terminées', 'Part (%)']);
+            foreach ($report['top_reasons'] ?? [] as $tr) {
+                fputcsv($out, [$tr['reason'], $tr['count'], $tr['completed'], $tr['share_pct']]);
+            }
             fputcsv($out, []);
 
             fputcsv($out, ['--- ACTIVITÉ PAR PRATICIEN ---']);
@@ -545,10 +701,24 @@ class ReportsAndAdminController
             }
             fputcsv($out, []);
 
+            fputcsv($out, ['--- FACTURES IMPAYÉES DE LA PÉRIODE ---']);
+            fputcsv($out, ['N° Facture', 'Patient', 'Médecin', 'Date Émission', 'Total Facturé (MAD)', 'Montant Réglé (MAD)', 'Solde Restant (MAD)']);
+            foreach ($report['unpaid_invoices'] ?? [] as $ui) {
+                fputcsv($out, [$ui['num'], $ui['patient_name'], $ui['doctor_name'], $ui['issued_date'], $ui['total'], $ui['paid'], $ui['remaining']]);
+            }
+            fputcsv($out, []);
+
             fputcsv($out, ['--- MODES DE RÈGLEMENT ---']);
             fputcsv($out, ['Mode', 'Transactions', 'Montant (MAD)', 'Part (%)']);
             foreach ($fs['payment_methods'] as $pm) {
                 fputcsv($out, [$pm['method'], $pm['transactions'], $pm['amount'], $pm['share_pct']]);
+            }
+            fputcsv($out, []);
+
+            fputcsv($out, ['--- DÉPENSES PAR CATÉGORIE ---']);
+            fputcsv($out, ['Catégorie', 'Montant (MAD)']);
+            foreach ($fs['expenses_by_category'] as $ec) {
+                fputcsv($out, [$ec['category'], $ec['amount']]);
             }
             fputcsv($out, []);
 
